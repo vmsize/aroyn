@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {writeFile} from 'node:fs/promises';
 import {performance} from 'node:perf_hooks';
 import {createRuntime} from './runtime.mjs';
-import {runDataRetention} from '../workers/shared/data-lifecycle.js';
+import {drainRetention} from './retention-helpers.mjs';
 const runtime=await createRuntime({mock:true});
 const DAY=86400000,now=Date.now()+8*DAY;
 const results=[];
@@ -22,13 +22,13 @@ try{
   const countedStorage={idFromName:key=>storage.idFromName(key),get(id){const stub=storage.get(id);return {fetch(...args){counts.expiryCoordinator++;return stub.fetch(...args)}}}};
   const countedCache={idFromName:key=>cache.idFromName(key),get(id){const stub=cache.get(id);return {fetch(...args){counts.cacheInvalidation++;return stub.fetch(...args)}}}};
   const env={DB:runtime.db,PAYLOADS:countedBucket,SNAPSHOT_STORAGE:countedStorage,STATS_CACHE:countedCache};
-  const begin=performance.now();const removed=await runDataRetention(env,now);const elapsedMs=Math.round(performance.now()-begin);
+  const begin=performance.now();const removed=await drainRetention(env,now);const elapsedMs=Math.round(performance.now()-begin);
   assert.equal(removed.snapshotsRemoved,size);assert.equal(removed.pendingDeletions,0);
   const remaining=await bucket.list();assert.equal(remaining.objects.length,3);assert(remaining.objects.every(o=>o.key.includes('/revoked/')));
   const histories=await runtime.db.prepare('SELECT COUNT(*) AS n FROM analytics_sessions').first();assert.equal(histories.n,size===100?10:20);
-  const again=await runDataRetention(env,now);assert.equal(again.snapshotsRemoved,0);
-  results.push({expiredSnapshots:size,expiredHistoryRows:size,freshHistoryRowsPreserved:histories.n,revocationMarkersPreserved:3,elapsedMs,operationCountsIncludingIdempotenceRun:counts});
+  const again=await drainRetention(env,now);assert.equal(again.snapshotsRemoved,0);
+  results.push({expiredSnapshots:size,expiredHistoryRows:size,freshHistoryRowsPreserved:histories.n,revocationMarkersPreserved:3,elapsedMs,steps:removed.steps,operationCountsIncludingIdempotenceRun:counts});
   console.log(JSON.stringify(results.at(-1)));
  }
- await writeFile(new URL('./retention-capacity-results.json',import.meta.url),JSON.stringify({date:'2026-10-01',passed:true,scope:'local real Miniflare D1/R2/DO bindings; fixture clock advances eight days, small synthetic snapshots; no external services',cloudCpuOrQuotaMeasured:false,results},null,2)+'\n');
+ await writeFile(new URL('./retention-capacity-results.json',import.meta.url),JSON.stringify({date:'2026-10-01',passed:true,scope:'local bounded steps drained without alarm delay on real Miniflare D1/R2/DO bindings; fixture clock advances eight days, small synthetic snapshots; no external services',cloudCpuOrQuotaMeasured:false,results},null,2)+'\n');
 }finally{await runtime.mf.dispose();}

@@ -3,7 +3,8 @@ import {writeFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
 import {createRuntime,folder} from './runtime.mjs';
 import apiWorker from '../workers/api/src/worker.js';
-import {finishAccountDeletion,runDataRetention} from '../workers/shared/data-lifecycle.js';
+import {finishAccountDeletion} from '../workers/shared/data-lifecycle.js';
+import {drainRetention} from './retention-helpers.mjs';
 const runtime=await createRuntime({mock:true,ownerDiscordId:'900003'});
 const results=[],sockets=[];
 const api=(path,options={})=>runtime.api.fetch('http://127.0.0.1:8787'+path,{redirect:'manual',...options});
@@ -34,7 +35,8 @@ try {
   const bucket=await runtime.mf.getR2Bucket('PAYLOADS','api');
   const cache=await runtime.mf.getDurableObjectNamespace('STATS_CACHE','api');
   const storage=await runtime.mf.getDurableObjectNamespace('SNAPSHOT_STORAGE','api');
-  const env={DB:runtime.db,PAYLOADS:bucket,STATS_CACHE:cache,SNAPSHOT_STORAGE:storage,API_RATE_LIMITER:{limit:async()=>({success:true})}};
+  const runner=await runtime.mf.getDurableObjectNamespace('RETENTION_RUNNER','api');
+  const env={DB:runtime.db,PAYLOADS:bucket,STATS_CACHE:cache,SNAPSHOT_STORAGE:storage,RETENTION_RUNNER:runner,API_RATE_LIMITER:{limit:async()=>({success:true})}};
   assert.equal((await api('/api/v2/account/export')).status,401);
   assert.equal((await api('/api/v2/account/delete',post('',{confirmation:'DELETE'}))).status,401);
   pass('export and deletion require web authentication');
@@ -62,7 +64,9 @@ try {
   await runtime.db.prepare('UPDATE web_sessions SET created_at=?1 WHERE user_id=?2').bind(Date.now(),a.user.id).run();
   pass('deletion requires exact confirmation and recent Discord login');
   assert.equal((await live('/owner/analytics',get(b.token))).status,200);
-  assert.equal((await api('/api/v2/account/delete',post(a.token,{confirmation:'DELETE'}))).status,200);
+  assert.equal((await api('/api/v2/account/delete',post(a.token,{confirmation:'DELETE'}))).status,202);
+  assert.equal((await api('/api/v2/auth/me',get(a.token))).status,401);
+  await drainRetention(env,Date.now());
   for(const table of ['users','web_sessions','auth_exchanges','roblox_accounts','runtime_session_owners']) {
     const column=table==='users'?'id':table==='web_sessions'||table==='auth_exchanges'?'user_id':'veyra_user_id';
     assert.equal((await runtime.db.prepare(`SELECT COUNT(*) AS count FROM ${table} WHERE ${column}=?1`).bind(a.user.id).first()).count,0);
@@ -98,7 +102,7 @@ try {
   await runtime.db.prepare('INSERT INTO analytics_samples(bucket_start) VALUES (?1)').bind(now-400*86400000).run();
   await bucket.put(`runtime-v3/${c.user.id}/revoked/900025.json`,JSON.stringify({revokedAt:now,robloxUserId:'900025'}));
   await bucket.put('greedy-growers.luau','Synthetic unrelated payload');
-  const cleanup=await runDataRetention(env,now+8*86400000);
+  const cleanup=await drainRetention(env,now+8*86400000);
   assert(cleanup.snapshotsRemoved>=2);
   assert.equal(await runtime.db.prepare('SELECT session_id FROM analytics_sessions WHERE session_id=?1').bind('old-retention-session').first(),null);
   assert(await runtime.db.prepare('SELECT session_id FROM analytics_sessions WHERE session_id=?1').bind('unassigned-legacy-session').first());

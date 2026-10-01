@@ -1,5 +1,4 @@
 import {withSnapshotStorage} from './snapshot-storage.js';
-const DAY = 86400000;
 export const RETENTION = Object.freeze({historyDays: 30, snapshotDays: 7, webSessionDays: 30, profile: 'until-account-deletion'});
 
 // Ownership is an authenticated Aroyn association, not proof of Roblox ownership.
@@ -34,12 +33,17 @@ export async function invalidateDataCaches(env) {
   if (!response.ok) throw new Error('Analytics cache invalidation failed');
 }
 
-export async function finishAccountDeletion(env, job) {
+export async function finishAccountDeletion(env, job, {maxObjects = 25} = {}) {
   env = withSnapshotStorage(env);
   const id = job.user_id;
+  let removed = 0;
   // The account is already marked and all credentials are revoked before R2 I/O.
   for (const prefix of [`runtime-v2/${id}/`, `runtime-v3/${id}/`]) {
-    for await (const object of listObjects(env.PAYLOADS, prefix)) await env.PAYLOADS.delete(object.key);
+    // Always restart from the beginning: completed deletes are absent. No
+    // account cursor can skip a late write that raced credential revocation.
+    const page = await env.PAYLOADS.list({prefix, limit: maxObjects - removed});
+    for (const object of page.objects) { await env.PAYLOADS.delete(object.key); removed++; }
+    if (page.truncated || removed >= maxObjects) return false;
   }
   if (job.legacy_key_hash) await env.PAYLOADS.delete(`runtime-v1/${job.legacy_key_hash}.json`);
   await env.DB.batch([
@@ -56,37 +60,15 @@ export async function finishAccountDeletion(env, job) {
     env.DB.prepare('DELETE FROM users WHERE id=?1').bind(id),
     env.DB.prepare('DELETE FROM account_deletions WHERE user_id=?1').bind(id),
   ]);
+  return true;
 }
 
-export async function runDataRetention(env, now = Date.now()) {
-  env = withSnapshotStorage(env);
-  // A failed deletion remains revoked and retries on the next scheduled run.
-  const jobs = await env.DB.prepare('SELECT * FROM account_deletions ORDER BY requested_at LIMIT 100').all();
-  let pending = 0;
-  for (const job of jobs.results || []) {
-    try { await finishAccountDeletion(env, job); } catch { pending++; }
-  }
-  const cutoff = now - RETENTION.historyDays * DAY;
-  await env.DB.batch([
-    env.DB.prepare('DELETE FROM analytics_sessions WHERE last_seen_at < ?1').bind(cutoff),
-    env.DB.prepare('DELETE FROM runtime_session_owners WHERE last_seen_at < ?1').bind(cutoff),
-    env.DB.prepare('DELETE FROM runtime_presence WHERE last_seen_at < ?1').bind(now - 15 * 60000),
-    env.DB.prepare('DELETE FROM live_presence WHERE last_seen_at < ?1').bind(now - 15 * 60000),
-    env.DB.prepare('DELETE FROM roblox_profile_cache WHERE updated_at < ?1').bind(cutoff),
-    env.DB.prepare('DELETE FROM web_sessions WHERE expires_at <= ?1').bind(now),
-    env.DB.prepare('DELETE FROM auth_exchanges WHERE expires_at <= ?1').bind(now),
-    env.DB.prepare('DELETE FROM owner_analytics_cache'),
-  ]);
-  let snapshotsRemoved = 0;
-  for (const prefix of ['runtime-v1/', 'runtime-v2/', 'runtime-v3/']) {
-    for await (const object of listObjects(env.PAYLOADS, prefix)) {
-      // Revocation markers persist until explicit relink/account deletion.
-      if (object.key.includes('/revoked/') || object.uploaded.getTime() >= now - RETENTION.snapshotDays * DAY) continue;
-      if (await env.PAYLOADS.expire(object.key, object.etag, now - RETENTION.snapshotDays * DAY)) snapshotsRemoved++;
-    }
-  }
-  await invalidateDataCaches(env);
-  return {pendingDeletions: pending, snapshotsRemoved};
+export async function runDataRetention(env, now = Date.now(), {deletionRequested = false} = {}) {
+  if (!env.RETENTION_RUNNER) throw new Error('Retention continuation binding unavailable');
+  const stub = env.RETENTION_RUNNER.get(env.RETENTION_RUNNER.idFromName('daily'));
+  const response = await stub.fetch('https://internal/start', {method: 'POST', headers: {'x-retention-now': String(now), 'x-retention-deletion': String(deletionRequested)}});
+  if (!response.ok) throw new Error('Retention continuation could not be scheduled');
+  return response.json();
 }
 
 export async function accountExport(request, env, session, requireSession) {

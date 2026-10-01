@@ -2,6 +2,7 @@
 import {RETENTION, claimRuntimeSession, accountExport, finishAccountDeletion, runDataRetention} from '../../shared/data-lifecycle.js';
 import {withSnapshotStorage} from '../../shared/snapshot-storage.js';
 export {AroynSnapshotStore} from '../../shared/snapshot-storage.js';
+export {AroynRetentionRunner} from '../../shared/retention-runner.js';
 import {stagingRestricted, stagingAccessReady, discordAccessAllowed} from '../../shared/staging-access.js';
 
 class RequestInputError extends Error {
@@ -444,7 +445,7 @@ async function handleAccountDataApi(request, env) {
         if (Date.now() - Number(auth.session.user.web_session_created_at || 0) > 15 * 60000) {
             return jsonResponse(request, env, {error: 'Sign in with Discord again before deleting your account.', code: 'REAUTH_REQUIRED'}, 403);
         }
-        if (!env.STATS_CACHE) return jsonResponse(request, env, {error: 'Account deletion is temporarily unavailable.'}, 503);
+        if (!env.STATS_CACHE || !env.RETENTION_RUNNER) return jsonResponse(request, env, {error: 'Account deletion is temporarily unavailable.'}, 503);
         const id = auth.session.user.id;
         await env.DB.batch([
             env.DB.prepare('INSERT OR IGNORE INTO account_deletions (user_id, requested_at, legacy_key_hash) SELECT id, ?2, dashboard_key_hash FROM users WHERE id=?1').bind(id, Date.now()),
@@ -454,12 +455,13 @@ async function handleAccountDataApi(request, env) {
         ]);
         const job = await env.DB.prepare('SELECT * FROM account_deletions WHERE user_id=?1').bind(id).first();
         try {
-            if (job) await finishAccountDeletion(env, job);
-            return jsonResponse(request, env, {ok: true, deleted: true});
+            if (!job || await finishAccountDeletion(env, job)) return jsonResponse(request, env, {ok: true, deleted: true});
         } catch {
-            return jsonResponse(request, env, {ok: true, deleted: false, pending: true,
-                message: 'Access revoked. Stored-data cleanup is pending and will retry automatically.'}, 202);
+            // Credentials are already revoked; the durable job remains pending.
         }
+        try { await runDataRetention(env, Date.now(), {deletionRequested: true}); } catch { /* Daily Cron retries a failed wake-up. */ }
+        return jsonResponse(request, env, {ok: true, deleted: false, pending: true,
+            message: 'Access revoked. Stored-data cleanup is pending and will retry automatically.'}, 202);
     }
     return jsonResponse(request, env, {error: 'Not found.'}, 404);
 }
@@ -899,7 +901,7 @@ async function handleLegacyRuntimeApi(request, env) {
 const apiWorker = {
     async scheduled(controller, env) {
         const result = await runDataRetention(env);
-        console.log(JSON.stringify({event: 'account-data-maintenance', ...result}));
+        console.log(JSON.stringify({event: 'account-data-maintenance-enqueued', ...result}));
     },
     async fetch(request, env) {
         try {
@@ -1118,8 +1120,8 @@ const apiWorker = {
             });
         }
 
-        return new Response("Veyra API online", {
-            status: 200,
+        return new Response(url.pathname === '/' ? "Aroyn API online" : "Not found", {
+            status: url.pathname === '/' ? 200 : 404,
             headers: { "Content-Type": "text/plain; charset=utf-8" },
         });
     },

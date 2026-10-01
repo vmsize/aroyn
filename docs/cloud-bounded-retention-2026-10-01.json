@@ -1,0 +1,160 @@
+{
+  "date": "2026-10-01",
+  "passed": true,
+  "scope": "temporary synthetic cloud Worker/D1/R2/DO; native 10-second alarms, real coordinator, stubbed analytics cache invalidation; fixture clock advances eight days; no OAuth or cloud CPU/quota measurement",
+  "elapsedMs": 199536,
+  "checks": [
+    "control route requires probe secret",
+    "overlapping start does not restart sweep",
+    "history removed over bounded steps",
+    "snapshots removed over bounded steps",
+    "native alarms finish without client driving steps",
+    "fresh history preserved",
+    "revocation marker and unrelated payload preserved",
+    "profile preserved"
+  ],
+  "observed": [
+    {
+      "steps": 0,
+      "phase": "deletions",
+      "active": true,
+      "snapshotsRemoved": 0,
+      "historyRows": 271
+    },
+    {
+      "steps": 1,
+      "phase": "history",
+      "active": true,
+      "snapshotsRemoved": 0,
+      "historyRows": 271
+    },
+    {
+      "steps": 2,
+      "phase": "history",
+      "active": true,
+      "snapshotsRemoved": 0,
+      "historyRows": 21
+    },
+    {
+      "steps": 3,
+      "phase": "history",
+      "active": true,
+      "snapshotsRemoved": 0,
+      "historyRows": 1
+    },
+    {
+      "steps": 4,
+      "phase": "history",
+      "active": true,
+      "snapshotsRemoved": 0,
+      "historyRows": 1
+    },
+    {
+      "steps": 5,
+      "phase": "history",
+      "active": true,
+      "snapshotsRemoved": 0,
+      "historyRows": 1
+    },
+    {
+      "steps": 6,
+      "phase": "history",
+      "active": true,
+      "snapshotsRemoved": 0,
+      "historyRows": 1
+    },
+    {
+      "steps": 7,
+      "phase": "history",
+      "active": true,
+      "snapshotsRemoved": 0,
+      "historyRows": 1
+    },
+    {
+      "steps": 8,
+      "phase": "history",
+      "active": true,
+      "snapshotsRemoved": 0,
+      "historyRows": 1
+    },
+    {
+      "steps": 9,
+      "phase": "history",
+      "active": true,
+      "snapshotsRemoved": 0,
+      "historyRows": 1
+    },
+    {
+      "steps": 10,
+      "phase": "snapshots",
+      "active": true,
+      "snapshotsRemoved": 0,
+      "historyRows": 1
+    },
+    {
+      "steps": 11,
+      "phase": "snapshots",
+      "active": true,
+      "snapshotsRemoved": 0,
+      "historyRows": 1
+    },
+    {
+      "steps": 12,
+      "phase": "snapshots",
+      "active": true,
+      "snapshotsRemoved": 0,
+      "historyRows": 1
+    },
+    {
+      "steps": 13,
+      "phase": "snapshots",
+      "active": true,
+      "snapshotsRemoved": 24,
+      "historyRows": 1
+    },
+    {
+      "steps": 14,
+      "phase": "snapshots",
+      "active": true,
+      "snapshotsRemoved": 49,
+      "historyRows": 1
+    },
+    {
+      "steps": 15,
+      "phase": "invalidate",
+      "active": true,
+      "snapshotsRemoved": 63,
+      "historyRows": 1
+    },
+    {
+      "steps": 16,
+      "phase": "complete",
+      "active": false,
+      "snapshotsRemoved": 63,
+      "historyRows": 1
+    }
+  ],
+  "final": {
+    "progress": {
+      "active": false,
+      "completedAt": 1790872275795,
+      "now": 1791563263035,
+      "steps": 16,
+      "snapshotsRemoved": 63,
+      "objectsVisited": 64,
+      "rowsRemoved": 270,
+      "pendingDeletions": 0,
+      "failures": 0
+    },
+    "history": [
+      "fresh-fixture"
+    ],
+    "keys": [
+      "runtime-v3/fixture/revoked/one.json",
+      "unrelated-fixture.json"
+    ],
+    "profiles": 1
+  },
+  "temporaryResourcesRemoved": true,
+  "followupDeletionFlagTestedInCloud": false
+}

@@ -10,7 +10,7 @@ Profile/avatar menu → **Account data** (`/dashboard/account/`). The page check
 - **Delete account…** requires exactly `DELETE` and a Discord web session created within 15 minutes. Older sessions require signing in and confirming again. Cancel or Escape clears confirmation.
 - Deletion first revokes all web sessions, exchange codes and dashboard-key access. Live checks reject the deletion marker. The current browser clears Aroyn local/session storage; other tabs react to session removal. Local caches on other devices cannot be remotely erased.
 - Cleanup removes owned records and the profile. Later sign-in creates a new empty Aroyn account. Discord and Roblox accounts are unaffected.
-- On cleanup failure, HTTP 202 means access is revoked but deletion is pending. The persistent job blocks new sign-in and retries on the daily scheduled run. A pending job must not be described as completed deletion.
+- When cleanup exceeds a 25-object portion or fails, HTTP 202 means access is revoked but deletion is pending. The persistent job blocks new sign-in and wakes the continuation runner and remains eligible for daily Cron recovery. A pending job must not be described as completed deletion.
 
 ## Approved retention
 
@@ -25,7 +25,7 @@ Profile/avatar menu → **Account data** (`/dashboard/account/`). The page check
 | Web sessions | Up to 30 days, or earlier revocation |
 | Aggregate samples/peaks without account IDs | Retained |
 
-The example API cron runs daily at 03:17 UTC. Expiration is cleanup on the next successful run, not an exact deletion instant. Provider logs, backups and external caches require separate production review.
+The example API cron runs daily at 03:17 UTC and enqueues a durable cycle. Alarms process bounded portions with saved progress. Expiration is cleanup on the next successful run, not an exact deletion instant. Provider logs, backups and external caches require separate production review.
 
 ## Legacy data and ownership
 
@@ -35,9 +35,9 @@ Unassigned older history is not automatically assigned/exported/deleted merely b
 
 ## Deployment
 
-Apply both D1 migrations to the shared DB. The API `STATS_CACHE` binding must target `VeyraStatsHub` in the actual live Worker (`script_name` equals that Worker's name). Provision/deploy that live Worker and its DO migration first. Both Workers use the same D1 database/R2 bucket.
+Apply all three D1 migrations, including 0003_retention_indexes.sql to the shared DB. The API `STATS_CACHE` binding must target `VeyraStatsHub` in the actual live Worker (`script_name` equals that Worker's name). Provision/deploy that live Worker and its DO migration first. Both Workers use the same D1 database/R2 bucket.
 
-The API also requires its own `SNAPSHOT_STORAGE` binding to `AroynSnapshotStore`, with the `snapshot-storage-v1` SQLite DO migration from the example configuration. Every runtime R2 mutation uses a coordinator determined by the full object key. Retention checks the listed ETag and current upload date inside that same coordinator before deleting. An update either happens before the check (so a replaced object is retained), or after deletion (so the fresh write remains). The queue does not store telemetry or account rows in DO storage. It uses an instance-local awaited promise chain, never a module-global lock. Missing coordination fails runtime writes closed rather than bypassing the guard. Administrative direct R2 writes bypass this mechanism and must not race cleanup.
+The API requires a local RETENTION_RUNNER binding to AroynRetentionRunner and its retention-runner-v1 SQLite DO migration. It also requires its own `SNAPSHOT_STORAGE` binding to `AroynSnapshotStore`, with the `snapshot-storage-v1` SQLite DO migration from the example configuration. Every runtime R2 mutation uses a coordinator determined by the full object key. Retention checks the listed ETag and current upload date inside that same coordinator before deleting. An update either happens before the check (so a replaced object is retained), or after deletion (so the fresh write remains). The queue does not store telemetry or account rows in DO storage. It uses an instance-local awaited promise chain, never a module-global lock. Missing coordination fails runtime writes closed rather than bypassing the guard. Administrative direct R2 writes bypass this mechanism and must not race cleanup.
 
 Deletion refuses to begin without the binding. A failed target leaves access revoked and cleanup pending. Cache invalidation waits for earlier in-flight cache computations, clears memory caches and removes persisted cache entries. Scheduled retention invalidates analytics too. Enable the API scheduled trigger and monitor failures/pending jobs.
 
@@ -45,7 +45,7 @@ Deletion refuses to begin without the binding. A failed target leaves access rev
 
 Nine synthetic lifecycle groups passed, covering two accounts claiming the same Roblox ID, pagination beyond 100 records/objects, revocation, an R2 outage, idempotent retry, a new account after deletion and simulated expiry. The existing 29-group security suite was rerun successfully. UI checks covered profile navigation, desktop/mobile dark/light rendering, exact confirmation and Escape cancellation. On 2026-10-01 the owner's downloaded JSONL file confirmed browser saving for an empty synthetic account: valid manifest/account/completion records with the approved retention and no credential fields. It contained no history or snapshots, so populated-account browser exports still need verification.
 
-The former R2 head/delete race is now guarded by the per-key mutation coordinator. Eight local checks passed, including a deterministic write arriving while deletion is paused and twelve real Miniflare DO/R2 expiry/replacement runs in both request orders. Actual cloud scheduled execution and further push/unlink/deletion races still need separate verification. The API rechecks access after writing and removes late objects, but D1/R2 operations are not one transaction. The sweep scans all stored objects and processes up to 100 deletion jobs per run; measure duration and add bounded continuations before exceeding one invocation's limits.
+The former R2 head/delete race is now guarded by the per-key mutation coordinator. Eight local checks passed, including a deterministic write arriving while deletion is paused and twelve real Miniflare DO/R2 expiry/replacement runs in both request orders. Actual cloud scheduled execution and further push/unlink/deletion races still need separate verification. The API rechecks access after writing and removes late objects, but D1/R2 operations are not one transaction. Retention now visits at most 25 snapshot objects or deletes 250 history rows per step, with saved checkpoints and alarm continuation. Account finalization includes scoped SQL/cascades whose work is not covered by the history limit. See [bounded retention](bounded-retention.md). Long backlogs and further lifecycle races remain separate gates.
 
 References: [D1 batches](https://developers.cloudflare.com/d1/worker-api/d1-database/), [R2 Workers API](https://developers.cloudflare.com/r2/api/workers/workers-api-reference/), [Cron triggers](https://developers.cloudflare.com/workers/configuration/cron-triggers/), [DO bindings](https://developers.cloudflare.com/durable-objects/get-started/).
 

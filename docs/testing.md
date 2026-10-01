@@ -7,7 +7,7 @@ npm ci --ignore-scripts
 npm test
 ```
 
-The seven suites run sequentially and fail the process on a failed assertion (94 check groups):
+The eight suites run sequentially and fail the process on a failed assertion (107 check groups):
 
 | Suite | Checks | Scope |
 | --- | ---: | --- |
@@ -18,6 +18,7 @@ The seven suites run sequentially and fail the process on a failed assertion (94
 | snapshot-race-check | 8 | Serialized expiry/replacement races, including twelve real Miniflare runs |
 | access-check | 20 | Restricted account access, allowlist changes and initial-link ordering |
 | hibernation-check | 9 | Forced local object eviction, restored socket roles/isolation, credential revocation, persisted rate counter and authorization alarm |
+| retention-check | 13 | Bounded expiry, checkpoint replay/backoff, failed-job isolation, follow-up cycles and native alarms after eviction |
 
 The Miniflare harness refuses non-mock mode and replaces external Discord/Roblox calls with synthetic responses. Each backend suite has a fresh D1/R2 store. The tests never load private credentials. Result JSON files are ignored by Git. The pinned prerelease Miniflare version uses its V4 options converter; update the harness alongside any dependency upgrade.
 
@@ -35,4 +36,4 @@ An optional larger retention check is separate from the default CI gate:
 npm run test:capacity
 ```
 
-It uses local D1/R2/DO bindings with small synthetic snapshots and an eight-day advanced fixture clock. The 100- and 1000-object batches passed expiry, fresh-history preservation, revocation-marker preservation and a repeated empty cleanup. Wall time and operation counts are local observations; this does not measure cloud CPU, quotas, cost or supported user count.
+It drains bounded steps without their normal ten-second alarm delay using local D1/R2/DO bindings, small synthetic snapshots and an eight-day advanced fixture clock. The 100- and 1000-object batches passed expiry, fresh-history preservation, revocation-marker preservation and a repeated empty cleanup. Wall time and operation counts are local observations; this does not measure cloud CPU, quotas, cost or supported user count. See [bounded retention](bounded-retention.md).

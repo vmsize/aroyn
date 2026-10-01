@@ -12,7 +12,7 @@
   "d1_databases": [{ "binding": "DB", "database_name": "aroyn-example", "database_id": "REPLACE_WITH_D1_ID", "migrations_dir": "migrations" }],
   "r2_buckets": [{ "binding": "PAYLOADS", "bucket_name": "REPLACE_WITH_BUCKET_NAME" }],
   "ratelimits": [{ "name": "API_RATE_LIMITER", "namespace_id": "1002", "simple": { "limit": 120, "period": 60 } }],
-  "durable_objects": { "bindings": [{ "name": "STATS_CACHE", "class_name": "VeyraStatsHub", "script_name": "aroyn-live-example" }, { "name": "SNAPSHOT_STORAGE", "class_name": "AroynSnapshotStore" }] },
-  "migrations": [{ "tag": "snapshot-storage-v1", "new_sqlite_classes": ["AroynSnapshotStore"] }],
+  "durable_objects": { "bindings": [{ "name": "STATS_CACHE", "class_name": "VeyraStatsHub", "script_name": "aroyn-live-example" }, { "name": "SNAPSHOT_STORAGE", "class_name": "AroynSnapshotStore" }, { "name": "RETENTION_RUNNER", "class_name": "AroynRetentionRunner" }] },
+  "migrations": [{ "tag": "snapshot-storage-v1", "new_sqlite_classes": ["AroynSnapshotStore"] }, { "tag": "retention-runner-v1", "new_sqlite_classes": ["AroynRetentionRunner"] }],
   "triggers": { "crons": ["17 3 * * *"] }
 }

@@ -16,9 +16,9 @@ Run npm run test:capacity separately from the normal CI gate. Each batch creates
 
 | Expired snapshots and history rows | Fresh history rows preserved | Initial sweep wall time | Coordinator calls |
 | ---: | ---: | ---: | ---: |
-| 100 each | 10 | 2,945 ms | 100 |
-| 1,000 each | 20 | 32,203 ms | 1,000 |
+| 100 each | 10 | 5,870 ms | 100 |
+| 1,000 each | 20 | 34,970 ms | 1,000 |
 
-The fresh row count accumulates across the two batches. R2 listing and cache-invalidation counts in the JSON include the idempotence run; wall time covers only the first sweep. [Sanitized capacity evidence](local-retention-capacity-2026-10-01.json).
+The fresh row count accumulates across the two batches. R2 listing and cache-invalidation counts in the JSON include the idempotence run; wall time covers the first sweep drained as 17 and 57 bounded steps without the normal alarm delay. These runs overlapped a separate local test process, so the wall times are not a controlled performance comparison. [Sanitized capacity evidence](local-retention-capacity-2026-10-01.json).
 
-These are local measurements, not cloud CPU, cost, quota or concurrent-load measurements. They do not show that the free plan supports 1000 users. The current retention code scans every page in one invocation and calls the coordinator per expired snapshot. Before wider access, review cloud limits and implement a bounded sweep with persisted progress and retry/backlog handling where needed. Normal daily staging Cron execution and recovery from provider-side failures remain separate checks.
+These are local measurements, not cloud CPU, cost, quota or concurrent-load measurements. They do not show that the free plan supports 1000 users. The current code processes bounded pages and saves progress between alarms; it still calls the coordinator per expired snapshot. See [bounded retention](bounded-retention.md). Before wider access, review cloud limits, backlog behavior and account-finalization SQL/cascade work. Normal daily staging Cron execution and recovery from provider-side failures remain separate checks.

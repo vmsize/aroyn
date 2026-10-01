@@ -1,0 +1,65 @@
+{
+  "date": "2026-10-01",
+  "passed": true,
+  "batch": {
+    "objects": 25,
+    "rows": 250,
+    "continuationMs": 10000,
+    "retryMs": 60000
+  },
+  "checks": [
+    {
+      "name": "missing continuation binding fails closed",
+      "pass": true
+    },
+    {
+      "name": "overlapping starts share one persisted cycle and alarm",
+      "pass": true
+    },
+    {
+      "name": "one history step removes at most 250 rows",
+      "pass": true
+    },
+    {
+      "name": "deletion arriving during a sweep schedules a follow-up cycle",
+      "pass": true
+    },
+    {
+      "name": "re-created maintenance instance resumes stored progress",
+      "pass": true
+    },
+    {
+      "name": "one snapshot step expires at most 25 objects",
+      "pass": true
+    },
+    {
+      "name": "R2 failure keeps checkpoint and schedules durable backoff",
+      "pass": true
+    },
+    {
+      "name": "resumed sweep preserves fresh history and revocation markers",
+      "pass": true
+    },
+    {
+      "name": "replaying partially applied page does not skip remaining expiry",
+      "pass": true
+    },
+    {
+      "name": "fresh snapshots are preserved at the cycle cutoff",
+      "pass": true
+    },
+    {
+      "name": "failed deletion stays revoked without starving unrelated jobs",
+      "pass": true
+    },
+    {
+      "name": "real Miniflare alarm and checkpoint survive forced object eviction",
+      "pass": true
+    },
+    {
+      "name": "maintenance status has no public API route",
+      "pass": true
+    }
+  ],
+  "scope": "synthetic local D1/R2/DO; fake checkpoint store for failure tests plus native Miniflare alarm/eviction check; no cloud CPU measurement"
+}

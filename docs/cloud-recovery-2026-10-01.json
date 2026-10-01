@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-01",
+  "source": "actual isolated Cloudflare D1 Time Travel bookmark restore; R2 synthetic copies reconstructed separately",
+  "syntheticAccounts": 2,
+  "topology": "old secret-gated Worker removed; new secret-gated Worker with independent signing secrets and fresh DO namespaces; cache transport and rate limiters stubbed",
+  "identity": "seeded sessions; OAuth not tested",
+  "steps": 26,
+  "checks": [
+    {
+      "name": "new recovery Worker denies public control access",
+      "pass": true
+    },
+    {
+      "name": "actual D1 Time Travel restores previously deleted synthetic profile and history",
+      "pass": true
+    },
+    {
+      "name": "restored bearer session still works inside secret-gated fixture despite fresh signing secrets",
+      "pass": true
+    },
+    {
+      "name": "previously issued live tokens rejected; short expiry not independently excluded",
+      "pass": true
+    },
+    {
+      "name": "incomplete deletion coverage or open-access assertion blocks sanitation",
+      "pass": true
+    },
+    {
+      "name": "initial sanitation revokes every restored session and dashboard key",
+      "pass": true
+    },
+    {
+      "name": "operator-driven checkpoint steps finish without automatically reopening service",
+      "pass": true
+    },
+    {
+      "name": "external manifest replay removes deleted account and preserves other unexpired history",
+      "pass": true
+    },
+    {
+      "name": "restored runtime copies and associations cleared while unrelated payload survives",
+      "pass": true
+    },
+    {
+      "name": "new surviving-account session exports only its preserved history",
+      "pass": true
+    }
+  ],
+  "passed": true,
+  "temporaryR2ObjectsRemaining": 0,
+  "temporaryResourcesRemoved": true
+}

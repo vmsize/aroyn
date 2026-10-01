@@ -1,5 +1,9 @@
 # Source package status — 2026-10-01
 
+## Latest update: isolated recovery
+
+The synthetic recovery drill passed eleven local checks and ten actual-cloud checks. D1 Time Travel restored a previously deleted invented profile; sanitation replayed a separate deletion manifest, revoked every restored session/key, cleared old runtime copies/associations, applied retention and preserved the other profile's recent attributed history/export. The local check also rejected a demonstrably unexpired old live token with a fresh signer. The cloud drill used fresh Worker/DO namespaces and secrets, stubbed cache/rate controls, and no OAuth or live socket. All disposable resources were removed; existing staging was unchanged. The operator helper cannot reopen service automatically. The default gate is now nine suites / 118 groups. A backup-independent production deletion ledger remains absent, so restoring historical real data still requires reliable external coverage or rebuilding an empty store. See [recovery drill](docs/recovery-drill.md).
+
 The owner approved publishing this initial source package, including the supplied mark and synthetic dashboard screenshot. Original project code is MIT, with attribution to vmsize; brand assets have separate terms in BRAND_ASSETS.md. A separate restricted Cloudflare staging derived from this source was deployed on 2026-10-01. General registration remains restricted.
 
 The client 4.3.80 release, owner analytics UI and public status page are now included. The status bot, runtime data, credentials and actual deployment configurations remain outside this package. Some technical Veyra identifiers remain for compatibility.

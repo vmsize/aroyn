@@ -7,7 +7,7 @@ npm ci --ignore-scripts
 npm test
 ```
 
-The eight suites run sequentially and fail the process on a failed assertion (107 check groups):
+The nine suites run sequentially and fail the process on a failed assertion (118 check groups):
 
 | Suite | Checks | Scope |
 | --- | ---: | --- |
@@ -19,6 +19,7 @@ The eight suites run sequentially and fail the process on a failed assertion (10
 | access-check | 20 | Restricted account access, allowlist changes and initial-link ordering |
 | hibernation-check | 9 | Forced local object eviction, restored socket roles/isolation, credential revocation, persisted rate counter and authorization alarm |
 | retention-check | 13 | Bounded expiry, checkpoint replay/backoff, failed-job isolation, follow-up cycles and native alarms after eviction |
+| recovery-check | 11 | Isolated restore, external deletion coverage, credential reset, unexpired old live token, cleanup retry and surviving history/export |
 
 The Miniflare harness refuses non-mock mode and replaces external Discord/Roblox calls with synthetic responses. Each backend suite has a fresh D1/R2 store. The tests never load private credentials. Result JSON files are ignored by Git. The pinned prerelease Miniflare version uses its V4 options converter; update the harness alongside any dependency upgrade.
 
@@ -37,3 +38,5 @@ npm run test:capacity
 ```
 
 It drains bounded steps without their normal ten-second alarm delay using local D1/R2/DO bindings, small synthetic snapshots and an eight-day advanced fixture clock. The 100- and 1000-object batches passed expiry, fresh-history preservation, revocation-marker preservation and a repeated empty cleanup. Wall time and operation counts are local observations; this does not measure cloud CPU, quotas, cost or supported user count. See [bounded retention](bounded-retention.md).
+
+The recovery suite copies synthetic rows/objects between two local runtimes. A separate disposable cloud database exercised real D1 Time Travel and passed ten checks over 26 operator-driven sanitation steps. The cloud drill did not restore staging or real profiles, and a real-data deletion ledger remains a gate. See [recovery scope and limitations](recovery-drill.md).

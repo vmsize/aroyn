@@ -1,0 +1,49 @@
+{
+  "source": "isolated Miniflare; row/object copies; OAuth mocked; not provider Time Travel",
+  "results": [
+    {
+      "name": "backup precedes completed deletion; external synthetic manifest survives separately",
+      "pass": true
+    },
+    {
+      "name": "raw isolated restore resurrects deleted profile and stored bearer session",
+      "pass": true
+    },
+    {
+      "name": "fresh signer rejects demonstrably unexpired old live token while restored linkage can issue a fresh one",
+      "pass": true
+    },
+    {
+      "name": "missing isolation, access freeze, rotations or complete coverage rejects before mutations",
+      "pass": true
+    },
+    {
+      "name": "first recovery step revokes both accounts sessions, exchanges and dashboard keys",
+      "pass": true
+    },
+    {
+      "name": "saved progress cannot continue with changed recovery inputs",
+      "pass": true
+    },
+    {
+      "name": "failed deletion keeps checkpoint and deletion marker for safe retry",
+      "pass": true
+    },
+    {
+      "name": "replayed deletion removes restored account; other profile and unexpired attributed history survive",
+      "pass": true
+    },
+    {
+      "name": "old associations, presence and all runtime copies are cleared; unrelated payload survives",
+      "pass": true
+    },
+    {
+      "name": "completed sanitation is repeatable and never opens access automatically",
+      "pass": true
+    },
+    {
+      "name": "fresh surviving-account session exports preserved history without deleted account records",
+      "pass": true
+    }
+  ]
+}

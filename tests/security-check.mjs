@@ -110,9 +110,11 @@ try {
   result('issued live token rejected after account unlink',(await connect(rt5.token)).status===401);
   result('open runtime closed after account unlink',await closedAfterAction(ws5,()=>ws5.send(JSON.stringify(snapshot))));
   result('unlinked account HTTP push rejected',(await api('/api/v2/runtime/push',post(newKey,snapshot))).status===403);
-  let rateResponse;
-  for(let i=0;i<121;i++) rateResponse=await api('/api/v2/auth/me',{headers:{'CF-Connecting-IP':'198.51.100.10'}});
-  result('HTTP rate limit returns 429',rateResponse.status===429);
+  // An exact 121-call sequential loop can straddle a minute reset and admit
+  // every call. A short 241-request burst exceeds two adjacent 120-call
+  // windows; require a rejection, not a particular completion order.
+  const rateResponses=await Promise.all(Array.from({length:241},()=>api('/api/v2/auth/me',{headers:{'CF-Connecting-IP':'198.51.100.10'}})));
+  result('HTTP rate limit returns 429',rateResponses.some(r=>r.status===429)&&rateResponses.every(r=>[401,429].includes(r.status)));
   result('rate limit is separated by source IP',(await api('/api/v2/auth/me',{headers:{'CF-Connecting-IP':'198.51.100.11'}})).status===401);
   const owner=await live('/owner/analytics',{headers:{authorization:'Bearer '+fresh.token}});
   result('configured owner analytics succeeds',owner.status===200);

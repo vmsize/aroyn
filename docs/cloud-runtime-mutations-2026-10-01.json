@@ -1,0 +1,55 @@
+{
+  "date": "2026-10-01",
+  "source": "isolated actual Cloudflare API/D1/R2/native mutation and snapshot Durable Objects",
+  "identity": "seeded sessions; no OAuth",
+  "cacheAndRateControls": "stubbed in private wrapper",
+  "cloudCpuOrQuotaMeasured": false,
+  "deletionElapsedMs": 1771,
+  "concurrentRequestPairs": 12,
+  "checks": [
+    {
+      "name": "cloud fixture denies public requests without control secret",
+      "pass": true
+    },
+    {
+      "name": "actual cloud mutation coordinator accepts independent synthetic accounts",
+      "pass": true
+    },
+    {
+      "name": "twelve concurrent cloud push/unlink pairs cannot restore removed row or snapshots",
+      "pass": true
+    },
+    {
+      "name": "later telemetry remains blocked by persisted unlink marker",
+      "pass": true
+    },
+    {
+      "name": "explicit relink restores permitted telemetry",
+      "pass": true
+    },
+    {
+      "name": "concurrent disconnect does not replace fresh cash with an older snapshot",
+      "pass": true
+    },
+    {
+      "name": "other synthetic account retains its independent snapshot",
+      "pass": true
+    },
+    {
+      "name": "old key is rejected and new key can continue after rotation",
+      "pass": true
+    },
+    {
+      "name": "cloud deletion clears 5000 owned history rows and 15000 related owner/session/exchange rows",
+      "pass": true
+    },
+    {
+      "name": "large account deletion rejects old access and preserves other account",
+      "pass": true
+    }
+  ],
+  "passed": true,
+  "temporaryR2ObjectsRemaining": 0,
+  "temporaryResourcesRemoved": true,
+  "initialSetupAttempt": "404 before fixture seeding; later diagnostic reached empty fixture and full run passed; initial cause not independently established"
+}

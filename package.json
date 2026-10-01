@@ -10,7 +10,8 @@
   "scripts": {
     "test": "node tests/run.mjs",
     "test:web": "node tests/web-check.mjs",
-    "test:capacity": "node tests/retention-capacity-check.mjs"
+    "test:capacity": "node tests/retention-capacity-check.mjs",
+    "test:account-capacity": "node tests/account-capacity-check.mjs"
   },
   "devDependencies": {
     "miniflare": "5.20260926.1-alpha",

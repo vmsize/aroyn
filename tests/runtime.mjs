@@ -44,7 +44,7 @@ export async function createRuntime({mock=false,port=0,persistPath=null,ownerDis
       {...shared,name:'api',script:apiSource,compatibilityDate:'2026-09-16',
         bindings:{ALLOWED_ORIGIN:'http://127.0.0.1:4173',SITE_ORIGIN:'http://127.0.0.1:4173',DISCORD_REDIRECT_URI:'http://127.0.0.1:8787/api/v2/auth/discord/callback',DISCORD_CLIENT_ID:'local-mock-client',DISCORD_CLIENT_SECRET:'local-mock-secret',TOKEN_SECRET:secrets.tokenSecret,...apiBindings},
         ratelimits:{API_RATE_LIMITER:{namespace_id:'1002',simple:{limit:120,period:60}}},
-        durableObjects:{STATS_CACHE:{className:'VeyraStatsHub',scriptName:'live',useSQLite:true},SNAPSHOT_STORAGE:{className:'AroynSnapshotStore',useSQLite:true},RETENTION_RUNNER:{className:'AroynRetentionRunner',useSQLite:true}}}
+        durableObjects:{STATS_CACHE:{className:'VeyraStatsHub',scriptName:'live',useSQLite:true},SNAPSHOT_STORAGE:{className:'AroynSnapshotStore',useSQLite:true},RETENTION_RUNNER:{className:'AroynRetentionRunner',useSQLite:true},RUNTIME_MUTATIONS:{className:'AroynRuntimeMutations',useSQLite:true}}}
     ]
   }));
   try {

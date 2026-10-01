@@ -1,0 +1,45 @@
+{
+  "source": "deterministic injected class barriers with real local D1/R2/coordinator, plus native Miniflare request pairs; external services mocked",
+  "results": [
+    {
+      "name": "missing account mutation binding fails closed",
+      "pass": true
+    },
+    {
+      "name": "paused mutation for one account does not block another account",
+      "pass": true
+    },
+    {
+      "name": "unlink waits for already accepted push and removes its row and both snapshots",
+      "pass": true
+    },
+    {
+      "name": "push queued after unlink observes persisted revocation and cannot resurrect data",
+      "pass": true
+    },
+    {
+      "name": "disconnect cannot overwrite the fresh push queued behind it",
+      "pass": true
+    },
+    {
+      "name": "unlink preserves compatibility mirror belonging to another Roblox account",
+      "pass": true
+    },
+    {
+      "name": "failed unlink cleanup stays revoked and retry removes leftovers even without account row",
+      "pass": true
+    },
+    {
+      "name": "rotation rejects active old-key result and reauthenticates queued old-key request",
+      "pass": true
+    },
+    {
+      "name": "account deletion during accepted push prevents late restoration and preserves other account",
+      "pass": true
+    },
+    {
+      "name": "native Miniflare mutation namespace preserves unlink outcome over eight concurrent request pairs",
+      "pass": true
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "date": "2026-10-01",
+  "passed": true,
+  "scope": "local Miniflare D1/R2/DO; mocked external services; scoped history SQL and foreign-key cascades; small R2 footprint",
+  "cloudCpuOrQuotaMeasured": false,
+  "results": [
+    {
+      "ownedHistoryRows": 1000,
+      "ownershipRows": 1000,
+      "extraWebSessions": 1000,
+      "authExchanges": 1000,
+      "elapsedMs": 258,
+      "deletedAccountAbsent": true,
+      "unrelatedAccountPreserved": true
+    },
+    {
+      "ownedHistoryRows": 10000,
+      "ownershipRows": 10000,
+      "extraWebSessions": 10000,
+      "authExchanges": 10000,
+      "elapsedMs": 1119,
+      "deletedAccountAbsent": true,
+      "unrelatedAccountPreserved": true
+    }
+  ]
+}

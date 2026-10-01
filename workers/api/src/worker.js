@@ -289,6 +289,7 @@ async function fetchRobloxHeadshot(robloxUserId) {
         endpoint.searchParams.set("isCircular", "true");
         const response = await fetch(endpoint.toString(), {
             headers: { "Accept": "application/json" },
+            signal: AbortSignal.timeout(3000),
         });
         if (!response.ok) return null;
         const body = await response.json().catch(() => ({}));
@@ -673,25 +674,22 @@ async function handleRuntimeV2(request, env) {
         if (!robloxUserId) return jsonResponse(request, env, { error: "Invalid Roblox user ID." }, 400);
 
         const row = await getRobloxAccountRow(env, auth.session.user.id, robloxUserId);
-        if (!row) return jsonResponse(request, env, { ok: true, removed: false, robloxUserId });
-
-        await env.DB.prepare(`DELETE FROM roblox_accounts WHERE veyra_user_id = ?1 AND roblox_user_id = ?2`)
-            .bind(auth.session.user.id, robloxUserId).run();
-
         const accountObjectName = await runtimeAccountObjectName(auth.session.user.id, robloxUserId);
         const revokedObjectName = await runtimeRevokedObjectName(auth.session.user.id, robloxUserId);
-        await Promise.all([
-            env.PAYLOADS.delete(accountObjectName),
-            env.PAYLOADS.put(revokedObjectName, JSON.stringify({ revokedAt: Date.now(), robloxUserId }), {
-                httpMetadata: { contentType: "application/json; charset=utf-8" },
-            }),
-        ]);
+        // Persist revocation first. A failed later cleanup stays blocked and a
+        // repeated unlink must clean leftovers even when its row is absent.
+        await env.PAYLOADS.put(revokedObjectName, JSON.stringify({ revokedAt: Date.now(), robloxUserId }), {
+            httpMetadata: { contentType: "application/json; charset=utf-8" },
+        });
+        await env.DB.prepare(`DELETE FROM roblox_accounts WHERE veyra_user_id = ?1 AND roblox_user_id = ?2`)
+            .bind(auth.session.user.id, robloxUserId).run();
+        await env.PAYLOADS.delete(accountObjectName);
 
         const current = await readRuntimeV2(env, auth.session.user.id);
         const currentId = normalizeRobloxUserId(current.envelope?.robloxUserId || current.envelope?.snapshot?.player?.userId);
         if (currentId === robloxUserId) await env.PAYLOADS.delete(current.objectName);
 
-        return jsonResponse(request, env, { ok: true, removed: true, robloxUserId });
+        return jsonResponse(request, env, { ok: true, removed: Boolean(row), robloxUserId });
     }
 
     if (url.pathname === "/api/v2/runtime/link" && request.method === "POST") {
@@ -739,7 +737,7 @@ async function handleRuntimeV2(request, env) {
             writeRuntimeV2(env, accountObjectName, envelope),
             writeRuntimeV2(env, currentObjectName, envelope),
         ]);
-        const activeUser = await env.DB.prepare('SELECT id FROM users WHERE id=?1 AND NOT EXISTS (SELECT 1 FROM account_deletions WHERE user_id=?1)').bind(linked.user.id).first();
+        const activeUser = await env.DB.prepare('SELECT id FROM users WHERE id=?1 AND dashboard_key_hash=?2 AND NOT EXISTS (SELECT 1 FROM account_deletions WHERE user_id=?1)').bind(linked.user.id, linked.user.dashboard_key_hash).first();
         if (!activeUser) {
             await Promise.all([env.PAYLOADS.delete(accountObjectName), env.PAYLOADS.delete(currentObjectName)]);
             return jsonResponse(request, env, {error: 'Account access revoked.'}, 401);
@@ -898,6 +896,52 @@ async function handleLegacyRuntimeApi(request, env) {
     return jsonResponse(request, env, { error: "Method not allowed." }, 405);
 }
 
+function isRuntimeMutation(request) {
+    const path = new URL(request.url).pathname;
+    return request.method === 'POST' && ['/api/v2/runtime/push', '/api/v2/runtime/link', '/api/v2/runtime/disconnect'].includes(path)
+        || request.method === 'DELETE' && /^\/api\/v2\/runtime\/accounts\/\d+$/.test(path);
+}
+
+// Per-Aroyn-account ordering also protects the shared compatibility mirror
+// across different Roblox accounts. Only active requests use the promise tail;
+// durable revocation/data remain in R2/D1. No credentials or telemetry are
+// stored in DO storage. Awaited work keeps the object alive until completion.
+export class AroynRuntimeMutations {
+    constructor(ctx, env) { this.env = env; this.tail = Promise.resolve(); }
+    fetch(request) {
+        if (!isRuntimeMutation(request)) return new Response('Not found', {status: 404});
+        const task = this.tail.then(async () => {
+            try { return await handleRuntimeV2(request, withSnapshotStorage(this.env)); }
+            catch (error) {
+                if (error instanceof RequestInputError) return jsonResponse(request, this.env, {error: error.message}, error.status);
+                throw error;
+            }
+        });
+        this.tail = task.then(() => undefined, () => undefined);
+        return task;
+    }
+}
+
+async function dispatchRuntimeMutation(request, env) {
+    const dbError = requireDb(request, env);
+    if (dbError) return dbError;
+    let userId;
+    if (request.method === 'DELETE') {
+        const auth = await requireWebSession(request, env);
+        if (auth.error) return auth.error;
+        userId = auth.session.user.id;
+    } else {
+        const linked = await resolveDashboardUser(request, env);
+        if (!linked) return jsonResponse(request, env, {error: 'Invalid or expired dashboard key.'}, 401);
+        userId = linked.user.id;
+    }
+    if (!env.RUNTIME_MUTATIONS) return jsonResponse(request, env, {error: 'Runtime coordination unavailable.'}, 503);
+    const stub = env.RUNTIME_MUTATIONS.get(env.RUNTIME_MUTATIONS.idFromName(userId));
+    // Reauthenticate inside the serialized handler: queued credentials may
+    // have been revoked after the outer routing lookup.
+    return stub.fetch(request);
+}
+
 const apiWorker = {
     async scheduled(controller, env) {
         const result = await runDataRetention(env);
@@ -916,6 +960,7 @@ const apiWorker = {
             if (stagingRestricted(env) && (path === '/loader' || path === '/session' || path === '/payload' || path.startsWith('/game/'))) {
                 return jsonResponse(request, env, {error: 'Script distribution is disabled on the test environment.'}, 410);
             }
+            if (isRuntimeMutation(request)) return await dispatchRuntimeMutation(request, env);
             return await apiWorker.handleRequest(request, env);
         } catch (error) {
             if (error instanceof RequestInputError) return jsonResponse(request, env, {error: error.message}, error.status);

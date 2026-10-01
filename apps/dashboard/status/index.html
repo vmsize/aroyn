@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en" data-theme="dark" data-accent="steel">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="dark light"><meta name="referrer" content="no-referrer">
+  <title>Aroyn — Service status</title><link rel="icon" href="/assets/aroyn-mark.png">
+  <link rel="stylesheet" href="/assets/styles/tokens.css"><link rel="stylesheet" href="/assets/styles/base.css">
+  <link rel="stylesheet" href="/assets/styles/components.css"><link rel="stylesheet" href="/assets/styles/status.css">
+</head>
+<body class="status-page">
+  <header class="status-header"><a class="status-brand" href="/"><img src="/assets/aroyn-mark.png" alt=""><span>Aroyn</span></a><a href="/dashboard/">Open dashboard</a></header>
+  <main class="status-main">
+    <p class="status-kicker">Service status</p><h1>Aroyn availability</h1>
+    <p class="status-intro">Aroyn is in a restricted test. This page checks whether the API and live service respond from your browser. It does not verify sign-in, stored data or game telemetry.</p>
+    <div class="status-summary"><strong data-status-summary role="status">Not checked yet</strong><button class="btn" type="button" data-status-refresh>Check now</button></div>
+    <section class="status-services" aria-label="Service checks">
+      <article class="status-service"><div><h2>Account API</h2><p>Public HTTP health endpoint</p></div><div><strong data-status-api>Not checked</strong><span data-status-api-time></span></div></article>
+      <article class="status-service"><div><h2>Live service</h2><p>Public HTTP health endpoint</p></div><div><strong data-status-live>Not checked</strong><span data-status-live-time></span></div></article>
+    </section>
+    <p class="status-updated" data-status-updated>No check has run.</p>
+    <details class="status-notes"><summary>What do these checks mean?</summary><p>“Responding” means an HTTP health endpoint returned the expected response. Your network, browser restrictions or a server problem can prevent a check. A failed check alone does not establish a service outage.</p><p>Checks run once a minute while this page is visible. No account session or dashboard key is sent. This page has no historical uptime measurement or automatic incident feed.</p></details>
+    <noscript><p>JavaScript is required for availability checks. You can still open the dashboard from the link above.</p></noscript>
+  </main>
+  <footer class="status-footer"><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/cookies/">Cookies &amp; storage</a><span>Aroyn · vmsize</span></footer>
+  <script type="module" src="/assets/js/pages/status.js"></script>
+</body></html>

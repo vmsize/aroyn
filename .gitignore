@@ -11,3 +11,7 @@ dist/
 *.zip
 *.log
 *.obfuscated.luau
+
+.private/
+tests/*-results.json
+tests/security-*-results.json

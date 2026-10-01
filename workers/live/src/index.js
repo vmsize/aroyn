@@ -3295,7 +3295,7 @@ const liveWorker = {
         {
           ok: true,
 
-          service: "veyra-live",
+          service: "aroyn-live",
 
           database: Boolean(env.DB),
 
@@ -3887,7 +3887,7 @@ const liveWorker = {
           {
             ok: false,
 
-            error: "Roblox account is not linked to this Veyra account",
+            error: "Roblox account is not linked to this Aroyn account",
           },
           403,
           env,
@@ -3978,7 +3978,7 @@ const liveWorker = {
           {
             ok: false,
 
-            error: "Roblox account is not linked to this Veyra account",
+            error: "Roblox account is not linked to this Aroyn account",
           },
           403,
           env,

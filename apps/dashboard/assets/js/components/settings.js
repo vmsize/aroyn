@@ -50,7 +50,7 @@ export function mountSettings(){
     panel.querySelectorAll('[data-accent]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.accent===t.accent)));
   }
   sync();
-  window.addEventListener('veyra:theme',sync);
+  window.addEventListener('aroyn:theme',sync);
 
   const setOpen=v=>{panel.dataset.open=String(v);trigger.setAttribute('aria-expanded',String(v));};
   trigger.addEventListener('click',e=>{e.stopPropagation();setOpen(panel.dataset.open!=='true')});

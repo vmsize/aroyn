@@ -1,0 +1,19 @@
+{
+  "name": "aroyn",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node tests/run.mjs",
+    "test:web": "node tests/web-check.mjs"
+  },
+  "devDependencies": {
+    "miniflare": "5.20260926.1-alpha",
+    "esbuild": "0.28.1",
+    "ws": "8.21.0"
+  }
+}

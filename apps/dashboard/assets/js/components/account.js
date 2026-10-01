@@ -2,7 +2,7 @@ import { authService } from '../services/auth-service.js';
 import { toast } from '../core/toast.js';
 
 function esc(value){return String(value??'').replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]))}
-function initials(user){const source=user?.displayName||user?.username||'V';return source.trim().slice(0,1).toUpperCase()||'V'}
+function initials(user){const source=user?.displayName||user?.username||'A';return source.trim().slice(0,1).toUpperCase()||'A'}
 
 const discordMark=`<svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.317 4.369A19.791 19.791 0 0 0 15.885 3c-.191.328-.403.769-.552 1.116a18.27 18.27 0 0 0-5.32 0A12.64 12.64 0 0 0 9.46 3a19.736 19.736 0 0 0-4.433 1.369C2.223 8.479 1.48 12.487 1.851 16.438a19.93 19.93 0 0 0 5.43 2.77c.439-.599.823-1.233 1.151-1.897-.63-.239-1.231-.536-1.794-.885.15-.109.297-.222.439-.339 3.458 1.611 7.213 1.611 10.63 0 .143.117.289.23.439.339-.563.349-1.165.646-1.794.885.328.664.712 1.298 1.151 1.897a19.899 19.899 0 0 0 5.43-2.77c.436-4.58-.743-8.551-3.603-12.069ZM8.02 14.121c-1.037 0-1.887-.955-1.887-2.127 0-1.172.831-2.127 1.887-2.127 1.065 0 1.906.964 1.887 2.127 0 1.172-.831 2.127-1.887 2.127Zm7.96 0c-1.037 0-1.887-.955-1.887-2.127 0-1.172.831-2.127 1.887-2.127 1.065 0 1.906.964 1.887 2.127 0 1.172-.822 2.127-1.887 2.127Z"/></svg>`
 

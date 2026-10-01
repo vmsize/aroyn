@@ -11,3 +11,7 @@ Aroyn is the new name for the same product. The current Roblox client still disp
 Open your avatar menu → **Account data** to download your account's data or delete the Aroyn account. Deletion requires a Discord sign-in within the last 15 minutes and typing `DELETE`; it revokes every Aroyn session/key. It does not delete your Discord or Roblox accounts. History expires after 30 days without updates, snapshots after 7 days; cleanup runs daily. See [data scope and limits](account-data.md).
 
 This source package does not include the Roblox client or a public installation method for it. The steps above describe the existing product interface; they do not make the static dashboard preview alone a working live service. For running your own backend, see [local setup](setup.md).
+
+## Updated client launch
+
+The [homepage](https://aroyn-staging.pages.dev/) provides **Copy launch script** and a manual **View launch command** fallback. It copies a command without executing it in the browser. See [client release](client-release.md) for compatible game, endpoints and migration. The [status page](https://aroyn-staging.pages.dev/status/) checks only HTTP availability. Owner analytics uses `/admin/` and server authorization. Dashboard access remains restricted to invited participants.

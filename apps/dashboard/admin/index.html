@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/><meta name="referrer" content="no-referrer"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <meta name="color-scheme" content="dark light"/>
+  <title>Aroyn — Owner Analytics</title>
+  <link rel="icon" sizes="32x32" type="image/png" href="/assets/favicon-32.png"/>
+  <link rel="icon" sizes="16x16" type="image/png" href="/assets/favicon-16.png"/>
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon-180.png"/>
+  <script>(function(){try{var m=(localStorage.getItem('aroyn.theme.mode')??localStorage.getItem('veyra.theme.mode'))||'dark';var a=(localStorage.getItem('aroyn.theme.accent')??localStorage.getItem('veyra.theme.accent'))||'steel';var r=m==='system'?(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'):m;document.documentElement.dataset.theme=r;document.documentElement.dataset.themeMode=m;document.documentElement.dataset.accent=a}catch(e){document.documentElement.dataset.theme='dark';document.documentElement.dataset.accent='steel'}})();</script>
+  <link rel="stylesheet" href="/assets/styles/tokens.css"/>
+  <link rel="stylesheet" href="/assets/styles/base.css"/>
+  <link rel="stylesheet" href="/assets/styles/components.css"/>
+  <link rel="stylesheet" href="/assets/styles/admin-analytics.css"/>
+</head>
+<body class="owner-page">
+  <header class="owner-header">
+    <a class="owner-brand" href="/">
+      <img src="/assets/aroyn-mark.png" alt="Aroyn"/>
+      <span>Aroyn</span>
+      <span class="owner-badge">Owner</span>
+    </a>
+    <div class="owner-header-actions">
+      <a class="btn btn-ghost owner-dashboard-link" href="/dashboard/">Dashboard</a>
+      <button class="btn btn-ghost" id="ownerPause" type="button" aria-pressed="false">Pause updates</button>
+      <button class="btn btn-ghost" id="ownerRefresh" type="button">Refresh</button>
+    </div>
+  </header>
+
+  <main class="owner-main">
+    <section class="owner-gate is-loading" id="ownerGate" aria-live="polite">
+      <div class="owner-gate-mark-wrap" aria-hidden="true">
+        <img class="owner-gate-mark" src="/assets/aroyn-mark.png" alt=""/>
+      </div>
+      <div class="owner-gate-copy">
+        <h1>Owner analytics</h1>
+        <p id="ownerGateText">Checking your Aroyn account…</p>
+      </div>
+      <div class="owner-gate-loader-dots" aria-hidden="true">
+        <span></span><span></span><span></span>
+      </div>
+      <button class="btn btn-primary" id="ownerLogin" type="button" hidden>Sign in with Discord</button>
+    </section>
+
+    <div id="ownerApp" hidden>
+      <section class="owner-title-row">
+        <div>
+          <div class="owner-kicker">Private telemetry</div>
+          <h1>Aroyn analytics</h1>
+          <p>Launches, unique Roblox users, live runtime presence and usage trends.</p>
+        </div>
+        <div class="owner-title-actions">
+          <div class="segmented owner-range" id="ownerRange" aria-label="Analytics range">
+            <button type="button" data-range="24h" aria-pressed="true">24h</button>
+            <button type="button" data-range="7d" aria-pressed="false">7d</button>
+            <button type="button" data-range="30d" aria-pressed="false">30d</button>
+            <button type="button" data-range="90d" aria-pressed="false">90d</button>
+            <button type="button" data-range="all" aria-pressed="false">All</button>
+          </div>
+          <div class="owner-updated" id="ownerUpdated" role="status">—</div>
+        </div>
+      </section>
+
+      <section class="owner-live-strip">
+        <div class="owner-live-dot"></div>
+        <strong>Live runtime presence</strong>
+        <span id="ownerLiveSummary">Waiting for data…</span>
+      </section>
+
+      <section class="owner-metric-grid" id="ownerMetrics"></section>
+
+      <section class="owner-chart-grid">
+        <article class="panel owner-chart-panel">
+          <div class="panel-header">
+            <div><span class="panel-title">Concurrent usage</span><span class="owner-panel-sub">Peak active runtime sessions per bucket</span></div>
+            <div class="owner-legend"><span><i class="legend-script"></i>All scripts</span><span><i class="legend-dashboard"></i>Dashboard linked</span></div>
+          </div>
+          <div class="panel-body"><div class="owner-chart" id="ownerConcurrentChart"></div></div>
+        </article>
+
+        <article class="panel owner-chart-panel">
+          <div class="panel-header">
+            <div><span class="panel-title">Launch activity</span><span class="owner-panel-sub">New Aroyn runtime sessions in the selected range</span></div>
+          </div>
+          <div class="panel-body"><div class="owner-chart" id="ownerLaunchChart"></div></div>
+        </article>
+      </section>
+
+      <section class="panel owner-hour-panel">
+        <div class="panel-header">
+          <div><span class="panel-title">Most active hours</span><span class="owner-panel-sub">Unique users starting Aroyn by your local hour</span></div>
+          <span class="tag" id="ownerTimezone">Local time</span>
+        </div>
+        <div class="panel-body"><div class="owner-hour-chart" id="ownerHourlyChart"></div></div>
+      </section>
+
+      <section class="owner-secondary-grid">
+        <article class="panel">
+          <div class="panel-header"><div><span class="panel-title">Active windows</span><span class="owner-panel-sub">Unique users and launches across rolling periods</span></div></div>
+          <div class="panel-body owner-window-grid" id="ownerActivityWindows"></div>
+        </article>
+        <article class="panel">
+          <div class="panel-header"><div><span class="panel-title">Peak records</span><span class="owner-panel-sub">Highest concurrent usage recorded so far</span></div></div>
+          <div class="panel-body owner-peak-list" id="ownerPeakRecords"></div>
+        </article>
+      </section>
+
+      <section class="panel owner-milestones-panel">
+        <div class="panel-header">
+          <div>
+            <span class="panel-title">Milestones</span>
+            <span class="owner-panel-sub">Growth goals that advance automatically</span>
+          </div>
+        </div>
+        <div class="panel-body owner-milestone-grid" id="ownerMilestones"></div>
+      </section>
+
+      <section class="panel owner-scriptblox-panel" id="ownerScriptBloxPanel">
+        <div class="panel-header owner-scriptblox-header">
+          <div>
+            <span class="panel-title">ScriptBlox</span>
+            <span class="owner-panel-sub" id="ownerScriptBloxSubtitle">Greedy Growers listing performance</span>
+          </div>
+          <a
+            class="btn btn-ghost owner-scriptblox-open"
+            id="ownerScriptBloxOpen"
+            href="https://scriptblox.com/script/Greedy-Growers-Aroyn-Hub-or-or-Auto-Farm-Compost-and-More-228824"
+            target="_blank"
+            rel="noopener noreferrer"
+          >Open listing</a>
+        </div>
+        <div class="panel-body">
+          <div class="owner-scriptblox-state" id="ownerScriptBloxState">Waiting for ScriptBlox data…</div>
+          <div class="owner-scriptblox-metrics" id="ownerScriptBloxMetrics" hidden></div>
+          <div class="owner-scriptblox-meta" id="ownerScriptBloxMeta" hidden></div>
+          <div class="owner-scriptblox-footer">
+            <a href="https://scriptblox.com/" target="_blank" rel="noopener noreferrer">Powered by ScriptBlox.com</a>
+            <span id="ownerScriptBloxUpdated"></span>
+          </div>
+        </div>
+      </section>
+
+      <section class="owner-breakdown-grid">
+        <article class="panel">
+          <div class="panel-header"><span class="panel-title">Versions</span></div>
+          <div class="panel-body owner-breakdown" id="ownerVersions"></div>
+        </article>
+        <article class="panel">
+          <div class="panel-header"><span class="panel-title">Games</span></div>
+          <div class="panel-body owner-breakdown" id="ownerGames"></div>
+        </article>
+        <article class="panel">
+          <div class="panel-header"><span class="panel-title">Places</span></div>
+          <div class="panel-body owner-breakdown" id="ownerPlaces"></div>
+        </article>
+        <article class="panel">
+          <div class="panel-header"><span class="panel-title">Devices</span></div>
+          <div class="panel-body owner-breakdown" id="ownerDevices"></div>
+        </article>
+      </section>
+
+      <section class="panel owner-table-panel">
+        <div class="panel-header owner-users-header">
+          <div>
+            <span class="panel-title">All users</span>
+            <span class="owner-panel-sub" id="ownerAllUsersCount">Every unique Roblox user ever seen</span>
+          </div>
+        </div>
+        <div class="owner-user-toolbar">
+          <label class="owner-user-search">
+            <span class="sr-only">Search users</span>
+            <input id="ownerUserSearch" type="search" autocomplete="off" spellcheck="false" placeholder="Search UserId, username or display name"/>
+          </label>
+          <div class="owner-user-filters" aria-label="User filters">
+            <button class="owner-filter-chip" type="button" data-user-filter="online" aria-pressed="false">Online</button>
+            <button class="owner-filter-chip" type="button" data-user-filter="dashboard" aria-pressed="false">Dashboard linked</button>
+            <button class="owner-filter-chip" type="button" data-user-filter="today" aria-pressed="false">First seen today</button>
+            <div class="segmented owner-device-filter" id="ownerDeviceFilter" aria-label="Device filter">
+              <button type="button" data-device="all" aria-pressed="true">All devices</button>
+              <button type="button" data-device="mobile" aria-pressed="false">Mobile</button>
+              <button type="button" data-device="desktop" aria-pressed="false">Desktop</button>
+            </div>
+          </div>
+        </div>
+        <div tabindex="0" role="region" aria-label="Analytics table; scroll to see additional columns" class="owner-table-wrap owner-users-wrap owner-scroll-list owner-scroll-list-users">
+          <table class="owner-table owner-users-table">
+            <thead><tr><th scope="col">Player</th><th scope="col">User ID</th><th scope="col">Device</th><th scope="col">Dashboard</th><th scope="col">First seen</th></tr></thead>
+            <tbody id="ownerAllUsers"></tbody>
+          </table>
+        </div>
+        <div class="owner-users-empty" id="ownerAllUsersEmpty" hidden>No users recorded yet.</div>
+      </section>
+
+      <section class="panel owner-table-panel">
+        <div class="panel-header">
+          <div><span class="panel-title">Online now</span><span class="owner-panel-sub" id="ownerOnlineCount">0 sessions</span></div>
+        </div>
+        <div tabindex="0" role="region" aria-label="Analytics table; scroll to see additional columns" class="owner-table-wrap owner-scroll-list owner-scroll-list-compact">
+          <table class="owner-table">
+            <thead><tr><th scope="col">Roblox user</th><th scope="col">Game</th><th scope="col">Device</th><th scope="col">Version</th><th scope="col">Dashboard</th><th scope="col">Started</th><th scope="col">Last seen</th></tr></thead>
+            <tbody id="ownerOnlineRows"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel owner-table-panel">
+        <div class="panel-header">
+          <div><span class="panel-title">Recent launches</span><span class="owner-panel-sub">Latest 30 runtime sessions</span></div>
+        </div>
+        <div tabindex="0" role="region" aria-label="Analytics table; scroll to see additional columns" class="owner-table-wrap owner-scroll-list owner-scroll-list-compact">
+          <table class="owner-table">
+            <thead><tr><th scope="col">Roblox user</th><th scope="col">Game</th><th scope="col">Device</th><th scope="col">Version</th><th scope="col">Dashboard</th><th scope="col">Started</th><th scope="col">Duration seen</th></tr></thead>
+            <tbody id="ownerRecentRows"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script type="module" src="/assets/js/pages/admin-analytics.js"></script>
+</body>
+</html>

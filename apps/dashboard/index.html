@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="color-scheme" content="dark light">
   <title>Aroyn — Home</title><link rel="icon" type="image/png" href="/assets/aroyn-mark.png">
-  <script>(function(){try{var m=localStorage.getItem('veyra.theme.mode')||'dark';var a=localStorage.getItem('veyra.theme.accent')||'steel';var r=m==='system'?(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'):m;document.documentElement.dataset.theme=r;document.documentElement.dataset.themeMode=m;document.documentElement.dataset.accent=a;}catch(e){document.documentElement.dataset.theme='dark';document.documentElement.dataset.accent='steel';}})();</script>
+  <script>(function(){try{var m=(localStorage.getItem('aroyn.theme.mode')??localStorage.getItem('veyra.theme.mode'))||'dark';var a=(localStorage.getItem('aroyn.theme.accent')??localStorage.getItem('veyra.theme.accent'))||'steel';var r=m==='system'?(matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'):m;document.documentElement.dataset.theme=r;document.documentElement.dataset.themeMode=m;document.documentElement.dataset.accent=a;}catch(e){document.documentElement.dataset.theme='dark';document.documentElement.dataset.accent='steel';}})();</script>
   <link rel="stylesheet" href="/assets/styles/tokens.css">
   <link rel="stylesheet" href="/assets/styles/base.css">
   <link rel="stylesheet" href="/assets/styles/components.css">
@@ -33,6 +33,16 @@
           <span class="portal-label">Open dashboard</span>
           <span class="portal-bracket" aria-hidden="true">]</span>
         </a>
+        <div class="script-launch" data-script-launch hidden>
+          <button class="script-copy-button" type="button" data-copy-script>Copy launch script <span aria-hidden="true">↗</span></button>
+          <p class="script-copy-status" role="status" data-copy-status></p>
+          <details>
+            <summary>View launch command</summary>
+            <label for="launchCommand">Aroyn Hub launch command</label>
+            <textarea id="launchCommand" data-launch-command rows="3" readonly spellcheck="false"></textarea>
+            <p>Starts Aroyn Hub in Greedy Growers. Dashboard access requires an invited account during the test.</p>
+          </details>
+        </div>
       </div>
     </section>
 
@@ -45,7 +55,7 @@
   </main>
 
   <footer class="home-policy-footer" aria-label="Project notices">
-    <nav aria-label="Privacy and terms"><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/cookies/">Cookies &amp; storage</a></nav>
+    <nav aria-label="Project links"><a href="/status/">Service status</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/cookies/">Cookies &amp; storage</a></nav>
     <span>Aroyn · vmsize</span>
   </footer>
 

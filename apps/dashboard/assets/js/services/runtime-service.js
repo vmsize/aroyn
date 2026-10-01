@@ -27,7 +27,7 @@ function toneToLevel(tone) {
   return tone === 'success' ? 'success' : tone === 'warning' ? 'warning' : tone === 'error' ? 'error' : tone === 'diagnostic' ? 'debug' : 'info';
 }
 
-class VeyraRuntimeService {
+class AroynRuntimeService {
   constructor() {
     this.state = clone(mockRuntime);
     this.state.live = null;
@@ -106,7 +106,7 @@ class VeyraRuntimeService {
     const snapshot = this.getSnapshot();
     this.listeners.forEach(fn => {
       try { fn(snapshot); }
-      catch (err) { console.error('[Veyra] runtime listener failed', err); }
+      catch (err) { console.error('[Aroyn] runtime listener failed', err); }
     });
   }
 
@@ -281,7 +281,7 @@ class VeyraRuntimeService {
         socket.onmessage = null;
         socket.onerror = null;
         socket.onclose = null;
-        socket.close(1000, 'Veyra reconnect');
+        socket.close(1000, 'Aroyn reconnect');
       } catch {}
     }
 
@@ -637,5 +637,5 @@ class VeyraRuntimeService {
   }
 }
 
-export const runtimeService = new VeyraRuntimeService();
+export const runtimeService = new AroynRuntimeService();
 export { API_DEFAULT as DEFAULT_API_BASE };

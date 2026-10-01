@@ -1,0 +1,15 @@
+.status-page{min-height:100svh;margin:0;background:var(--bg-primary);color:var(--text-primary)}
+.status-header,.status-main,.status-footer{width:min(760px,calc(100% - 32px));margin-inline:auto}
+.status-header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:24px 0;border-bottom:1px solid var(--border-primary)}
+.status-brand{display:flex;align-items:center;gap:12px;font-size:22px;font-weight:700;text-decoration:none}.status-brand img{width:30px;height:38px;object-fit:contain}
+.status-header>a,.status-footer>a{min-height:44px;display:inline-flex;align-items:center}
+.status-main{padding:46px 0}.status-kicker{color:var(--text-secondary);font:12px/1.5 var(--font-mono);letter-spacing:.08em;text-transform:uppercase}
+.status-main h1{font-size:clamp(28px,5vw,40px);letter-spacing:-.035em;margin:10px 0 16px}.status-intro{color:var(--text-secondary);line-height:1.75;max-width:66ch}
+.status-summary{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:30px 0 16px}.status-summary .btn{min-height:44px}
+.status-services{border:1px solid var(--border-primary);background:var(--bg-elevated);border-radius:12px;overflow:hidden}
+.status-service{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:24px}.status-service+.status-service{border-top:1px solid var(--border-primary)}
+.status-service h2{font-size:16px;margin:0 0 6px}.status-service p,.status-updated{color:var(--text-secondary);font-size:13px;line-height:1.6;margin:0}.status-service>div:last-child{text-align:right}.status-service strong{font-size:14px}.status-service span{display:block;color:var(--text-secondary);font-size:12px;margin-top:7px}
+.status-updated{margin:16px 0 26px}.status-notes{border:1px solid var(--border-primary);border-radius:8px;padding:14px 18px;color:var(--text-secondary);line-height:1.7}.status-notes summary{min-height:36px;cursor:pointer;color:var(--text-primary)}
+.status-footer{display:flex;flex-wrap:wrap;align-items:center;gap:22px;padding:16px 0 30px;border-top:1px solid var(--border-primary);font-size:13px;color:var(--text-secondary)}
+.status-page a:focus-visible,.status-page button:focus-visible,.status-page summary:focus-visible{outline:2px solid var(--text-primary);outline-offset:4px}
+@media(max-width:420px){.status-main{padding:28px 0}.status-service{padding:18px;gap:12px}.status-summary{align-items:flex-start}.status-header{font-size:13px}.status-footer{gap:14px}}

@@ -64,7 +64,7 @@ document.querySelector('[data-save]')?.addEventListener('click',()=>{
 document.querySelector('[data-reset]')?.addEventListener('click',()=>{
   Object.keys(cfg).forEach(k=>delete cfg[k]);
   Object.assign(cfg,defaults);
-  localStorage.removeItem('veyra.runtime.config');
+  storage.remove('runtime.config');
   runtimeService.updateConfig({...cfg});
   syncSwitches();syncInputs();
   toast('Configuration reset','Local changes were reset without reloading the dashboard.','success');

@@ -158,7 +158,7 @@ function bearerToken(request) {
 }
 
 function requireDb(request, env) {
-    if (!env.DB) return jsonResponse(request, env, { error: "Veyra account database is not configured." }, 503);
+    if (!env.DB) return jsonResponse(request, env, { error: "Aroyn account database is not configured." }, 503);
     return null;
 }
 
@@ -717,7 +717,7 @@ async function handleRuntimeV2(request, env) {
         }
         if (await isRobloxAccountRevoked(env, linked.user.id, robloxUserId)) {
             return jsonResponse(request, env, {
-                error: "This Roblox account was removed from the dashboard. Link the dashboard key again in Veyra Hub → Session.",
+                error: "This Roblox account was removed from the dashboard. Link the dashboard key again in Aroyn Hub → Session.",
                 code: "ROBLOX_ACCOUNT_UNLINKED",
             }, 403);
         }
@@ -858,7 +858,7 @@ async function handleLegacyRuntimeApi(request, env) {
     if (!isRuntimeRoute) return null;
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders(request, env) });
     if (url.pathname === "/api/v1/health") {
-        return jsonResponse(request, env, { ok: true, service: "veyra-runtime-api", storage: "r2", version: 3.1, accounts: Boolean(env.DB), multiRobloxAccounts: true, accountRemoval: true });
+        return jsonResponse(request, env, { ok: true, service: "aroyn-runtime-api", storage: "r2", version: 3.1, accounts: Boolean(env.DB), multiRobloxAccounts: true, accountRemoval: true });
     }
     if (env.ALLOW_LEGACY_RUNTIME !== "true") return jsonResponse(request, env, { error: "Legacy runtime disabled. Use /api/v2/runtime/." }, 410);
     const linked = await resolveDashboardUser(request, env);

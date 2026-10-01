@@ -121,7 +121,7 @@ async function waitForDashboardHydration(){
   await hideRuntimeBootOverlay();
 }
 function showGuestDashboard(message=''){
-  if(!message){try{message=sessionStorage.getItem('veyra.accountDeletionNotice')||'';sessionStorage.removeItem('veyra.accountDeletionNotice')}catch{}}
+  if(!message){try{message=sessionStorage.getItem('aroyn.accountDeletionNotice')??sessionStorage.getItem('veyra.accountDeletionNotice')??'';sessionStorage.removeItem('aroyn.accountDeletionNotice');sessionStorage.removeItem('veyra.accountDeletionNotice')}catch{}}
   document.body.dataset.authState='guest';
   renderAuthGate('guest',message);
   hideSplash();
@@ -141,12 +141,12 @@ export function mountDashboardShell(active){
       showRuntimeBootOverlay();
       mountAuthenticatedShell(active);
       waitForDashboardHydration();
-      window.addEventListener('veyra:auth-logout',()=>location.reload(),{once:true});
+      window.addEventListener('aroyn:auth-logout',()=>location.reload(),{once:true});
     }else{
       showGuestDashboard();
     }
   }).catch(err=>showGuestDashboard(err instanceof Error?err.message:String(err)));
-  window.addEventListener('veyra:auth-error',e=>showGuestDashboard(e.detail?.message||'Discord sign-in failed.'),{once:true});
+  window.addEventListener('aroyn:auth-error',e=>showGuestDashboard(e.detail?.message||'Discord sign-in failed.'),{once:true});
 }
 
 function mountAuthenticatedShell(active){
@@ -253,7 +253,7 @@ function mountDashboardRouter(shell,drawer){
     try{
       // Fetch first so the current page remains perfectly still while waiting
       // for the next document. The visible transition only starts once ready.
-      const response=await fetch(url.pathname+url.search,{headers:{'X-Veyra-Navigation':'soft'}});if(!response.ok)throw new Error(`HTTP ${response.status}`);
+      const response=await fetch(url.pathname+url.search,{headers:{'X-Aroyn-Navigation':'soft'}});if(!response.ok)throw new Error(`HTTP ${response.status}`);
       const html=await response.text();const doc=new DOMParser().parseFromString(html,'text/html');const next=doc.querySelector('#main-content');if(!next)throw new Error('Missing main content');
       const script=scriptFromDocument(doc);const title=doc.title||'Aroyn';
       const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -268,7 +268,7 @@ function mountDashboardRouter(shell,drawer){
 
       main.innerHTML=next.innerHTML;
       document.title=title;
-      if(push)history.pushState({veyra:true},'',url.pathname+url.search+url.hash);
+      if(push)history.pushState({aroyn:true},'',url.pathname+url.search+url.hash);
       setActiveNav(pageKeyFromPath(url.pathname));
       drawer(false);
       if(scrollY>58)window.scrollTo({top:0,behavior:'instant'});
@@ -282,7 +282,7 @@ function mountDashboardRouter(shell,drawer){
       setRouteProgress('done');
     }catch(err){
       main.style.minHeight='';
-      console.warn('[Veyra] Soft navigation failed, falling back to document navigation.',err);
+      console.warn('[Aroyn] Soft navigation failed, falling back to document navigation.',err);
       location.href=url.href;
     }finally{
       navigating=false;

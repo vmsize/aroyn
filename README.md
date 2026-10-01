@@ -1,6 +1,6 @@
 # Aroyn
 
-Aroyn (formerly Veyra) is a web dashboard for Roblox runtime telemetry, backed by Cloudflare Pages and Workers. This repository contains the static website and backend source package. Original project code is licensed under MIT, with attribution to vmsize. The supplied mark has separate permissions for source redistribution and truthful references to Aroyn. See [brand assets](BRAND_ASSETS.md) for scope and provenance. Third-party components retain their own licenses; see [notices](THIRD_PARTY_NOTICES.md).
+Aroyn (formerly Veyra) is a web dashboard for Roblox runtime telemetry, backed by Cloudflare Pages and Workers. This repository contains the static website, backend source and the Aroyn Hub 4.3.80 client release. Original project code is licensed under MIT, with attribution to vmsize. The supplied mark has separate permissions for source redistribution and truthful references to Aroyn. See [brand assets](BRAND_ASSETS.md) for scope and provenance. Third-party components retain their own licenses; see [notices](THIRD_PARTY_NOTICES.md).
 
 Some technical service and class names still use `Veyra` for compatibility.
 
@@ -10,9 +10,12 @@ Some technical service and class names still use `Veyra` for compatibility.
 - `workers/api`: API Worker imported from Cloudflare on 2026-09-30, then hardened locally with bounded JSON, atomic login/key handling, rate controls, account export/deletion and daily retention.
 - `workers/live`: editable live source compared with the deployed bundle before local changes, now with signed presence tokens, revocable live access, scoped cleanup and rate controls. First anonymous reports remain unverified. See [backend review](docs/security-review.md).
 - `workers/shared`: account data lifecycle helpers used by both Workers.
+- `apps/dashboard/releases/4.3.80`: readable Greedy Growers client; `scripts/loader.luau` downloads this fixed release.
+- `apps/dashboard/status` and `admin`: public HTTP availability checks and a server-authorized private owner interface.
+- `tests`: synthetic backend, lifecycle, access and browser-component checks; GitHub Actions runs `npm ci` and `npm test`.
 - `docs`: architecture, usage methodology, data lifecycle and release review notes.
 
-The Roblox client, obfuscated bundles, status bot, runtime data, credentials, and deployment archives are outside this repository.
+Obfuscated bundles, the status bot, runtime data, credentials, actual allowlists and deployment archives are outside this repository. Embedded client assets follow THIRD_PARTY_NOTICES.md and BRAND_ASSETS.md.
 
 ## Preview the dashboard
 
@@ -34,4 +37,16 @@ The site is a static HTML/CSS/JavaScript deployment package; it does not include
 
 Local security, integration and data lifecycle checks passed on isolated synthetic data. A separate restricted HTTPS/WSS staging deployment was tested with its owner: Discord sign-in, live updates, export/deletion, reconnection and key revocation. An isolated cloud Cron test passed 17 retention/concurrency checks using a fixture clock. The profile menu provides **Account data** for export and deletion; retention is 30 days for history and 7 days for snapshots without updates. See [account data](docs/account-data.md) for setup, scope and concurrency limits.
 
-This is an initial source publication. General registration is still restricted. A compatible client rollout, larger-scale lifecycle testing and final provider/privacy review remain before wider service access. See [release status](STATUS.md). The [usage evidence](docs/usage.md) contains aggregate figures and their definitions.
+This is an initial source publication. General registration is still restricted. Larger-scale lifecycle testing and final provider/privacy review remain before wider service access. See [release status](STATUS.md). The [usage evidence](docs/usage.md) contains aggregate figures and their definitions.
+
+## Current restricted test and client
+
+- [Website](https://aroyn-staging.pages.dev/) · [Service status](https://aroyn-staging.pages.dev/status/)
+- [Owner analytics](https://aroyn-staging.pages.dev/admin/): private data requires the configured owner account; a public HTML route grants no data access.
+- The homepage copies the published launch command. It does not execute code in the browser. The script can run independently; dashboard data access remains restricted to invited accounts.
+
+See [client release](docs/client-release.md) for saved-setting migration, compatible endpoints, hashes and test scope. No custom domain is required. For a fork, update the loader base and client endpoints before advertising your own launch command.
+
+## Run synthetic checks
+
+From the repository root, with Node.js 24: `npm ci --ignore-scripts` then `npm test`. External Discord/Roblox responses are mocked and each backend suite uses a fresh synthetic D1/R2 store. No real credentials or Cloudflare account are needed. Tests write ignored result JSON files under `tests/`. See [testing](docs/testing.md) for the limits of local evidence.

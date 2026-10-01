@@ -3,7 +3,7 @@ import { API_BASE } from '../core/config.js';
 
 const API_DEFAULT=API_BASE;
 
-class VeyraAuthService{
+class AroynAuthService{
   constructor(){
     this.apiBase=String(storage.getRaw('runtime.apiBase',API_DEFAULT)||API_DEFAULT).replace(/\/+$/,'');
     this.token=storage.getRaw('auth.session','');
@@ -12,14 +12,15 @@ class VeyraAuthService{
     this.listeners=new Set();
     this.initPromise=null;
     window.addEventListener('storage',event=>{
-      if((event.key==='veyra.auth.session'||event.key===null)&&this.token&&!storage.getRaw('auth.session','')){
+      if((event.key==='aroyn.auth.session'||event.key==='veyra.auth.session'||event.key===null)&&this.token&&(event.newValue===null||event.newValue==='')){
+        storage.setRaw('auth.session','');
         this.token='';this.user=null;this.status='guest';this.emit();
-        window.dispatchEvent(new CustomEvent('veyra:auth-logout'));
+        window.dispatchEvent(new CustomEvent('aroyn:auth-logout'));
       }
     });
   }
   subscribe(fn){this.listeners.add(fn);return()=>this.listeners.delete(fn)}
-  emit(){const snap=this.getSnapshot();this.listeners.forEach(fn=>{try{fn(snap)}catch(err){console.error('[Veyra] auth listener failed',err)}})}
+  emit(){const snap=this.getSnapshot();this.listeners.forEach(fn=>{try{fn(snap)}catch(err){console.error('[Aroyn] auth listener failed',err)}})}
   getSnapshot(){return{status:this.status,token:this.token,user:this.user,apiBase:this.apiBase}}
   isAuthenticated(){return Boolean(this.token&&this.user)}
   authHeaders(extra={}){return this.token?{...extra,Authorization:`Bearer ${this.token}`}:{...extra}}
@@ -30,9 +31,10 @@ class VeyraAuthService{
   }
   async #init(){
     const url=new URL(location.href);
-    const exchange=url.searchParams.get('veyra_auth');
+    const exchange=url.searchParams.get('aroyn_auth')||url.searchParams.get('veyra_auth');
     if(exchange){
       url.searchParams.delete('veyra_auth');
+      url.searchParams.delete('aroyn_auth');
       history.replaceState(history.state,'',url.pathname+url.search+url.hash);
       this.status='loading';this.emit();
       try{
@@ -43,11 +45,11 @@ class VeyraAuthService{
         const body=await response.json().catch(()=>({}));
         if(!response.ok||!body.token||!body.user)throw new Error(body.error||`Login failed (${response.status})`);
         this.token=body.token;this.user=body.user;this.status='authenticated';storage.setRaw('auth.session',this.token);this.emit();
-        window.dispatchEvent(new CustomEvent('veyra:auth-login',{detail:{user:this.user}}));
+        window.dispatchEvent(new CustomEvent('aroyn:auth-login',{detail:{user:this.user}}));
         return this.getSnapshot();
       }catch(err){
         this.token='';this.user=null;this.status='guest';storage.setRaw('auth.session','');this.emit();
-        window.dispatchEvent(new CustomEvent('veyra:auth-error',{detail:{message:err instanceof Error?err.message:String(err)}}));
+        window.dispatchEvent(new CustomEvent('aroyn:auth-error',{detail:{message:err instanceof Error?err.message:String(err)}}));
         return this.getSnapshot();
       }
     }
@@ -90,7 +92,7 @@ class VeyraAuthService{
     if(token){
       try{await fetch(`${this.apiBase}/api/v2/auth/logout`,{method:'POST',headers:{Authorization:`Bearer ${token}`,'Accept':'application/json'},cache:'no-store'})}catch{}
     }
-    window.dispatchEvent(new CustomEvent('veyra:auth-logout'));
+    window.dispatchEvent(new CustomEvent('aroyn:auth-logout'));
   }
   async exportAccountData(){
     const response=await fetch(`${this.apiBase}/api/v2/account/export`,{headers:this.authHeaders({'Accept':'application/x-ndjson'}),cache:'no-store'});
@@ -115,13 +117,13 @@ class VeyraAuthService{
   }
   clearLocalAccountData(notice){
     for(const store of [localStorage,sessionStorage]){
-      try{for(const key of Object.keys(store))if(key.startsWith('veyra.'))store.removeItem(key)}catch{}
+      try{for(const key of Object.keys(store))if(key.startsWith('aroyn.')||key.startsWith('veyra.'))store.removeItem(key)}catch{}
     }
-    if(notice){try{sessionStorage.setItem('veyra.accountDeletionNotice',notice)}catch{}}
+    if(notice){try{sessionStorage.setItem('aroyn.accountDeletionNotice',notice)}catch{}}
     this.token='';this.user=null;this.status='guest';this.emit();
-    window.dispatchEvent(new CustomEvent('veyra:auth-logout'));
+    window.dispatchEvent(new CustomEvent('aroyn:auth-logout'));
   }
 }
 
-export const authService=new VeyraAuthService();
+export const authService=new AroynAuthService();
 export { API_DEFAULT as DEFAULT_API_BASE };

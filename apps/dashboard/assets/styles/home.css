@@ -699,7 +699,8 @@ figure.product-preview img{
 @media(max-width:760px){.home-policy-footer{padding:4px 0 76px;gap:6px;flex-direction:column}.home-policy-footer nav{gap:16px}}
 
 /* Approved original ASCII field and complete screenshot preview. */
-body.home-page{background:#0c0e10}
+body.home-page{background:#0c0e10;overflow:auto}
+body.home-page .home-main{height:auto;min-height:calc(100svh - 100px);overflow:visible}
 body.home-page .home-main{width:min(1050px,calc(100% - 32px));padding-bottom:36px}
 body.home-page .landing-hero{flex-basis:clamp(260px,30svh,300px);min-height:0;padding:26px 0 24px}
 body.home-page .landing-logo{width:72px;height:72px}
@@ -760,6 +761,22 @@ body.home-page .landing-portal:is(:hover,:focus-visible) .portal-bracket:last-ch
 body.home-page .landing-portal:focus-visible{outline:2px solid #d5d9d6;outline-offset:4px}
 body.home-page .landing-portal:active{transform:translateY(2px)}
 @keyframes portalSweep{to{transform:translateX(110%)}}
+.script-launch{margin-top:14px;width:min(350px,calc(100vw - 40px));color:#c5c9cd;text-shadow:none;font-size:.78rem}
+.script-launch[hidden]{display:none}
+.script-copy-button{min-height:44px;padding:8px 16px;border:1px solid #62676c;border-radius:4px;background:#151719;color:#f0f0ed;font:600 13px/1.4 system-ui;cursor:pointer}
+.script-copy-button:hover{background:#202327;border-color:#d5d9d6}
+.script-copy-button:focus-visible,.script-launch summary:focus-visible,.script-launch textarea:focus-visible{outline:2px solid #d5d9d6;outline-offset:4px}
+.script-copy-button:disabled{opacity:.7;cursor:wait}
+.script-copy-status{margin:6px 0;min-height:1.4em}
+.script-launch details{text-align:left;border:1px solid #62676c;background:#151719;border-radius:4px;padding:8px 12px}
+.script-launch summary{min-height:30px;cursor:pointer}
+.script-launch label{display:block;margin:10px 0 6px}
+.script-launch textarea{box-sizing:border-box;width:100%;resize:vertical;background:#0c0e10;border:1px solid #62676c;color:#f0f0ed;font:12px/1.5 ui-monospace,Consolas,monospace;padding:8px}
+body.home-page:has(.script-launch:not([hidden])){overflow:auto}
+body.home-page:has(.script-launch:not([hidden])) .home-main{height:auto;min-height:100svh;overflow:visible}
+body.home-page:has(.script-launch:not([hidden])) .landing-hero{flex-basis:auto!important;padding-bottom:28px!important}
+body.home-page:has(.script-launch:not([hidden])) .dashboard-preview-section{overflow:visible;flex:none}
+body.home-page:has(.script-launch:not([hidden])) figure.product-preview{width:min(980px,100%);margin-bottom:20px}
 @media(prefers-reduced-motion:reduce){
   body.home-page .landing-portal,
   body.home-page .landing-portal::before,

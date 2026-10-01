@@ -1,8 +1,11 @@
 import { initSystemTheme } from '../core/theme.js';
 import { mountAroynField } from '../effects/aroyn-field.js';
+import { SCRIPT_LOADER_URL } from '../core/config.js';
+import { mountScriptLaunch } from '../components/script-launch.js';
 
 document.title = 'Aroyn — Home';
 initSystemTheme();
+mountScriptLaunch(document.querySelector('[data-script-launch]'), SCRIPT_LOADER_URL);
 
 const patternRoot = document.querySelector('#aroyn-field-root');
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
@@ -93,7 +96,7 @@ document.addEventListener('click', event => {
   event.preventDefault();
 
   try {
-    sessionStorage.setItem('veyra.fromHome', '1');
+    sessionStorage.setItem('aroyn.fromHome', '1');
   } catch {}
 
   const progress = document.querySelector('.route-progress');

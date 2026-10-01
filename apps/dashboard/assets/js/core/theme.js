@@ -4,7 +4,7 @@ const modes=['dark','light','system'];
 let media=matchMedia('(prefers-color-scheme: light)');
 export function getTheme(){return {mode:storage.getRaw('theme.mode','dark'),accent:storage.getRaw('theme.accent','steel')}}
 export function resolveMode(mode){return mode==='system'?(media.matches?'light':'dark'):mode}
-export function applyTheme(mode,accent){if(!modes.includes(mode))mode='dark';if(!accents.includes(accent))accent='steel';const resolved=resolveMode(mode);document.documentElement.dataset.theme=resolved;document.documentElement.dataset.themeMode=mode;document.documentElement.dataset.accent=accent;storage.setRaw('theme.mode',mode);storage.setRaw('theme.accent',accent);window.dispatchEvent(new CustomEvent('veyra:theme',{detail:{mode,accent,resolved}}));}
+export function applyTheme(mode,accent){if(!modes.includes(mode))mode='dark';if(!accents.includes(accent))accent='steel';const resolved=resolveMode(mode);document.documentElement.dataset.theme=resolved;document.documentElement.dataset.themeMode=mode;document.documentElement.dataset.accent=accent;storage.setRaw('theme.mode',mode);storage.setRaw('theme.accent',accent);window.dispatchEvent(new CustomEvent('aroyn:theme',{detail:{mode,accent,resolved}}));}
 export function initSystemTheme(){const handler=()=>{const t=getTheme();if(t.mode==='system')applyTheme(t.mode,t.accent)};media.addEventListener?.('change',handler);return()=>media.removeEventListener?.('change',handler)}
 export async function toggleThemeAnimated(origin){
   const current=getTheme();

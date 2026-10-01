@@ -1,0 +1,16 @@
+{
+  "version": "4.3.80",
+  "date": "2026-10-01",
+  "files": [
+    {
+      "path": "apps/dashboard/releases/4.3.80/greedy-growers.luau",
+      "bytes": 568229,
+      "sha256": "ece5e3a123ee4a9f4024eec909cf0a5fb37fccc773a7eba6bf2f88ab1adb3b8a"
+    },
+    {
+      "path": "apps/dashboard/scripts/loader.luau",
+      "bytes": 1432,
+      "sha256": "e91f9a1194722fe0bd72e6ee68ec0bbe25f0542727db58a886131bf4f7805404"
+    }
+  ]
+}

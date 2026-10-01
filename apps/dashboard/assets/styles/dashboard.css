@@ -95,7 +95,7 @@
   #main-content{will-change:auto}
 }
 
-/* V1.8 — Veyra Hub live bridge */
+/* V1.8 — Aroyn Hub live bridge */
 .runtime-connect-panel{grid-column:1/-1}
 .pair-layout{display:grid;grid-template-columns:minmax(220px,.8fr) minmax(420px,1.2fr);gap:24px;align-items:end}
 .pair-controls{display:grid;grid-template-columns:minmax(260px,1fr) auto auto;gap:8px;align-items:center}
@@ -143,7 +143,7 @@
 @media(max-width:1200px){.stats-summary-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:760px){.stats-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.tree-stat-item summary{grid-template-columns:minmax(0,1fr) auto}.tree-summary-meta{grid-column:1/-1}.tree-stat-item summary::after{grid-column:2;grid-row:1}}
 
-/* Veyra account / Discord identity */
+/* Aroyn account / Discord identity */
 .account-trigger{height:36px;display:inline-flex;align-items:center;gap:8px;padding:0 8px;border:1px solid transparent;border-radius:var(--radius-sm);background:transparent;color:var(--text-secondary);font:inherit;cursor:pointer;transition:background var(--transition-fast),border-color var(--transition-fast),color var(--transition-fast)}
 .account-trigger:hover{background:var(--bg-hover);border-color:var(--border-secondary);color:var(--text-primary)}
 .account-trigger.is-guest{padding-inline:10px;border-color:var(--border-secondary);background:var(--bg-elevated)}
@@ -176,7 +176,7 @@ body[data-auth-state="authenticated"] .dashboard-auth-gate{display:none}
 .dashboard-auth-gate{position:fixed;inset:0;z-index:5000;display:grid;place-items:center;min-height:100dvh;padding:28px;background:var(--bg-primary);color:var(--text-primary)}
 .dashboard-auth-gate::before{content:'';position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(circle at center,rgba(255,255,255,.025) 0 1px,transparent 1px);background-size:22px 22px;mask-image:radial-gradient(circle at 50% 44%,#000 0,transparent 68%);opacity:.65}
 .dashboard-auth-loading{position:relative;display:flex;align-items:center;gap:12px;color:var(--text-muted);font-size:.78rem;letter-spacing:.01em}
-.dashboard-auth-loading img{width:30px;height:30px;object-fit:contain;animation:veyra-auth-pulse 1.2s ease-in-out infinite}
+.dashboard-auth-loading img{width:30px;height:30px;object-fit:contain;animation:aroyn-auth-pulse 1.2s ease-in-out infinite}
 .dashboard-login-card{position:relative;width:min(430px,calc(100vw - 36px));padding:26px 26px 22px;border:1px solid var(--border-primary);border-radius:12px;background:var(--bg-elevated);box-shadow:0 18px 60px rgba(0,0,0,.24)}
 .dashboard-login-brand{display:flex;align-items:center;gap:10px;padding-bottom:20px;border-bottom:1px solid var(--border-secondary);font-size:.86rem;font-weight:700}
 .dashboard-login-brand img{width:27px;height:27px;object-fit:contain}
@@ -194,7 +194,7 @@ body[data-auth-state="authenticated"] .dashboard-auth-gate{display:none}
 .discord-auth-icon{width:20px;height:20px;flex:none}
 .dashboard-login-note{margin:13px 4px 0;color:var(--text-muted);font-size:.66rem;line-height:1.5;text-align:center}
 .dashboard-auth-error{margin:0 0 14px;padding:9px 10px;border:1px solid color-mix(in srgb,var(--danger) 35%,var(--border-primary));border-radius:6px;background:color-mix(in srgb,var(--danger) 7%,var(--bg-secondary));color:var(--text-secondary);font-size:.72rem;line-height:1.45}
-@keyframes veyra-auth-pulse{0%,100%{opacity:.55;transform:scale(.97)}50%{opacity:1;transform:scale(1)}}
+@keyframes aroyn-auth-pulse{0%,100%{opacity:.55;transform:scale(.97)}50%{opacity:1;transform:scale(1)}}
 @media(max-width:560px){.dashboard-auth-gate{padding:18px}.dashboard-login-card{padding:22px 20px 19px}.dashboard-login-copy h1{font-size:1.32rem}}
 @media(prefers-reduced-motion:reduce){.dashboard-auth-loading img{animation:none}.dashboard-discord-button{transition:none}}
 
@@ -288,9 +288,9 @@ html[data-from-home="true"] body[data-auth-state="pending"] .dashboard-auth-load
   opacity:0;
 }
 html[data-from-home="true"] body[data-auth-state="authenticated"] .app-shell{
-  animation:veyraDashboardEnter 230ms cubic-bezier(.2,.7,.2,1) both;
+  animation:aroynDashboardEnter 230ms cubic-bezier(.2,.7,.2,1) both;
 }
-@keyframes veyraDashboardEnter{
+@keyframes aroynDashboardEnter{
   from{opacity:0;transform:translateY(7px);filter:blur(3px)}
   to{opacity:1;transform:translateY(0);filter:blur(0)}
 }
@@ -349,7 +349,7 @@ html[data-from-home="true"] body[data-auth-state="authenticated"] .app-shell{
   height:58px;
   object-fit:contain;
   transform-origin:center;
-  animation:veyra-runtime-logo-spin 1.35s cubic-bezier(.45,.05,.55,.95) infinite;
+  animation:aroyn-runtime-logo-spin 1.35s cubic-bezier(.45,.05,.55,.95) infinite;
   filter:drop-shadow(0 8px 22px rgba(0,0,0,.24));
 }
 
@@ -367,18 +367,18 @@ html[data-from-home="true"] body[data-auth-state="authenticated"] .app-shell{
   border-radius:50%;
   background:var(--text-secondary);
   opacity:.35;
-  animation:veyra-runtime-dot-bounce 1.05s cubic-bezier(.45,.05,.55,.95) infinite;
+  animation:aroyn-runtime-dot-bounce 1.05s cubic-bezier(.45,.05,.55,.95) infinite;
 }
 
 .dashboard-runtime-loader-dots span:nth-child(2){animation-delay:120ms}
 .dashboard-runtime-loader-dots span:nth-child(3){animation-delay:240ms}
 
-@keyframes veyra-runtime-logo-spin{
+@keyframes aroyn-runtime-logo-spin{
   0%{transform:rotate(0deg)}
   100%{transform:rotate(360deg)}
 }
 
-@keyframes veyra-runtime-dot-bounce{
+@keyframes aroyn-runtime-dot-bounce{
   0%,58%,100%{
     transform:translateY(0) scale(.86);
     opacity:.3;
@@ -391,18 +391,18 @@ html[data-from-home="true"] body[data-auth-state="authenticated"] .app-shell{
 
 @media(prefers-reduced-motion:reduce){
   .dashboard-runtime-loader-mark{
-    animation:veyra-auth-pulse 1.2s ease-in-out infinite;
+    animation:aroyn-auth-pulse 1.2s ease-in-out infinite;
   }
 
   .dashboard-runtime-loader-dots span{
-    animation:veyra-runtime-dot-fade 1.2s ease-in-out infinite;
+    animation:aroyn-runtime-dot-fade 1.2s ease-in-out infinite;
   }
 
   .dashboard-runtime-loader-dots span:nth-child(2){animation-delay:160ms}
   .dashboard-runtime-loader-dots span:nth-child(3){animation-delay:320ms}
 }
 
-@keyframes veyra-runtime-dot-fade{
+@keyframes aroyn-runtime-dot-fade{
   0%,60%,100%{opacity:.28}
   30%{opacity:1}
 }

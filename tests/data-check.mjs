@@ -1,0 +1,110 @@
+import assert from 'node:assert/strict';
+import {writeFile} from 'node:fs/promises';
+import {resolve} from 'node:path';
+import {createRuntime,folder} from './runtime.mjs';
+import apiWorker from '../workers/api/src/worker.js';
+import {finishAccountDeletion,runDataRetention} from '../workers/shared/data-lifecycle.js';
+const runtime=await createRuntime({mock:true,ownerDiscordId:'900003'});
+const results=[],sockets=[];
+const api=(path,options={})=>runtime.api.fetch('http://127.0.0.1:8787'+path,{redirect:'manual',...options});
+const live=(path,options={})=>runtime.live.fetch('http://127.0.0.1:8788'+path,options);
+const post=(token,body)=>({method:'POST',headers:{'content-type':'application/json',authorization:'Bearer '+token},body:JSON.stringify(body)});
+const get=token=>({headers:{authorization:'Bearer '+token}});
+function pass(name){results.push({name,pass:true});console.log('PASS '+name);}
+async function login(code='mock',expected=302){
+  const start=await api('/api/v2/auth/discord/start');const oauth=new URL(start.headers.get('location'));
+  const cookie=start.headers.getSetCookie().map(v=>v.split(';')[0]).join('; ');
+  const cb=await api('/api/v2/auth/discord/callback?code='+code+'&state='+oauth.searchParams.get('state'),{headers:{cookie}});
+  assert.equal(cb.status,expected);if(expected!==302)return;
+  return (await api('/api/v2/auth/exchange',post('',{code:new URL(cb.headers.get('location')).searchParams.get('veyra_auth')}))).json();
+}
+async function fixture(code,cash,sid){
+  const account=await login(code);
+  account.key=(await (await api('/api/v2/dashboard-key/generate',post(account.token,{}))).json()).dashboardKey;
+  account.snapshot={schemaVersion:1,type:'snapshot',player:{userId:900002,name:'fixture'},session:{id:sid},cash};
+  assert.equal((await api('/api/v2/runtime/push',post(account.key,account.snapshot))).status,200);
+  const rt=await (await live('/token',post(account.key,{robloxUserId:'900002'}))).json();
+  account.liveToken=rt.token;
+  const response=await live('/ws?token='+encodeURIComponent(rt.token),{headers:{Upgrade:'websocket'}});
+  const socket=response.webSocket;socket.accept();sockets.push(socket);
+  await new Promise((done,reject)=>{const timer=setTimeout(()=>reject(new Error('Relay ack timeout')),5000);socket.addEventListener('message',event=>{if(JSON.parse(event.data).type==='relay_ack'){clearTimeout(timer);done();}});socket.send(JSON.stringify(account.snapshot));});
+  return account;
+}
+try {
+  const bucket=await runtime.mf.getR2Bucket('PAYLOADS','api');
+  const cache=await runtime.mf.getDurableObjectNamespace('STATS_CACHE','api');
+  const storage=await runtime.mf.getDurableObjectNamespace('SNAPSHOT_STORAGE','api');
+  const env={DB:runtime.db,PAYLOADS:bucket,STATS_CACHE:cache,SNAPSHOT_STORAGE:storage,API_RATE_LIMITER:{limit:async()=>({success:true})}};
+  assert.equal((await api('/api/v2/account/export')).status,401);
+  assert.equal((await api('/api/v2/account/delete',post('',{confirmation:'DELETE'}))).status,401);
+  pass('export and deletion require web authentication');
+  const a=await fixture('mock',111,'data-owner-a-session');
+  const b=await fixture('mock-b',222,'data-owner-b-session');
+  await runtime.db.prepare('INSERT INTO analytics_sessions(session_id,roblox_user_id,version,started_at,last_seen_at,dashboard_linked) VALUES (?1,?2,?3,?4,?4,0)')
+    .bind('unassigned-legacy-session','900002','legacy',Date.now()).run();
+  const generated=[];
+  for(let i=0;i<102;i++)generated.push(runtime.db.prepare('INSERT INTO roblox_accounts(veyra_user_id,roblox_user_id,username,first_seen_at,last_seen_at) VALUES (?1,?2,?3,?4,?4)').bind(a.user.id,String(910000+i),'synthetic-'+i,Date.now()));
+  await runtime.db.batch(generated);
+  for(let i=0;i<102;i++)await bucket.put(`runtime-v3/${a.user.id}/accounts/${910000+i}.json`,JSON.stringify({snapshot:{schemaVersion:1,player:{userId:910000+i}},lastSeen:Date.now()}));
+  const exportResponse=await api('/api/v2/account/export',get(a.token));
+  assert.equal(exportResponse.status,200);assert.equal(exportResponse.headers.get('cache-control'),'no-store');
+  const exported=await exportResponse.text();const lines=exported.trim().split('\n').map(JSON.parse);
+  assert.equal(lines.at(-1).type,'complete');
+  assert.equal(lines.filter(r=>r.type==='roblox-account').length,103);
+  assert(exported.includes('data-owner-a-session'));assert(!exported.includes('data-owner-b-session'));assert(!exported.includes('unassigned-legacy-session'));
+  assert(!exported.includes(b.user.id));assert(!exported.includes(a.key));assert(!exported.includes(a.token));assert(!exported.includes('token_hash'));assert(!exported.includes('dashboard_key_hash'));
+  pass('streaming paginated export excludes other account, unattributed history and credentials');
+  assert.equal((await api('/api/v2/runtime/push',post(b.key,a.snapshot))).status,409);
+  pass('same claimed Roblox ID cannot take another Aroyn session ownership');
+  assert.equal((await api('/api/v2/account/delete',post(a.token,{confirmation:true}))).status,400);
+  await runtime.db.prepare('UPDATE web_sessions SET created_at=?1 WHERE user_id=?2').bind(Date.now()-16*60000,a.user.id).run();
+  assert.equal((await api('/api/v2/account/delete',post(a.token,{confirmation:'DELETE'}))).status,403);
+  await runtime.db.prepare('UPDATE web_sessions SET created_at=?1 WHERE user_id=?2').bind(Date.now(),a.user.id).run();
+  pass('deletion requires exact confirmation and recent Discord login');
+  assert.equal((await live('/owner/analytics',get(b.token))).status,200);
+  assert.equal((await api('/api/v2/account/delete',post(a.token,{confirmation:'DELETE'}))).status,200);
+  for(const table of ['users','web_sessions','auth_exchanges','roblox_accounts','runtime_session_owners']) {
+    const column=table==='users'?'id':table==='web_sessions'||table==='auth_exchanges'?'user_id':'veyra_user_id';
+    assert.equal((await runtime.db.prepare(`SELECT COUNT(*) AS count FROM ${table} WHERE ${column}=?1`).bind(a.user.id).first()).count,0);
+  }
+  for(const prefix of [`runtime-v2/${a.user.id}/`,`runtime-v3/${a.user.id}/`])assert.equal((await bucket.list({prefix})).objects.length,0);
+  assert.equal(await runtime.db.prepare('SELECT session_id FROM analytics_sessions WHERE session_id=?1').bind('data-owner-a-session').first(),null);
+  assert(await runtime.db.prepare('SELECT session_id FROM analytics_sessions WHERE session_id=?1').bind('unassigned-legacy-session').first());
+  assert.equal((await runtime.db.prepare('SELECT COUNT(*) AS count FROM owner_analytics_cache').first()).count,0);
+  pass('account removal clears scoped D1/R2 data and cached analytics, including multiple R2 pages');
+  assert.equal((await api('/api/v2/auth/me',get(a.token))).status,401);
+  assert.equal((await api('/api/v2/runtime/push',post(a.key,a.snapshot))).status,401);
+  assert.equal((await live('/ws?token='+encodeURIComponent(a.liveToken),{headers:{Upgrade:'websocket'}})).status,401);
+  assert.equal((await api('/api/v2/auth/me',get(b.token))).status,200);
+  assert.equal((await (await api('/api/v2/runtime/snapshot?robloxUserId=900002',get(b.token))).json()).snapshot.cash,222);
+  pass('deleted credentials revoked while other account data remains intact');
+  const failedBucket={list:async()=>{throw new Error('Synthetic R2 outage')},delete:key=>bucket.delete(key)};
+  const pending=await apiWorker.fetch(new Request('http://local.test/api/v2/account/delete',post(b.token,{confirmation:'DELETE'})),{...env,PAYLOADS:failedBucket});
+  assert.equal(pending.status,202);assert.equal((await pending.json()).pending,true);
+  assert.equal((await api('/api/v2/auth/me',get(b.token))).status,401);
+  assert.equal((await live('/ws?token='+encodeURIComponent(b.liveToken),{headers:{Upgrade:'websocket'}})).status,401);
+  await login('mock-b',409);
+  const job=await runtime.db.prepare('SELECT * FROM account_deletions WHERE user_id=?1').bind(b.user.id).first();assert(job);
+  await finishAccountDeletion(env,job);await finishAccountDeletion(env,job);
+  assert.equal(await runtime.db.prepare('SELECT id FROM users WHERE id=?1').bind(b.user.id).first(),null);
+  pass('failed storage cleanup revokes access, blocks login and retries idempotently');
+  const c=await login();assert.notEqual(c.user.id,a.user.id);
+  c.key=(await (await api('/api/v2/dashboard-key/generate',post(c.token,{}))).json()).dashboardKey;
+  assert.equal((await api('/api/v2/runtime/push',post(c.key,{...a.snapshot,session:{id:'data-new-account-session'}}))).status,200);
+  assert.equal(await runtime.db.prepare('SELECT session_id FROM runtime_session_owners WHERE veyra_user_id=?1 AND session_id=?2').bind(c.user.id,'data-owner-a-session').first(),null);
+  pass('signing in after completed deletion creates a new empty account');
+  const now=Date.now();
+  await runtime.db.prepare('INSERT INTO analytics_sessions(session_id,roblox_user_id,version,started_at,last_seen_at) VALUES (?1,?2,?3,?4,?4)').bind('old-retention-session','900002','test',now-35*86400000).run();
+  await runtime.db.prepare('INSERT INTO analytics_samples(bucket_start) VALUES (?1)').bind(now-400*86400000).run();
+  await bucket.put(`runtime-v3/${c.user.id}/revoked/900025.json`,JSON.stringify({revokedAt:now,robloxUserId:'900025'}));
+  await bucket.put('greedy-growers.luau','Synthetic unrelated payload');
+  const cleanup=await runDataRetention(env,now+8*86400000);
+  assert(cleanup.snapshotsRemoved>=2);
+  assert.equal(await runtime.db.prepare('SELECT session_id FROM analytics_sessions WHERE session_id=?1').bind('old-retention-session').first(),null);
+  assert(await runtime.db.prepare('SELECT session_id FROM analytics_sessions WHERE session_id=?1').bind('unassigned-legacy-session').first());
+  assert(await runtime.db.prepare('SELECT id FROM users WHERE id=?1').bind(c.user.id).first());
+  assert(await bucket.head(`runtime-v3/${c.user.id}/revoked/900025.json`));assert(await bucket.head('greedy-growers.luau'));
+  assert(await runtime.db.prepare('SELECT bucket_start FROM analytics_samples WHERE bucket_start=?1').bind(now-400*86400000).first());
+  pass('30-day history and 7-day snapshots expire while profiles, revocations and aggregates remain');
+  await writeFile(resolve(folder,'data-results.json'),JSON.stringify({externalServices:'mocked; fresh synthetic database',results},null,2));
+} finally {for(const ws of sockets)try{ws.close(1000,'Test finished')}catch{}await runtime.mf.dispose();}

@@ -22,4 +22,4 @@ The Miniflare harness refuses non-mock mode and replaces external Discord/Roblox
 
 Local synthetic results are not evidence of real OAuth behavior, all Cloudflare topology/hibernation cases, large loads, every Roblox environment, or legal/WCAG compliance. Separate cloud/user observations and remaining gates are in [STATUS.md](../STATUS.md).
 
-GitHub Actions is configured for Linux with the same Node/npm commands, a read-only repository token and a ten-minute timeout. A clean Windows installation passed locally; inspect the actual Actions run before claiming remote CI passed.
+GitHub Actions is configured for Linux with the same Node/npm commands, a read-only repository token and a ten-minute timeout. A clean Windows installation passed locally. The first hosted run stopped before executing any step because of an external account restriction; remote CI remains unverified. Resolve that restriction and rerun the workflow before treating its check as a release gate.

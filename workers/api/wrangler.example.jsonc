@@ -1,0 +1,18 @@
+{
+  "name": "aroyn-api-example",
+  "main": "src/worker.js",
+  "compatibility_date": "2026-09-16",
+  "vars": {
+    "ALLOWED_ORIGIN": "https://example.com",
+    "DISCORD_CLIENT_ID": "REPLACE_WITH_CLIENT_ID",
+    "DISCORD_REDIRECT_URI": "https://example.com/api/v2/auth/discord/callback",
+    "SITE_ORIGIN": "https://example.com",
+    "ALLOW_LEGACY_RUNTIME": "false"
+  },
+  "d1_databases": [{ "binding": "DB", "database_name": "aroyn-example", "database_id": "REPLACE_WITH_D1_ID", "migrations_dir": "migrations" }],
+  "r2_buckets": [{ "binding": "PAYLOADS", "bucket_name": "REPLACE_WITH_BUCKET_NAME" }],
+  "ratelimits": [{ "name": "API_RATE_LIMITER", "namespace_id": "1002", "simple": { "limit": 120, "period": 60 } }],
+  "durable_objects": { "bindings": [{ "name": "STATS_CACHE", "class_name": "VeyraStatsHub", "script_name": "aroyn-live-example" }, { "name": "SNAPSHOT_STORAGE", "class_name": "AroynSnapshotStore" }] },
+  "migrations": [{ "tag": "snapshot-storage-v1", "new_sqlite_classes": ["AroynSnapshotStore"] }],
+  "triggers": { "crons": ["17 3 * * *"] }
+}

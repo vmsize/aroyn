@@ -1,0 +1,43 @@
+# Local setup
+
+## Requirements
+
+- Node.js for the dashboard preview and Cloudflare Wrangler.
+- Your own Cloudflare account with D1 and R2 resources for backend development.
+- Your own Discord OAuth application for sign-in.
+
+## Configuration
+
+The dashboard uses `apps/dashboard/assets/js/core/config.js`. Defaults are local API `http://127.0.0.1:8787`, live API `http://127.0.0.1:8788`, and WebSocket `ws://127.0.0.1:8788/ws`.
+
+Copy each `workers/*/wrangler.example.jsonc` to `wrangler.jsonc`. Replace the example resource IDs and names with resources belonging to your account. Keep that local file out of Git. Use the same D1 database name/ID and R2 bucket name in both Worker configs. For the API Worker, set `ALLOWED_ORIGIN`, `SITE_ORIGIN`, `DISCORD_CLIENT_ID`, and `DISCORD_REDIRECT_URI` for your deployment. The callback path implemented by the API is `/api/v2/auth/discord/callback`; register the exact full URL in your Discord application. Populate `.dev.vars` from `.dev.vars.example` in each Worker for local secrets; set real deployed secrets through Cloudflare's secret bindings.
+
+The API expects `DB` (D1), `PAYLOADS` (R2), `DISCORD_CLIENT_SECRET`, `TOKEN_SECRET`, and `API_RATE_LIMITER`. The live Worker expects `DB`, `PAYLOADS`, `LIVE` and `STATS` Durable Objects, `LIVE_TOKEN_SECRET`, `PRESENCE_TOKEN_SECRET`, `STATS_API_SECRET`, `OWNER_DISCORD_ID`, and both `PRESENCE_RATE_LIMITER` and `LIVE_RATE_LIMITER` bindings. Use independent random signing secrets of at least 32 bytes. Use an independent random value for `PRESENCE_TOKEN_SECRET`. The rate-limit `namespace_id` must be an unused positive integer string in your Cloudflare account; tune the sample limit for your traffic. Cloudflare enforces this limit per location with eventual consistency, so it is a burst control rather than a global quota or proof of identity. A release-event Queue is present in the original local live config for automatic update push; the example config omits it until that workflow is documented and tested for a new account.
+
+`REQUIRE_PRESENCE_TOKEN` is enabled in the example. The first anonymous presence report receives a signed `presenceToken`; the client must send it as `X-Presence-Token` on later heartbeats and disconnect. The current deployed client does not support that exchange. Deploy a compatible client before enabling strict mode for existing users. During a coordinated rollout, the flag can temporarily be `false`, but that allows older clients to update or disconnect an existing session by session ID alone. The first report still accepts a client-claimed Roblox ID, so anonymous usage numbers remain unverified.
+
+The live Worker's example `ALLOWED_ORIGIN` permits the local dashboard at `http://127.0.0.1:4173`. Set it to your own Pages origin for a deployment; comma-separated origins are supported. `ALLOW_LEGACY_SITE_ORIGINS=false` in the example disables the transition exception for `veyra-hub.pages.dev` and its preview subdomains. Omitting that flag or setting it to `true` preserves the old exception for existing deployments. CORS governs browser response access; it is not authentication or a block on non-browser clients. The API Worker has its own `ALLOWED_ORIGIN` setting.
+
+## Start
+
+Apply both `0001_initial_schema.sql` and `0002_account_data_lifecycle.sql` through the migrations command. Account export/deletion and retention need the API's `STATS_CACHE` cross-Worker Durable Object binding. Set its `script_name` to the actual live Worker name and provision the live Worker's `VeyraStatsHub` migration first. The API also needs the local `SNAPSHOT_STORAGE` binding and `snapshot-storage-v1` migration for `AroynSnapshotStore`; copy these from its example config. It serializes runtime R2 updates and expiry per object key. For local development, start live and API in one coordinated Wrangler multi-Worker session so the cross-Worker binding resolves; independently started Wrangler processes may not resolve it. The private test harness verifies these bindings in one Miniflare instance. Enable the API's daily scheduled trigger in deployment. See [account data](account-data.md) for behavior, retries and limits.
+
+For an account-data-only local test, from `workers/api` run `npx wrangler dev -c wrangler.jsonc -c ../live/wrangler.jsonc --port 8787 --persist-to ../../.wrangler/local-shared` after installing both Workers' dependencies. Wrangler exposes only the primary API Worker in that command. The auxiliary live Worker's DO binding is available to the API, but the dashboard's separate live URL on port 8788 is not exposed. Full local telemetry therefore needs a coordinated gateway/harness or verified independent dev sessions; the separate-process commands below cover the earlier basic preview and must not be assumed to verify new cache invalidation. See [Cloudflare multi-Worker development](https://developers.cloudflare.com/workers/local-development/multi-workers/). This candidate's private tests used a single Miniflare runtime plus a loopback fixture proxy.
+
+After installing the API Worker dependencies, run `npx wrangler d1 migrations apply aroyn-example --local --persist-to ../../.wrangler/local-shared` from `workers/api`, replacing `aroyn-example` with the `database_name` in your copied config. Both Workers must use that same persistence directory so account and runtime records are shared locally. The migration is a schema-only snapshot: it contains no production rows or secret values. The `veyra_*` columns are retained for compatibility with current Worker code. This local command does not change the production D1 database.
+
+1. In `workers/api`: `npm install`, apply the local D1 migration above, then `npx wrangler dev --port 8787 --persist-to ../../.wrangler/local-shared`.
+2. In `workers/live`: `npm install`, then `npx wrangler dev --port 8788 --persist-to ../../.wrangler/local-shared`.
+3. In `apps/dashboard`: `npm run dev`, then open `http://127.0.0.1:4173`.
+
+Check the local services at `http://127.0.0.1:8787/api/v1/health` and `http://127.0.0.1:8788/health`. The dashboard preview and both Worker health routes were tested locally. Private local harnesses exercised Discord sign-in, logout/sign-in, dashboard-key linking, HTTP snapshots, WebSocket acknowledgements, security controls and persistence on synthetic data. A separate restricted cloud deployment subsequently passed real owner sign-in, telemetry, export/deletion and terminal runtime WebSocket closure after key rotation. That compatible client and the harnesses are outside this package. Provisioning in a different account, additional revocation scenarios and larger loads still need verification. The first presence report accepts unverified caller-claimed Roblox IDs. See [backend review](security-review.md). Legacy v1 runtime defaults to disabled; explicitly setting `ALLOW_LEGACY_RUNTIME=true` also requires registered keys. Clients must request fresh live tokens after the credential-binding change. Complete resource ownership, secrets and deployment review before running `wrangler deploy`.
+
+For the public dashboard only, `npm run dev` in `apps/dashboard` is enough. The backend is needed for sign-in and live data.
+
+## Optional restricted staging
+
+Set STAGING_ACCESS=restricted on **both** Workers and supply STAGING_DISCORD_IDS as a Worker secret containing a comma-separated list of 15–22 digit Discord user IDs (at most 32). An empty, malformed or unknown restriction mode denies access. Omitting STAGING_ACCESS retains ordinary deployment behavior; this is an opt-in policy.
+
+The API checks identity before creating a Discord account and when resolving existing sessions. The live Worker checks dashboard/runtime authorization, including subsequent WebSocket messages. Restricted presence requires a valid invited dashboard key and an already linked Roblox ID; it does not establish Roblox ownership. Restricted staging disables legacy script distribution. Static Pages HTML remains publicly readable unless an additional access product protects it.
+
+Keep the list, Discord client secret and signing secrets in secret bindings. Use independent resources and secrets, apply both D1 migrations and the API/live DO migrations, register the exact HTTPS callback, and check both Worker origins. A restricted deployment derived from this candidate passed 25 initial cloud probes on 2026-10-01; the owner subsequently confirmed real login and telemetry. Export, deletion, runtime key-rotation socket closure and an isolated scheduled retention/concurrency probe were verified. See STATUS.md and account-data.md for scope and remaining gates. No real IDs or staging credentials are included in this package.

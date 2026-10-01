@@ -1,0 +1,28 @@
+# Source package status — 2026-10-01
+
+The owner approved publishing this initial source package, including the supplied mark and synthetic dashboard screenshot. Original project code is MIT, with attribution to vmsize; brand assets have separate terms in BRAND_ASSETS.md. A separate restricted Cloudflare staging derived from this source was deployed on 2026-10-01. General registration remains restricted.
+
+The Roblox client, owner analytics UI, status bot, runtime data, credentials and actual deployment configurations are outside this package. Some technical Veyra identifiers remain for compatibility.
+
+## Completed
+
+- The owner approved dark/light themes, mobile layout, keyboard controls, the independent ASCII homepage background and Portal CTA. The homepage no longer imports React/vgpu from esm.sh. See THIRD_PARTY_NOTICES.md.
+- Authentication, login/key concurrency, bounded input, signed presence, rate controls and revocable WebSocket access were reviewed and exercised on isolated synthetic data. Local checks include 29 security groups, six presence groups and 17 integration/persistence groups. Separate-process persistence was tested with a private harness.
+- Approved retention is implemented: 30-day history, 7-day inactive snapshots, profiles until deletion. Export/deletion with recent Discord sign-in is available through the profile menu. Nine synthetic lifecycle groups passed.
+- RU/EN privacy, terms and cookie/storage previews are integrated and linked before sign-in. Keyboard links, 394px table overflow and sampled light/dark text contrast were checked. This does not establish full WCAG or legal compliance.
+- Separate Pages/API/live/D1/R2/DO resources and both D1 migrations were deployed. Account/data access is restricted through server-side invited Discord identity checks. Signing secrets and the allowlist are excluded from source. Legacy runtime distribution is disabled on that staging.
+- 20 local access/initial-link checks and 25 initial cloud probes passed. The owner confirmed real Discord sign-in and persistence after refresh, connected telemetry, updates in 1–2 seconds, stale approximately 13 seconds after game exit and automatic saved-key linkage after rejoining. These timings are observations, not service guarantees.
+- A populated cloud export passed 17 checks on nine records, with a completion marker and no recognized credential fields/values. The owner then deleted the test account and re-created it. Cloud read-only checks confirmed the old profile/session/history/links/runtime owners removed, R2 empty, no pending deletion job and a new profile without a key.
+- An idle native runtime WebSocket on cloud staging reached CLOSED with code 1008 / Live access revoked after key rotation, approximately 14 seconds after observed revocation. Old-key verification and new-token issuance returned 401. The receiver sent no telemetry during this test.
+- Runtime R2 mutations are serialized per object key through AroynSnapshotStore. Eight local race checks, including twelve Miniflare replacement runs, passed. A real Cron event on a separate temporary synthetic Worker ran shared retention code and passed 17 checks: history/snapshot expiry, eight concurrent replacements, fresh cutoff preservation and failed-deletion retry. D1 independently confirmed the result. The fixture clock advanced eight days for snapshot expiry; cache transport was stubbed. Temporary resources were removed. The owner confirmed telemetry continued updating after the correction was deployed to restricted staging.
+- R2 public access, Pages Web Analytics and Logpush were checked as disabled. Observability is disabled in the deployment configuration. This does not establish that the provider retains no internal logs or backups.
+
+## Remaining limits and wider-access gates
+
+- Observe the normal daily staging retention invocation; review larger sweep duration/cost and backlog behavior. The isolated cloud Cron probe does not establish ordinary daily execution or large-volume operation.
+- Exercise additional open-socket revocation scenarios, Durable Object hibernation/alarms, concurrent unlink/push and other lifecycle races. D1/R2 are not one transaction, and direct administrative R2 writes bypass the application coordinator.
+- Complete a compatible client rollout. Strict signed presence and credential-bound live tokens need a compatible client; the Roblox client is not included here. Existing Veyra deployments and original client files were not changed.
+- Caller-claimed Roblox IDs and anonymous first presence reports are unverified. Signed later tokens and dashboard-key linkage do not prove Roblox ownership or authentic activity. Restricted staging requires an invited key and linked identity; ordinary deployment settings have different access behavior.
+- Finish provider log/backup review, operator information, teenage-audience requirements and review of the policy previews before wider service access. The owner chose nickname vmsize and Discord contact septave; their legal sufficiency and direct-message reachability have not been established. SECURITY.md explains a fallback for requesting a private reporting channel.
+- Review production CORS/release queue configuration and destination resources. Examples contain placeholders; source publication does not provision a service for someone cloning this repository.
+- Owner permission for the supplied mark is recorded separately from MIT. It is not independent clearance of third-party rights or trademark registration.

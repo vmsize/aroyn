@@ -1,0 +1,22 @@
+{
+  "name": "aroyn-live-example",
+  "main": "src/index.js",
+  "compatibility_date": "2026-09-18",
+  "vars": { "ALLOWED_ORIGIN": "http://127.0.0.1:4173", "ALLOW_LEGACY_SITE_ORIGINS": "false", "REQUIRE_PRESENCE_TOKEN": "true" },
+  "ratelimits": [
+    { "name": "PRESENCE_RATE_LIMITER", "namespace_id": "1001", "simple": { "limit": 120, "period": 60 } },
+    { "name": "LIVE_RATE_LIMITER", "namespace_id": "1003", "simple": { "limit": 120, "period": 60 } }
+  ],
+  "d1_databases": [{ "binding": "DB", "database_name": "aroyn-example", "database_id": "REPLACE_WITH_D1_ID" }],
+  "durable_objects": {
+    "bindings": [
+      { "name": "LIVE", "class_name": "VeyraLiveSession" },
+      { "name": "STATS", "class_name": "VeyraStatsHub" }
+    ]
+  },
+  "exports": {
+    "VeyraLiveSession": { "type": "durable-object", "storage": "sqlite" },
+    "VeyraStatsHub": { "type": "durable-object", "storage": "sqlite" }
+  },
+  "r2_buckets": [{ "binding": "PAYLOADS", "bucket_name": "REPLACE_WITH_BUCKET_NAME" }]
+}

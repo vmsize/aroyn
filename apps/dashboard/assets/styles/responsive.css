@@ -1,0 +1,1089 @@
+@media(max-width:1100px){
+  .home-intro{grid-template-columns:1fr;align-items:start;min-height:0}
+  .home-copy{max-width:none}
+  .preview-stack{max-width:760px}
+  .hero-ghost-mark{width:min(46vw,360px);right:-42px;top:8px;opacity:.045}
+  .home-notes-head{grid-template-columns:1fr;gap:12px}
+  .home-notes-grid{grid-template-columns:1fr;gap:16px}
+}
+
+@media(max-width:760px){
+  .home-main{padding-bottom:64px}
+  .hero-surface{padding:36px 0 24px;min-height:0}
+  .home-intro{gap:28px}
+  .hero-title{font-size:clamp(2.5rem,11vw,3.95rem);max-width:none}
+  .home-actions{display:grid;grid-template-columns:1fr;gap:8px}
+  .home-actions .btn{width:100%}
+  .hero-meta-inline{display:grid;grid-template-columns:1fr;gap:6px}
+  .preview-caption{flex-wrap:wrap;gap:8px}
+  .home-notes{padding-top:20px}
+}
+
+@media(max-width:560px){
+  .home-header{padding:0 16px}
+  .hero-kicker{font-size:.66rem}
+  .preview-shell{grid-template-columns:96px 1fr;min-height:390px}
+  .preview-sidebar{padding:10px 8px}
+  .preview-content{padding:12px}
+  .preview-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .preview-panel-grid,.preview-task-row{grid-template-columns:1fr}
+  .hero-grid-primary{background-size:34px 34px}
+  .hero-grid-secondary{background-size:68px 68px}
+  .hero-dots{background-size:18px 18px}
+  .hero-ghost-mark{display:none}
+  .home-footer{flex-direction:column;align-items:flex-start}
+}
+
+
+/* ============================================================
+   V1.39 — full mobile adaptation
+   ============================================================ */
+
+/* --- Dashboard: tablet / narrow desktop --- */
+@media (max-width: 900px) {
+  .page{
+    padding:20px 18px 34px;
+  }
+
+  .overview-grid,
+  .config-layout{
+    grid-template-columns:1fr;
+  }
+
+  .stats-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+
+  .page-head{
+    gap:12px;
+  }
+}
+
+/* --- Dashboard: phone layout --- */
+@media (max-width: 760px) {
+  :root{
+    --mobile-header-height:58px;
+  }
+
+  html{
+    -webkit-text-size-adjust:100%;
+    text-size-adjust:100%;
+    scrollbar-gutter:auto;
+  }
+
+  body{
+    overflow-x:hidden;
+  }
+
+  body[data-mobile-nav="true"]{
+    overflow:hidden;
+    touch-action:none;
+  }
+
+  .app-header{
+    height:var(--mobile-header-height);
+    padding:
+      0 max(9px,env(safe-area-inset-right))
+      0 max(9px,env(safe-area-inset-left));
+    gap:6px;
+  }
+
+  .app-header>div:first-child{
+    min-width:0;
+    gap:5px!important;
+  }
+
+  .brand{
+    min-width:0;
+    gap:8px;
+    font-size:.98rem;
+  }
+
+  .brand img{
+    width:31px;
+    height:31px;
+  }
+
+  .brand-text{
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+
+  .mobile-menu{
+    display:inline-grid;
+    place-items:center;
+    width:40px;
+    min-width:40px;
+    height:40px;
+    padding:0;
+    flex:none;
+  }
+
+  .header-actions{
+    min-width:0;
+    gap:3px;
+    margin-left:auto;
+  }
+
+  .connection-compact{
+    display:none!important;
+  }
+
+  .app-header [data-settings-trigger],
+  .account-trigger,
+  .roblox-account-trigger{
+    width:40px!important;
+    min-width:40px!important;
+    height:40px!important;
+    padding:0!important;
+    display:inline-grid!important;
+    place-items:center;
+  }
+
+  .account-name,
+  .roblox-account-trigger-copy,
+  .roblox-account-chevron{
+    display:none!important;
+  }
+
+  /* Keep Roblox account selection available on phones. */
+  .roblox-account-selector{
+    display:flex!important;
+  }
+
+  .roblox-account-avatar{
+    width:29px;
+    height:29px;
+  }
+
+  /* Main dashboard becomes one column. */
+  .app-shell,
+  .app-shell[data-collapsed="true"]{
+    display:block;
+    min-height:calc(100dvh - var(--mobile-header-height));
+  }
+
+  .app-shell[data-sidebar-ready="true"]{
+    transition:none;
+  }
+
+  .page{
+    width:100%;
+    min-width:0;
+    padding:
+      16px max(12px,env(safe-area-inset-right))
+      calc(28px + env(safe-area-inset-bottom))
+      max(12px,env(safe-area-inset-left));
+  }
+
+  .page-head{
+    display:grid;
+    grid-template-columns:minmax(0,1fr);
+    gap:10px;
+    margin-bottom:14px;
+  }
+
+  .page-title{
+    font-size:1.18rem;
+    margin-bottom:4px;
+  }
+
+  .page-subtitle{
+    font-size:.74rem;
+    line-height:1.45;
+  }
+
+  .page-actions{
+    width:100%;
+    justify-content:flex-start;
+    flex-wrap:wrap;
+  }
+
+  /* Mobile navigation drawer. */
+  .sidebar,
+  .app-shell[data-collapsed="true"] .sidebar{
+    position:fixed;
+    z-index:1080;
+    top:var(--mobile-header-height);
+    left:0;
+    width:min(82vw,300px);
+    height:calc(100dvh - var(--mobile-header-height));
+    padding:12px 10px calc(12px + env(safe-area-inset-bottom));
+    border-right:1px solid var(--border-primary);
+    background:color-mix(in srgb,var(--bg-sidebar) 97%,transparent);
+    backdrop-filter:blur(16px);
+    -webkit-backdrop-filter:blur(16px);
+    overflow-y:auto;
+    overscroll-behavior:contain;
+    transform:translateX(-105%);
+    transition:transform 220ms cubic-bezier(.22,.7,.2,1);
+    box-shadow:18px 0 50px rgba(0,0,0,.22);
+  }
+
+  .app-shell[data-drawer="true"] .sidebar{
+    transform:translateX(0);
+  }
+
+  .sidebar .nav-section-label,
+  .app-shell[data-collapsed="true"] .nav-section-label{
+    display:block;
+    max-height:34px;
+    opacity:1;
+    transform:none;
+    padding:8px 10px 7px;
+  }
+
+  .sidebar .nav-item,
+  .app-shell[data-collapsed="true"] .nav-item{
+    display:grid;
+    grid-template-columns:20px minmax(0,1fr);
+    gap:10px;
+    width:100%;
+    height:42px;
+    margin:0;
+    padding:0 11px;
+    justify-content:stretch;
+  }
+
+  .sidebar .nav-label,
+  .app-shell[data-collapsed="true"] .nav-label{
+    display:block;
+    max-width:none;
+    opacity:1;
+    transform:none;
+  }
+
+  .sidebar-footer{
+    display:none;
+  }
+
+  .drawer-backdrop{
+    display:block;
+    position:fixed;
+    z-index:1060;
+    inset:var(--mobile-header-height) 0 0;
+    border:0;
+    padding:0;
+    background:rgba(0,0,0,.54);
+    opacity:0;
+    pointer-events:none;
+    transition:opacity 180ms ease;
+  }
+
+  .app-shell[data-drawer="true"] .drawer-backdrop{
+    opacity:1;
+    pointer-events:auto;
+  }
+
+  /* Panels / cards. */
+  .grid,
+  .overview-grid,
+  .overview-home-grid,
+  .overview-home-grid.has-live-stats,
+  .config-layout,
+  .pair-layout{
+    grid-template-columns:1fr!important;
+  }
+
+  .overview-home-grid{
+    grid-template-areas:
+      "live"
+      "activity"
+      "integration"
+      "runtime"
+      "system"!important;
+  }
+
+  .overview-home-grid:not(.has-live-stats){
+    grid-template-areas:
+      "activity"
+      "integration"
+      "runtime"
+      "system"!important;
+  }
+
+  .panel{
+    min-width:0;
+  }
+
+  .panel-header{
+    min-height:44px;
+    gap:8px;
+    padding-inline:12px;
+    flex-wrap:wrap;
+  }
+
+  .panel-body{
+    padding:12px;
+  }
+
+  .stats-grid,
+  .live-metric-grid,
+  .stats-summary-grid,
+  .inventory-summary-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:8px;
+  }
+
+  .stat-block,
+  .live-metric-grid .stat-block{
+    min-width:0;
+    padding:11px 10px;
+  }
+
+  .stat-label{
+    font-size:.62rem;
+  }
+
+  .stat-value{
+    font-size:.92rem;
+    overflow-wrap:anywhere;
+  }
+
+  .stats-money{
+    white-space:normal;
+    overflow-wrap:anywhere;
+  }
+
+  .runtime-banner{
+    align-items:flex-start;
+    padding:11px 12px;
+    gap:9px;
+  }
+
+  .runtime-banner p{
+    line-height:1.45;
+  }
+
+  .kv-row{
+    grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);
+    gap:10px;
+    padding:9px 0;
+  }
+
+  .kv-row dd{
+    min-width:0;
+    overflow-wrap:anywhere;
+    word-break:break-word;
+  }
+
+  .event-row{
+    grid-template-columns:62px 10px minmax(0,1fr);
+    gap:7px;
+  }
+
+  .event-time{
+    font-size:.64rem;
+  }
+
+  /* Controls / filters. */
+  .toolbar,
+  .inventory-toolbar{
+    width:100%;
+    align-items:stretch;
+  }
+
+  .toolbar .search-control,
+  .inventory-search{
+    min-width:100%;
+    width:100%;
+    max-width:none;
+  }
+
+  .filter-chip{
+    min-height:36px;
+  }
+
+  .inventory-filters,
+  .log-levels{
+    max-width:100%;
+    overflow-x:auto;
+    overscroll-behavior-x:contain;
+    flex-wrap:nowrap;
+    scrollbar-width:none;
+    padding-bottom:2px;
+  }
+
+  .inventory-filters::-webkit-scrollbar,
+  .log-levels::-webkit-scrollbar{
+    display:none;
+  }
+
+  .inventory-filters .filter-chip,
+  .log-levels .filter-chip{
+    flex:none;
+  }
+
+  .pair-controls{
+    grid-template-columns:1fr!important;
+  }
+
+  .pair-key-input{
+    grid-column:auto!important;
+  }
+
+  .pair-controls .btn,
+  .pair-controls .control{
+    width:100%;
+  }
+
+  /* Settings page rows stack cleanly. */
+  .config-group{
+    padding:13px;
+  }
+
+  .setting-row{
+    grid-template-columns:1fr;
+    gap:9px;
+    align-items:start;
+  }
+
+  .setting-control{
+    width:100%;
+    min-width:0;
+  }
+
+  .setting-control .control,
+  .setting-control select,
+  .setting-control input,
+  .setting-control button{
+    max-width:100%;
+  }
+
+  /* Tables stay useful via horizontal swipe. */
+  .table-wrap,
+  .stats-scroll-list,
+  .stats-scroll-trees,
+  .stats-inner-table{
+    max-width:100%;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior-x:contain;
+  }
+
+  .table-wrap{
+    border-radius:8px;
+  }
+
+  table,
+  .stats-table{
+    font-size:.72rem;
+  }
+
+  th,
+  td{
+    padding:9px 10px;
+  }
+
+  /* Log viewer becomes a two-row card-like record. */
+  .logs-shell{
+    grid-template-rows:auto minmax(330px,calc(100dvh - 250px));
+  }
+
+  .logs-toolbar{
+    align-items:stretch;
+  }
+
+  .logs-toolbar .control{
+    min-height:36px;
+  }
+
+  .log-row{
+    grid-template-columns:auto minmax(0,1fr) 30px;
+    grid-template-areas:
+      "time level copy"
+      "message message message";
+    gap:4px 8px;
+    padding:8px 9px;
+  }
+
+  .log-time{grid-area:time}
+  .log-level{grid-area:level}
+  .log-message{grid-area:message;padding-top:2px}
+  .log-copy{grid-area:copy;opacity:.7}
+
+  /* Dropdown / popover surfaces fit inside phone viewport. */
+  .settings-panel,
+  .account-panel,
+  .roblox-account-menu{
+    position:fixed;
+    left:8px!important;
+    right:8px!important;
+    top:calc(var(--mobile-header-height) + 6px)!important;
+    width:auto!important;
+    max-width:none!important;
+    max-height:calc(100dvh - var(--mobile-header-height) - 14px)!important;
+    overflow:auto;
+    border-radius:10px;
+  }
+
+  .roblox-account-list{
+    max-height:calc(100dvh - 190px);
+  }
+
+  .account-panel-body,
+  .settings-body{
+    padding:12px;
+  }
+
+  .account-kv{
+    grid-template-columns:82px minmax(0,1fr);
+  }
+
+  .account-kv code{
+    white-space:normal;
+    overflow-wrap:anywhere;
+  }
+
+  .dashboard-auth-gate{
+    padding:
+      max(16px,env(safe-area-inset-top))
+      max(14px,env(safe-area-inset-right))
+      max(16px,env(safe-area-inset-bottom))
+      max(14px,env(safe-area-inset-left));
+  }
+
+  .dashboard-login-card{
+    width:100%;
+    max-width:420px;
+    padding:20px 18px 18px;
+  }
+
+  .dashboard-login-copy{
+    padding:20px 0 17px;
+  }
+
+  .dashboard-login-copy h1{
+    font-size:1.3rem;
+  }
+
+  .dashboard-runtime-loader-inner{
+    transform:none;
+  }
+
+  .dashboard-runtime-loader-mark-wrap{
+    width:58px;
+    height:58px;
+  }
+
+  .dashboard-runtime-loader-mark{
+    width:52px;
+    height:52px;
+  }
+}
+
+/* Very narrow phones. */
+@media (max-width: 430px) {
+  .app-header{
+    padding-inline:7px;
+  }
+
+  .brand{
+    font-size:.94rem;
+  }
+
+  .brand img{
+    width:29px;
+    height:29px;
+  }
+
+  .mobile-menu,
+  .app-header [data-settings-trigger],
+  .account-trigger,
+  .roblox-account-trigger{
+    width:38px!important;
+    min-width:38px!important;
+    height:38px!important;
+  }
+
+  .page{
+    padding-inline:10px;
+  }
+
+  .stats-grid,
+  .live-metric-grid,
+  .stats-summary-grid,
+  .inventory-summary-grid{
+    grid-template-columns:1fr!important;
+  }
+
+  .panel-header{
+    padding-inline:10px;
+  }
+
+  .panel-body{
+    padding:10px;
+  }
+
+  .kv-row{
+    grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);
+    font-size:.73rem;
+  }
+
+  .tree-stat-item summary{
+    padding:10px;
+  }
+
+  .roblox-account-option{
+    grid-template-columns:auto minmax(0,1fr) auto;
+  }
+
+  .roblox-account-state{
+    grid-column:2;
+  }
+
+  .roblox-account-remove{
+    grid-column:3;
+    grid-row:1;
+  }
+}
+
+/* Tiny widths: preserve controls by hiding only the brand word, not the logo. */
+@media (max-width: 360px) {
+  .brand-text{
+    display:none;
+  }
+
+  .app-header>div:first-child{
+    gap:2px!important;
+  }
+
+  .header-actions{
+    gap:1px;
+  }
+}
+
+/* ============================================================
+   Homepage mobile adaptation — still intentionally non-scrollable.
+   ============================================================ */
+@media (max-width: 760px) {
+  body.home-page{
+    overflow:hidden!important;
+  }
+
+  .home-main{
+    width:min(100% - 18px,1120px)!important;
+    height:100svh;
+    padding:
+      env(safe-area-inset-top)
+      0
+      env(safe-area-inset-bottom)!important;
+  }
+
+  .landing-hero{
+    flex:0 0 clamp(205px,31svh,270px)!important;
+    min-height:0!important;
+    padding:clamp(18px,4svh,34px) 0 12px!important;
+  }
+
+  .landing-logo{
+    width:68px!important;
+    height:68px!important;
+  }
+
+  .landing-brand h1{
+    margin:10px 0 13px!important;
+    font-size:2.08rem!important;
+  }
+
+  .landing-cta{
+    min-height:38px!important;
+    height:38px;
+    padding:0 15px!important;
+    font-size:.75rem;
+  }
+
+  .dashboard-preview-section{
+    flex:1 1 auto!important;
+    min-height:0;
+    width:100%;
+    overflow:hidden;
+  }
+
+  .product-preview{
+    width:100%;
+    height:100%!important;
+    max-height:none!important;
+    border-radius:11px;
+  }
+
+  .preview-bar{
+    height:38px;
+    padding:0 10px;
+  }
+
+  .preview-brand{
+    font-size:.68rem;
+  }
+
+  .preview-brand img{
+    width:18px;
+    height:18px;
+  }
+
+  .preview-bar-state{
+    font-size:.53rem;
+  }
+
+  .preview-shell{
+    height:calc(100% - 38px)!important;
+    min-height:0!important;
+    grid-template-columns:82px minmax(0,1fr)!important;
+  }
+
+  .preview-sidebar{
+    padding:8px 6px;
+  }
+
+  .preview-nav{
+    height:25px;
+    padding:0 6px;
+    font-size:.53rem;
+  }
+
+  .preview-content{
+    padding:9px!important;
+    overflow:hidden;
+  }
+
+  .preview-heading-row{
+    margin-bottom:7px;
+  }
+
+  .preview-page-title{
+    font-size:.76rem;
+  }
+
+  .preview-page-subtitle{
+    display:none;
+  }
+
+  .preview-runtime-banner{
+    margin-bottom:7px;
+    padding:7px 8px;
+  }
+
+  .preview-runtime-banner strong{
+    font-size:.56rem;
+  }
+
+  .preview-runtime-banner span:last-child{
+    display:none;
+  }
+
+  .preview-stat-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:5px;
+    margin-bottom:6px;
+  }
+
+  .preview-stat{
+    padding:6px;
+  }
+
+  .preview-stat span{
+    font-size:.44rem;
+  }
+
+  .preview-stat strong{
+    margin-top:3px;
+    font-size:.6rem;
+  }
+
+  .preview-stat-grid .preview-stat:last-child{
+    grid-column:auto!important;
+  }
+
+  .preview-panel-grid{
+    grid-template-columns:1fr!important;
+    gap:5px;
+    margin-bottom:6px;
+  }
+
+  .preview-panel{
+    padding:6px;
+  }
+
+  .preview-panel-grid .preview-panel:nth-child(2){
+    display:none;
+  }
+
+  .preview-panel-title{
+    margin-bottom:3px;
+    font-size:.46rem;
+  }
+
+  .preview-activity{
+    min-height:18px;
+    font-size:.49rem;
+  }
+
+  .preview-task-row{
+    grid-template-columns:1fr!important;
+    gap:5px;
+  }
+
+  .preview-task-row>div{
+    padding:6px;
+  }
+
+  .preview-task-row>div:first-child{
+    display:none;
+  }
+
+  .preview-task-row span{
+    font-size:.44rem;
+  }
+
+  .preview-task-row strong{
+    margin-top:2px;
+    font-size:.52rem;
+  }
+}
+
+@media (max-width: 520px) {
+  .home-main{
+    width:min(100% - 12px,1120px)!important;
+  }
+
+  .landing-hero{
+    flex-basis:clamp(190px,29svh,235px)!important;
+    padding-top:16px!important;
+  }
+
+  .landing-logo{
+    width:60px!important;
+    height:60px!important;
+  }
+
+  .landing-brand h1{
+    margin:8px 0 11px!important;
+    font-size:1.9rem!important;
+  }
+
+  .preview-shell{
+    grid-template-columns:1fr!important;
+  }
+
+  .preview-sidebar{
+    display:none!important;
+  }
+}
+
+@media (max-height: 700px) and (max-width: 760px) {
+  .landing-hero{
+    flex-basis:178px!important;
+    padding-top:12px!important;
+    padding-bottom:8px!important;
+  }
+
+  .landing-logo{
+    width:54px!important;
+    height:54px!important;
+  }
+
+  .landing-brand h1{
+    margin:7px 0 9px!important;
+    font-size:1.75rem!important;
+  }
+
+  .landing-cta{
+    height:35px;
+    min-height:35px!important;
+  }
+
+  .preview-panel-grid{
+    display:none!important;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 520px) {
+  body.home-page .home-main{
+    width:min(100% - 24px,960px)!important;
+    display:grid!important;
+    grid-template-columns:minmax(190px,.62fr) minmax(0,1.38fr);
+    gap:18px;
+    align-items:center;
+  }
+
+  body.home-page .landing-hero{
+    height:100svh;
+    flex:none!important;
+    padding:12px 0!important;
+  }
+
+  body.home-page .dashboard-preview-section{
+    height:calc(100svh - 20px);
+  }
+
+  body.home-page .landing-logo{
+    width:52px!important;
+    height:52px!important;
+  }
+
+  body.home-page .landing-brand h1{
+    font-size:1.7rem!important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar,
+  .drawer-backdrop{
+    transition:none!important;
+  }
+}
+
+/* ============================================================
+   V1.40 — mobile homepage background + compact preview fix
+   ============================================================ */
+@media (max-width:760px){
+  .aroyn-field-background{
+    min-height:100svh;
+  }
+
+  body.home-page .home-main{
+    width:100%!important;
+    padding-inline:max(10px,env(safe-area-inset-left),env(safe-area-inset-right))!important;
+    align-items:center;
+  }
+
+  body.home-page .landing-hero{
+    width:100%;
+    flex:0 0 clamp(188px,28svh,230px)!important;
+    padding:clamp(14px,3svh,24px) 0 8px!important;
+  }
+
+  body.home-page .dashboard-preview-section{
+    flex:0 0 auto!important;
+    width:100%!important;
+    min-height:0;
+    align-items:center;
+    justify-content:flex-start;
+    overflow:visible;
+  }
+
+  body.home-page .product-preview{
+    width:min(88vw,380px)!important;
+    height:clamp(245px,38svh,300px)!important;
+    max-height:300px!important;
+    margin:0 auto;
+    border-radius:12px;
+  }
+
+  body.home-page .preview-bar{
+    height:35px;
+    padding:0 9px;
+  }
+
+  body.home-page .preview-shell{
+    height:calc(100% - 35px)!important;
+    min-height:0!important;
+    grid-template-columns:74px minmax(0,1fr)!important;
+  }
+
+  body.home-page .preview-sidebar{
+    padding:7px 5px;
+  }
+
+  body.home-page .preview-nav{
+    height:22px;
+    padding:0 5px;
+    margin-bottom:2px;
+    font-size:.47rem;
+  }
+
+  body.home-page .preview-content{
+    padding:7px!important;
+  }
+
+  body.home-page .preview-heading-row{
+    margin-bottom:5px;
+  }
+
+  body.home-page .preview-runtime-banner{
+    margin-bottom:5px;
+    padding:5px 6px;
+  }
+
+  body.home-page .preview-stat-grid{
+    gap:4px;
+    margin-bottom:5px;
+  }
+
+  body.home-page .preview-stat{
+    padding:5px 6px;
+  }
+
+  body.home-page .preview-panel-grid{
+    gap:4px;
+    margin-bottom:0;
+  }
+
+  body.home-page .preview-panel{
+    padding:5px 6px;
+  }
+
+  body.home-page .preview-activity:nth-child(n+3){
+    display:none;
+  }
+
+  body.home-page .preview-task-row{
+    display:none!important;
+  }
+}
+
+@media (max-width:520px){
+  body.home-page .landing-hero{
+    flex-basis:clamp(175px,26svh,208px)!important;
+  }
+
+  body.home-page .landing-logo{
+    width:56px!important;
+    height:56px!important;
+  }
+
+  body.home-page .landing-brand h1{
+    margin:7px 0 10px!important;
+    font-size:1.82rem!important;
+  }
+
+  body.home-page .product-preview{
+    width:min(86vw,344px)!important;
+    height:clamp(225px,34svh,268px)!important;
+    max-height:268px!important;
+  }
+
+  body.home-page .preview-shell{
+    grid-template-columns:1fr!important;
+  }
+
+  body.home-page .preview-sidebar{
+    display:none!important;
+  }
+
+  body.home-page .preview-panel-grid{
+    display:none!important;
+  }
+}
+
+@media (max-height:700px) and (max-width:760px){
+  body.home-page .landing-hero{
+    flex-basis:164px!important;
+    padding-top:10px!important;
+  }
+
+  body.home-page .landing-logo{
+    width:50px!important;
+    height:50px!important;
+  }
+
+  body.home-page .landing-brand h1{
+    margin:5px 0 8px!important;
+    font-size:1.65rem!important;
+  }
+
+  body.home-page .product-preview{
+    height:min(238px,38svh)!important;
+    max-height:238px!important;
+  }
+}

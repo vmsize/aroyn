@@ -1,0 +1,4 @@
+LIVE_TOKEN_SECRET=replace-with-a-long-random-secret
+PRESENCE_TOKEN_SECRET=replace-with-a-different-long-random-secret
+STATS_API_SECRET=replace-with-a-long-random-secret
+OWNER_DISCORD_ID=replace-with-your-own-discord-user-id

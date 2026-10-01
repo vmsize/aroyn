@@ -1,0 +1,44 @@
+{
+  "date": "2026-10-01",
+  "environment": "local Miniflare 5 forced eviction with webSockets=hibernate; native ws closeTimeout=1000 bounds proxy TCP close-handshake wait; no real accounts",
+  "checks": [
+    {
+      "name": "forced hibernation preserves four accepted sockets",
+      "pass": true
+    },
+    {
+      "name": "recreated object restores runtime/viewer attachments and relay",
+      "pass": true
+    },
+    {
+      "name": "account isolation survives object recreation",
+      "pass": true
+    },
+    {
+      "name": "viewer role cannot become runtime after hibernation",
+      "pass": true
+    },
+    {
+      "name": "logout after hibernation revokes viewer without leaking new data",
+      "pass": true
+    },
+    {
+      "name": "key rotation remains revoked after object recreation",
+      "pass": true
+    },
+    {
+      "name": "new credential reconnects and relays after another hibernation",
+      "pass": true
+    },
+    {
+      "name": "message counter survives hibernation and rejects message 121",
+      "pass": true
+    },
+    {
+      "name": "persisted alarm closes idle viewer/runtime after deletion",
+      "pass": true
+    }
+  ],
+  "passed": true,
+  "cloudHibernationObserved": false
+}

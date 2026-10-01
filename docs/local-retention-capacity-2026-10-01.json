@@ -1,0 +1,32 @@
+{
+  "date": "2026-10-01",
+  "passed": true,
+  "scope": "local real Miniflare D1/R2/DO bindings; fixture clock advances eight days, small synthetic snapshots; no external services",
+  "cloudCpuOrQuotaMeasured": false,
+  "results": [
+    {
+      "expiredSnapshots": 100,
+      "expiredHistoryRows": 100,
+      "freshHistoryRowsPreserved": 10,
+      "revocationMarkersPreserved": 3,
+      "elapsedMs": 2945,
+      "operationCountsIncludingIdempotenceRun": {
+        "list": 7,
+        "expiryCoordinator": 100,
+        "cacheInvalidation": 2
+      }
+    },
+    {
+      "expiredSnapshots": 1000,
+      "expiredHistoryRows": 1000,
+      "freshHistoryRowsPreserved": 20,
+      "revocationMarkersPreserved": 3,
+      "elapsedMs": 32203,
+      "operationCountsIncludingIdempotenceRun": {
+        "list": 16,
+        "expiryCoordinator": 1000,
+        "cacheInvalidation": 2
+      }
+    }
+  ]
+}

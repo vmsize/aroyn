@@ -7,7 +7,7 @@ npm ci --ignore-scripts
 npm test
 ```
 
-The twelve suites run sequentially and fail the process on a failed assertion (146 check groups):
+The thirteen suites run sequentially and fail the process on a failed assertion (155 check groups):
 
 | Suite | Checks | Scope |
 | --- | ---: | --- |
@@ -23,6 +23,7 @@ The twelve suites run sequentially and fail the process on a failed assertion (1
 | mutation-race-check | 10 | Per-account mutation ordering, unlink retry, shared mirror, active/queued credential revocation, independent users and eight native concurrent pairs |
 | deletion-ledger-check | 12 | Write-ahead failures, minimal immutable records, new-profile identity, independent restore coverage, bounded expiry and corrupt-data rejection |
 | ledger-cutover-check | 6 | Transactional legacy-delete fence, receipt identity, fail-closed initialization/retry, native maintenance pause/eviction/resume and private routing |
+| write-budget-check | 9 | Ownership checkpoint writes without auth caching, quota headroom/stale report rejection and persistent concurrent fixture reservations |
 
 The Miniflare harness refuses non-mock mode and replaces external Discord/Roblox calls with synthetic responses. Each backend suite has a fresh D1/R2 store. The tests never load private credentials. Result JSON files are ignored by Git. The pinned prerelease Miniflare version uses its V4 options converter; update the harness alongside any dependency upgrade.
 

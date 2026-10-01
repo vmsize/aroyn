@@ -1,6 +1,7 @@
 import {withSnapshotStorage} from './snapshot-storage.js';
 import {recordDeletion, recordDeletionReceipt} from './deletion-ledger.js';
 export const RETENTION = Object.freeze({historyDays: 30, snapshotDays: 7, webSessionDays: 30, profile: 'until-account-deletion'});
+export const OWNER_CHECKPOINT_MS = 60000;
 
 // Ownership is an authenticated Aroyn association, not proof of Roblox ownership.
 export async function claimRuntimeSession(env, userId, robloxUserId, sessionId, now = Date.now()) {
@@ -14,8 +15,19 @@ export async function claimRuntimeSession(env, userId, robloxUserId, sessionId, 
     ON CONFLICT(session_id) DO UPDATE SET last_seen_at = excluded.last_seen_at
     WHERE runtime_session_owners.veyra_user_id = excluded.veyra_user_id
       AND runtime_session_owners.roblox_user_id = excluded.roblox_user_id
-  `).bind(String(sessionId), userId, String(robloxUserId), now).run();
-  return Number(result.meta?.changes || 0) > 0;
+      AND runtime_session_owners.last_seen_at <= ?5
+  `).bind(String(sessionId), userId, String(robloxUserId), now, now - OWNER_CHECKPOINT_MS).run();
+  if (Number(result.meta?.changes || 0) > 0) return true;
+  // A skipped timestamp write is not proof of ownership. Recheck the same
+  // identity/revocation/collision rules even within the checkpoint interval.
+  const existing = await env.DB.prepare(`SELECT 1 AS permitted
+    FROM runtime_session_owners o JOIN users u ON u.id=o.veyra_user_id
+    WHERE o.session_id=?1 AND u.id=?2 AND o.roblox_user_id=?3
+      AND NOT EXISTS (SELECT 1 FROM account_deletions WHERE user_id=?2)
+      AND NOT EXISTS (SELECT 1 FROM analytics_sessions WHERE session_id=?1 AND roblox_user_id<>?3)
+      AND NOT EXISTS (SELECT 1 FROM runtime_presence WHERE session_id=?1 AND roblox_user_id<>?3)
+  `).bind(String(sessionId), userId, String(robloxUserId)).first();
+  return existing?.permitted === 1;
 }
 
 async function* listObjects(bucket, prefix) {

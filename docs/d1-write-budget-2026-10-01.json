@@ -1,0 +1,13 @@
+{
+  "date": "2026-10-01",
+  "metricsScope": "account-wide UTC day; read-only Cloudflare GraphQL; capture, not full-day final totals",
+  "rowsWritten": {"account": 118919, "disposableMutationFixture": 105242, "restrictedStaging": 3027, "olderApplication": 8021},
+  "primaryCause": "large synthetic cloud seed and cascade fixture, including index operations",
+  "fixtureRemovedBeforeDiagnosis": true,
+  "bulkCloudSeedDisabled": true,
+  "archivedCloudEntrypointsBlocked": 14,
+  "newFixtureControls": {"maximumRunEstimate": 1000, "sharedDailyReservations": 2000, "accountHeadroom": 30000, "maximumMetricsAgeSeconds": 300},
+  "localVerification": {"suites": 13, "groups": 155, "passed": true, "newGroups": 9, "oneSecondOwnershipClaims": 60, "initialClaimRowsWrittenIncludingIndexes": 4},
+  "deployment": {"apiUploaded": true, "restrictedAccessPreserved": true, "bindingsAndSecretNamesPreserved": true, "durableNamespacesPreserved": true, "cronPreserved": true, "apiHealth": 200, "liveHealth": 200, "guestProfile": 401, "guestPush": 401, "authenticatedTelemetryAfterUploadVerified": false, "newD1Migration": false, "newCloudFixture": false, "billingChanged": false},
+  "limitations": ["Operator preflight is not a global provider spending cap", "Analytics may lag and all applications share quota", "Existing consumption remains until provider daily reset", "Deletion journal remains disabled and uninitialized", "Full-day ordinary-usage capacity measurement remains required before broader access"]
+}

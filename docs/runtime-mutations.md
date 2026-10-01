@@ -28,6 +28,10 @@ The previous 121-call sequential rate-limit assertion failed once during the ful
 
 References: [DO coordination rules](https://developers.cloudflare.com/durable-objects/best-practices/rules-of-durable-objects/), [D1 batches](https://developers.cloudflare.com/d1/worker-api/d1-database/).
 
+## Subsequent daily quota correction
+
+The historical large cloud fixture was subsequently identified as the primary contributor to a shared-account D1 daily write-limit incident. Its bulk seed route is now disabled; large capacity checks must remain local. Runtime ownership checkpoints were reduced without weakening current ownership checks. See [write budget and current verification](d1-write-budget.md). The historical cloud success does not establish safe quota usage.
+
 ## Restricted staging rollout
 
 The corrected API and new native mutation binding were uploaded after the checks. Existing snapshot/retention/cross-Worker namespaces and secret binding names were preserved; access remains restricted and the normal daily Cron remains 03:17 UTC. Migration 0004's index was applied. API/live health returned 200, guest profile and guest push returned 401, and an unknown runtime method returned 405. No real user's deletion, unlink or key replacement was performed. The live Worker/frontend were unchanged. Authenticated telemetry on the existing staging after this particular upload remains an owner follow-up; the isolated cloud mutation checks exercised the new binding before rollout.

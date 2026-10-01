@@ -1,6 +1,12 @@
 # Source package status — 2026-10-01
 
-## Latest update: approved journal; activation deferred by D1 quota
+## Latest update: D1 quota incident correction
+
+Account-wide read-only analytics attributed 105,242 of 118,919 written rows on 2026-10-01 to the disposable large mutation fixture; restricted staging contributed 3,027. The large cloud seed is disabled and fourteen archived fixture entrypoints are blocked pending adaptation. New small cloud checks require fresh account-wide metrics, 30,000 rows of headroom and a shared 2,000-row daily fixture reservation. Large capacity checks remain local. These operator controls are not a global provider spending cap.
+
+Runtime ownership timestamps now checkpoint at most once per minute, with current identity/deletion/collision checks even when the timestamp write is skipped. Incoming telemetry cadence and credential revocation are retained. All thirteen local suites / 155 groups passed, including nine new write-budget groups. The API correction was deployed to restricted staging with existing bindings/secrets/namespaces and Cron preserved; health and guest gates passed. No D1 migration, new cloud fixture or real-account mutation was performed for this correction. Authenticated cloud telemetry after this upload remains unverified while the daily quota is exhausted. The consumed quota cannot be refunded by this code change. See [write budget and limits](docs/d1-write-budget.md) and [sanitized evidence](docs/d1-write-budget-2026-10-01.json).
+
+## Previous update: approved journal; activation deferred by D1 quota
 
 The owner approved the additional 35-day ID/time-only journal retention. The candidate now includes migration 0005: a default-inactive D1 receipt fence preventing old deletion finalizers from completing without a matching journal receipt after the gate is enabled. Six new cutover groups passed; the complete local gate passed twelve suites / 146 groups.
 

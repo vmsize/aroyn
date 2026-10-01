@@ -1,0 +1,61 @@
+{
+  "date": "2026-10-01",
+  "checks": [
+    {
+      "name": "synthetic cloud fixture requires a private control secret",
+      "pass": true
+    },
+    {
+      "name": "uninitialized cloud ledger refuses deletion and preserves current access",
+      "pass": true
+    },
+    {
+      "name": "cloud cutover initializes coverage once without replacing the bucket",
+      "pass": true
+    },
+    {
+      "name": "eight concurrent first cloud writes preserve exactly one event and first timestamp",
+      "pass": true
+    },
+    {
+      "name": "completed cloud deletion leaves only ID/time in separate ledger after its D1 job is removed",
+      "pass": true
+    },
+    {
+      "name": "actual D1 Time Travel resurrects invented deleted profile while separate R2 ledger survives unchanged",
+      "pass": true
+    },
+    {
+      "name": "cloud manifest rejects a backup older than cutover or a replaced ledger identity",
+      "pass": true
+    },
+    {
+      "name": "cloud recovery reads deletion events from original ledger instead of a hand-written manifest",
+      "pass": true
+    },
+    {
+      "name": "ledger-guided cloud sanitation removes old profile/access and preserves other profile/history without reopening service",
+      "pass": true
+    },
+    {
+      "name": "cloud bounded expiry removes aged events while retaining cutover metadata",
+      "pass": true
+    }
+  ],
+  "passed": true,
+  "temporaryResourcesRemoved": true,
+  "sanitizerSteps": 29,
+  "source": "isolated actual Cloudflare D1 Time Travel and separate private R2 buckets; fresh Worker/DO namespaces",
+  "identity": "seeded sessions; no OAuth",
+  "cacheAndRateControls": "stubbed in private wrapper",
+  "cloudCpuOrQuotaMeasured": false,
+  "expiry": "fixture clock +36 days; provider automatic lifecycle not measured",
+  "temporaryR2ObjectsRemaining": {
+    "PAYLOADS": 0,
+    "DELETION_LEDGER": 0
+  },
+  "stagingChanged": false,
+  "clockNote": "Initial PC clock was approximately two seconds behind provider; a coverage interval before ledger cutover was rejected. Successful run used provider clocks.",
+  "conditionalWriteNote": "Initial wrapper reported concurrent-write rejections without provider details. Completed-winner read or closed failure/retry added; later checks passed.",
+  "finalLocalHardening": "Start-bound event timestamp validation additionally checked locally after cloud run."
+}

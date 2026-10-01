@@ -1,0 +1,59 @@
+{
+  "source": "isolated Miniflare D1/R2/DO; synthetic identities; no cloud cutover",
+  "results": [
+    {
+      "name": "required uninitialized ledger returns 503 before DB revocation or deletion",
+      "pass": true
+    },
+    {
+      "name": "operator initialization requires closed drained cutover and never replaces existing coverage",
+      "pass": true
+    },
+    {
+      "name": "completed HTTP deletion keeps minimal independent record after D1 deletion job disappears",
+      "pass": true
+    },
+    {
+      "name": "concurrent retries preserve first timestamp; same Discord identity can use a new empty profile",
+      "pass": true
+    },
+    {
+      "name": "failed writes and invalid IDs fail closed without storing an event",
+      "pass": true
+    },
+    {
+      "name": "manifest comes from preserved ledger; old coverage, wrong bucket, live access or unpaused cleanup are rejected",
+      "pass": true
+    },
+    {
+      "name": "independently read ledger removes resurrected profile from restored DB while other profile/history survive",
+      "pass": true
+    },
+    {
+      "name": "35-day coverage excludes older backups; expired record is removed without resetting coverage",
+      "pass": true
+    },
+    {
+      "name": "63-record expiry uses three bounded pages and keeps a fresh event",
+      "pass": true
+    },
+    {
+      "name": "corrupt entries and non-advancing pages block recovery or maintenance rather than claiming completeness",
+      "pass": true
+    },
+    {
+      "name": "ordinary retention cycle includes bounded journal cleanup with a saved phase",
+      "pass": true
+    },
+    {
+      "name": "prepared feature remains inactive until explicitly enabled during controlled cutover",
+      "pass": true
+    }
+  ],
+  "date": "2026-10-01",
+  "defaultGate": {
+    "suites": 11,
+    "groups": 140,
+    "finalRun": "passed: node tests/run.mjs, exit 0, 11 suites / 140 groups"
+  }
+}

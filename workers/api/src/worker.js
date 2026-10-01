@@ -1,5 +1,6 @@
 
 import {RETENTION, claimRuntimeSession, accountExport, finishAccountDeletion, runDataRetention} from '../../shared/data-lifecycle.js';
+import {ledgerRequired, DELETION_LEDGER_DAYS, recordDeletion} from '../../shared/deletion-ledger.js';
 import {withSnapshotStorage} from '../../shared/snapshot-storage.js';
 export {AroynSnapshotStore} from '../../shared/snapshot-storage.js';
 export {AroynRetentionRunner} from '../../shared/retention-runner.js';
@@ -432,7 +433,7 @@ async function handleAccountDataApi(request, env) {
     const auth = await requireWebSession(request, env);
     if (auth.error) return auth.error;
     if (path === '/api/v2/account/retention' && request.method === 'GET') {
-        return jsonResponse(request, env, {ok: true, retention: RETENTION});
+        return jsonResponse(request, env, {ok: true, retention: {...RETENTION, ...(ledgerRequired(env) ? {deletionLedgerDays: DELETION_LEDGER_DAYS} : {})}});
     }
     if (path === '/api/v2/account/export' && request.method === 'GET') {
         const response = await accountExport(request, env, auth.session, getWebSessionUser);
@@ -448,8 +449,11 @@ async function handleAccountDataApi(request, env) {
         }
         if (!env.STATS_CACHE || !env.RETENTION_RUNNER) return jsonResponse(request, env, {error: 'Account deletion is temporarily unavailable.'}, 503);
         const id = auth.session.user.id;
+        const requestedAt = Date.now();
+        try { await recordDeletion(env, id, requestedAt); }
+        catch { return jsonResponse(request, env, {error: 'Account deletion is temporarily unavailable. Your request was not completed; please retry.', code: 'DELETION_LEDGER_UNAVAILABLE'}, 503); }
         await env.DB.batch([
-            env.DB.prepare('INSERT OR IGNORE INTO account_deletions (user_id, requested_at, legacy_key_hash) SELECT id, ?2, dashboard_key_hash FROM users WHERE id=?1').bind(id, Date.now()),
+            env.DB.prepare('INSERT OR IGNORE INTO account_deletions (user_id, requested_at, legacy_key_hash) SELECT id, ?2, dashboard_key_hash FROM users WHERE id=?1').bind(id, requestedAt),
             env.DB.prepare('UPDATE users SET dashboard_key_hash=NULL, dashboard_key_suffix=NULL WHERE id=?1').bind(id),
             env.DB.prepare('DELETE FROM web_sessions WHERE user_id=?1').bind(id),
             env.DB.prepare('DELETE FROM auth_exchanges WHERE user_id=?1').bind(id),

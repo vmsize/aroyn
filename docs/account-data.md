@@ -60,3 +60,7 @@ Owner deletion/re-login completed on restricted staging: targeted old-ID checks 
 A separate native runtime receiver confirmed terminal WebSocket closure after dashboard key rotation on real restricted cloud staging: close code 1008, reason Live access revoked, state CLOSED. Old-key verification and live-token issuance both returned 401. This was an idle runtime connection; other roles and revocation/message races were not covered.
 
 The shared cleanup code subsequently passed 17 checks from a real Cron event on an isolated temporary cloud Worker with separate synthetic D1/R2 and actual per-key DO coordination. Snapshot age used an isolated +8-day test clock; cache transport was stubbed. Concurrent replacements and pending-deletion retry passed. The temporary resources were removed and the corrected API was deployed to restricted staging. Its ordinary daily invocation has not yet been observed; larger volume, other lifecycle races and provider recovery remain separate concerns.
+
+## Prepared deletion journal
+
+The source supports DELETION_LEDGER_MODE=required with a separate private R2 binding. It records minimal internal-profile ID/time intents before DB revocation and includes bounded 35-day expiry in maintenance. This optional feature is not activated on real staging data. Retention confirmation, amended notices and closed/drained cutover are still required. See [design and activation procedure](deletion-ledger.md). A newly created profile has a new internal ID and remains usable.

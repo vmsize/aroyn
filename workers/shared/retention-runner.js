@@ -1,5 +1,6 @@
 import {RETENTION, finishAccountDeletion, invalidateDataCaches} from './data-lifecycle.js';
 import {withSnapshotStorage} from './snapshot-storage.js';
+import {pruneDeletionLedger} from './deletion-ledger.js';
 
 export const RETENTION_BATCH = Object.freeze({objects: 25, rows: 250, continuationMs: 10000, retryMs: 60000});
 const DAY = 86400000;
@@ -64,7 +65,14 @@ export async function retentionStep(env, checkpoint) {
       if (!page.cursor || page.cursor === state.cursor) throw new Error('R2 listing did not advance');
       state.cursor = page.cursor;
     } else { state.prefix++; state.cursor = null; }
-    if (state.prefix === prefixes.length) state.phase = 'invalidate';
+    if (state.prefix === prefixes.length) state.phase = 'ledger';
+    return state;
+  }
+  if (state.phase === 'ledger') {
+    const page = await pruneDeletionLedger(env, {now: state.now, cursor: state.cursor, limit: RETENTION_BATCH.objects});
+    state.ledgerRemoved = (state.ledgerRemoved || 0) + page.removed;
+    state.cursor = page.cursor;
+    if (page.done) state.phase = 'invalidate';
     return state;
   }
   if (state.phase === 'invalidate') {
@@ -72,6 +80,7 @@ export async function retentionStep(env, checkpoint) {
     return {active: false, completedAt: Date.now(), now: state.now, steps: state.steps,
       snapshotsRemoved: state.snapshotsRemoved, objectsVisited: state.objectsVisited,
       rowsRemoved: state.rowsRemoved, pendingDeletions: state.pendingDeletions,
+      ledgerRemoved: state.ledgerRemoved || 0,
       followupRequested: state.followupRequested === true, failures: 0};
   }
   throw new Error('Unknown retention phase');

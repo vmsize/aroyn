@@ -28,7 +28,7 @@ export async function createRuntime({mock=false,port=0,persistPath=null,ownerDis
     return new Response('External request disabled in local test',{status:502});
   };
   const secrets={tokenSecret:'mock-token-secret',liveTokenSecret:'mock-live-secret',presenceTokenSecret:'mock-presence-secret',statsApiSecret:'mock-stats-secret'};
-  const shared={modules:true,d1Databases:{DB:'aroyn-isolated-db'},r2Buckets:{PAYLOADS:'aroyn-isolated-payloads'},outboundService:mockOutbound};
+  const shared={modules:true,d1Databases:{DB:'aroyn-isolated-db'},r2Buckets:{PAYLOADS:'aroyn-isolated-payloads',DELETION_LEDGER:'aroyn-isolated-ledger'},outboundService:mockOutbound};
   async function bundle(path){const result=await build({entryPoints:[path],bundle:true,write:false,format:'esm',platform:'browser',target:'es2022'});return result.outputFiles[0].text;}
   const [liveSource,apiSource]=await Promise.all([bundle(resolve(candidate,'workers/live/src/index.js')),bundle(resolve(candidate,'workers/api/src/worker.js'))]);
   const mf=new Miniflare(convertV4MiniflareOptions({

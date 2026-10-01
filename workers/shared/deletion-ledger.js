@@ -1,0 +1,75 @@
+// Dedicated private R2 bucket. Never include it in a profile/payload restore.
+// Deployment enables this explicitly, after closing access for cutover.
+export const DELETION_LEDGER_DAYS = 35;
+export const LEDGER_META_KEY = 'coverage.json';
+const DAY = 86400000;
+const PREFIX = 'events/';
+const validId = id => typeof id === 'string' && /^[A-Za-z0-9_-]{1,128}$/.test(id);
+const validClock = n => Number.isSafeInteger(n) && n > 0;
+
+export function ledgerRequired(env) { return env.DELETION_LEDGER_MODE === 'required'; }
+
+export async function readLedgerMetadata(bucket, now = Date.now()) {
+  if (!bucket || !validClock(now)) throw new Error('Deletion ledger unavailable');
+  const object = await bucket.get(LEDGER_META_KEY);
+  if (!object || object.size > 1024) throw new Error('Deletion coverage not initialized');
+  const meta = await object.json();
+  if (meta?.format !== 'aroyn-deletion-ledger-v1' || !validClock(meta.startedAt) || meta.startedAt > now || meta.retentionDays !== DELETION_LEDGER_DAYS || !validId(meta.ledgerId)) throw new Error('Invalid deletion coverage');
+  return meta;
+}
+
+export function validateLedgerEvent(event, key, now, startedAt = 1) {
+  if (!event || Object.keys(event).sort().join(',') !== 'requestedAt,userId' || !validId(event.userId) || key !== PREFIX + event.userId + '.json' || !validClock(event.requestedAt) || event.requestedAt < startedAt || event.requestedAt > now) throw new Error('Invalid deletion ledger event');
+  return event;
+}
+
+export async function recordDeletion(env, userId, requestedAt = Date.now(), now = Date.now()) {
+  if (!ledgerRequired(env)) return null;
+  if (!validId(userId) || !validClock(requestedAt) || requestedAt > now) throw new Error('Invalid deletion request');
+  const meta = await readLedgerMetadata(env.DELETION_LEDGER, now);
+  // Pending jobs predating cutover remain in D1. Preserve their intent at the
+  // beginning of this ledger's coverage, before any finalization removes them.
+  const event = {userId, requestedAt: Math.max(requestedAt, meta.startedAt)};
+  if (event.requestedAt < now - DELETION_LEDGER_DAYS * DAY) return {expired: true};
+  const key = PREFIX + userId + '.json';
+  const existing = await env.DELETION_LEDGER.get(key);
+  if (existing) {
+    if (existing.size > 1024) throw new Error('Invalid deletion record size');
+    return validateLedgerEvent(await existing.json(), key, now, meta.startedAt);
+  }
+  let stored;
+  try {
+    stored = await env.DELETION_LEDGER.put(key, JSON.stringify(event), {
+      onlyIf: {etagDoesNotMatch: '*'}, httpMetadata: {contentType: 'application/json'},
+    });
+  } catch {
+    // R2 can reject concurrent writes to the same key. Continue only if a
+    // completed winner is independently readable; otherwise fail closed.
+  }
+  if (stored) return event;
+  // Concurrent retries never replace the first timestamp or extend retention.
+  const winner = await env.DELETION_LEDGER.get(key);
+  if (!winner || winner.size > 1024) throw new Error('Deletion intent not recorded');
+  return validateLedgerEvent(await winner.json(), key, now, meta.startedAt);
+}
+
+export async function pruneDeletionLedger(env, {now = Date.now(), cursor = null, limit = 25} = {}) {
+  if (!ledgerRequired(env)) return {done: true, cursor: null, removed: 0, visited: 0};
+  const meta = await readLedgerMetadata(env.DELETION_LEDGER, now);
+  if (!Number.isInteger(limit) || limit < 1 || limit > 25) throw new Error('Invalid ledger page limit');
+  const page = await env.DELETION_LEDGER.list({prefix: PREFIX, limit, ...(cursor ? {cursor} : {})});
+  let removed = 0;
+  for (const item of page.objects) {
+    const object = await env.DELETION_LEDGER.get(item.key);
+    if (!object) continue; // Another bounded sweep already removed it.
+    if (object.size > 1024) throw new Error('Invalid deletion record size');
+    const event = validateLedgerEvent(await object.json(), item.key, now, meta.startedAt);
+    if (event.requestedAt < now - DELETION_LEDGER_DAYS * DAY) {
+      // Records are immutable through this application. Direct admin writes
+      // must not race pruning; R2 delete has no ETag precondition.
+      await env.DELETION_LEDGER.delete(item.key); removed++;
+    }
+  }
+  if (page.truncated && (!page.cursor || page.cursor === cursor)) throw new Error('Deletion ledger listing did not advance');
+  return {done: !page.truncated, cursor: page.truncated ? page.cursor : null, removed, visited: page.objects.length};
+}

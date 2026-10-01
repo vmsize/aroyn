@@ -7,7 +7,7 @@ npm ci --ignore-scripts
 npm test
 ```
 
-The ten suites run sequentially and fail the process on a failed assertion (128 check groups):
+The eleven suites run sequentially and fail the process on a failed assertion (140 check groups):
 
 | Suite | Checks | Scope |
 | --- | ---: | --- |
@@ -21,6 +21,7 @@ The ten suites run sequentially and fail the process on a failed assertion (128 
 | retention-check | 13 | Bounded expiry, checkpoint replay/backoff, failed-job isolation, follow-up cycles and native alarms after eviction |
 | recovery-check | 11 | Isolated restore, external deletion coverage, credential reset, unexpired old live token, cleanup retry and surviving history/export |
 | mutation-race-check | 10 | Per-account mutation ordering, unlink retry, shared mirror, active/queued credential revocation, independent users and eight native concurrent pairs |
+| deletion-ledger-check | 12 | Write-ahead failures, minimal immutable records, new-profile identity, independent restore coverage, bounded expiry and corrupt-data rejection |
 
 The Miniflare harness refuses non-mock mode and replaces external Discord/Roblox calls with synthetic responses. Each backend suite has a fresh D1/R2 store. The tests never load private credentials. Result JSON files are ignored by Git. The pinned prerelease Miniflare version uses its V4 options converter; update the harness alongside any dependency upgrade.
 
@@ -43,3 +44,5 @@ It drains bounded steps without their normal ten-second alarm delay using local 
 The recovery suite copies synthetic rows/objects between two local runtimes. A separate disposable cloud database exercised real D1 Time Travel and passed ten checks over 26 operator-driven sanitation steps. The cloud drill did not restore staging or real profiles, and a real-data deletion ledger remains a gate. See [recovery scope and limitations](recovery-drill.md).
 
 Optional `npm run test:account-capacity` verifies scoped SQL deletion and foreign-key cascades at 1,000/10,000 local history rows plus associated ownership, web sessions and exchanges. A separate actual cloud fixture exercised 5,000 history rows and 15,000 related rows, and twelve concurrent push/unlink pairs. No cloud CPU/quota or supported user-count guarantee follows. See [runtime mutation correction and scope](runtime-mutations.md).
+
+A separate 10-check actual-cloud journal fixture restored D1 with Time Travel while retaining the dedicated R2 deletion ledger, then derived the recovery manifest from that ledger and sanitized the closed destination. Its temporary resources were removed. The journal remains unactivated for real staging data pending the retention decision and closed cutover. See [deletion ledger](deletion-ledger.md).

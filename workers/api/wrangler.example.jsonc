@@ -7,12 +7,81 @@
     "DISCORD_CLIENT_ID": "REPLACE_WITH_CLIENT_ID",
     "DISCORD_REDIRECT_URI": "https://example.com/api/v2/auth/discord/callback",
     "SITE_ORIGIN": "https://example.com",
-    "ALLOW_LEGACY_RUNTIME": "false"
+    "ALLOW_LEGACY_RUNTIME": "false",
+    "DELETION_LEDGER_MODE": "disabled"
   },
-  "d1_databases": [{ "binding": "DB", "database_name": "aroyn-example", "database_id": "REPLACE_WITH_D1_ID", "migrations_dir": "migrations" }],
-  "r2_buckets": [{ "binding": "PAYLOADS", "bucket_name": "REPLACE_WITH_BUCKET_NAME" }],
-  "ratelimits": [{ "name": "API_RATE_LIMITER", "namespace_id": "1002", "simple": { "limit": 120, "period": 60 } }],
-  "durable_objects": { "bindings": [{ "name": "STATS_CACHE", "class_name": "VeyraStatsHub", "script_name": "aroyn-live-example" }, { "name": "SNAPSHOT_STORAGE", "class_name": "AroynSnapshotStore" }, { "name": "RETENTION_RUNNER", "class_name": "AroynRetentionRunner" }, { "name": "RUNTIME_MUTATIONS", "class_name": "AroynRuntimeMutations" }] },
-  "migrations": [{ "tag": "snapshot-storage-v1", "new_sqlite_classes": ["AroynSnapshotStore"] }, { "tag": "retention-runner-v1", "new_sqlite_classes": ["AroynRetentionRunner"] }, { "tag": "runtime-mutations-v1", "new_sqlite_classes": ["AroynRuntimeMutations"] }],
-  "triggers": { "crons": ["17 3 * * *"] }
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "aroyn-example",
+      "database_id": "REPLACE_WITH_D1_ID",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "PAYLOADS",
+      "bucket_name": "REPLACE_WITH_BUCKET_NAME"
+    },
+    {
+      "binding": "DELETION_LEDGER",
+      "bucket_name": "REPLACE_WITH_SEPARATE_PRIVATE_LEDGER_BUCKET"
+    }
+  ],
+  "ratelimits": [
+    {
+      "name": "API_RATE_LIMITER",
+      "namespace_id": "1002",
+      "simple": {
+        "limit": 120,
+        "period": 60
+      }
+    }
+  ],
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "STATS_CACHE",
+        "class_name": "VeyraStatsHub",
+        "script_name": "aroyn-live-example"
+      },
+      {
+        "name": "SNAPSHOT_STORAGE",
+        "class_name": "AroynSnapshotStore"
+      },
+      {
+        "name": "RETENTION_RUNNER",
+        "class_name": "AroynRetentionRunner"
+      },
+      {
+        "name": "RUNTIME_MUTATIONS",
+        "class_name": "AroynRuntimeMutations"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "snapshot-storage-v1",
+      "new_sqlite_classes": [
+        "AroynSnapshotStore"
+      ]
+    },
+    {
+      "tag": "retention-runner-v1",
+      "new_sqlite_classes": [
+        "AroynRetentionRunner"
+      ]
+    },
+    {
+      "tag": "runtime-mutations-v1",
+      "new_sqlite_classes": [
+        "AroynRuntimeMutations"
+      ]
+    }
+  ],
+  "triggers": {
+    "crons": [
+      "17 3 * * *"
+    ]
+  }
 }

@@ -1,4 +1,5 @@
 import {withSnapshotStorage} from './snapshot-storage.js';
+import {recordDeletion} from './deletion-ledger.js';
 export const RETENTION = Object.freeze({historyDays: 30, snapshotDays: 7, webSessionDays: 30, profile: 'until-account-deletion'});
 
 // Ownership is an authenticated Aroyn association, not proof of Roblox ownership.
@@ -36,6 +37,9 @@ export async function invalidateDataCaches(env) {
 export async function finishAccountDeletion(env, job, {maxObjects = 25} = {}) {
   env = withSnapshotStorage(env);
   const id = job.user_id;
+  // Existing pre-cutover jobs also reach the independent ledger before their
+  // durable D1 marker can disappear. Disabled deployments retain old behavior.
+  await recordDeletion(env, id, Number(job.requested_at));
   let removed = 0;
   // The account is already marked and all credentials are revoked before R2 I/O.
   for (const prefix of [`runtime-v2/${id}/`, `runtime-v3/${id}/`]) {

@@ -106,8 +106,27 @@ export class AroynRetentionRunner {
     return this.enqueue(async () => {
       const path = new URL(request.url).pathname;
       const previous = await this.ctx.storage.get('progress');
-      if (path === '/status' && request.method === 'GET') return Response.json(previous || {active: false});
+      const paused = await this.ctx.storage.get('paused') === true;
+      if (path === '/status' && request.method === 'GET') return Response.json({...previous || {active: false}, paused});
+      if (path === '/pause' && request.method === 'POST') {
+        await this.ctx.storage.transaction(async storage => {
+          await storage.put('paused', true); await storage.deleteAlarm();
+        });
+        return Response.json({ok: true, paused: true});
+      }
+      if (path === '/resume' && request.method === 'POST') {
+        // A new cutoff after journal activation avoids resuming an old cycle
+        // whose clock predates coverage. Repeating already applied pages is safe.
+        const progress = request.headers.get('x-retention-restart') === 'true' ? newRetentionCycle() : previous;
+        await this.ctx.storage.transaction(async storage => {
+          await storage.put('paused', false);
+          if (progress) await storage.put('progress', progress);
+          if (progress?.active || progress?.pendingDeletions || progress?.followupRequested) await storage.setAlarm(Date.now() + RETENTION_BATCH.continuationMs);
+        });
+        return Response.json({ok: true, paused: false});
+      }
       if (path !== '/start' || request.method !== 'POST') return new Response('Not found', {status: 404});
+      if (paused) return Response.json({error: 'Maintenance paused'}, {status: 503});
       if (previous?.active) {
         if (request.headers.get('x-retention-deletion') === 'true') {
           await this.ctx.storage.put('progress', {...previous, followupRequested: true});
@@ -122,6 +141,7 @@ export class AroynRetentionRunner {
   }
   alarm() {
     return this.enqueue(async () => {
+      if (await this.ctx.storage.get('paused') === true) return;
       let state = await this.ctx.storage.get('progress');
       if (!state?.active) {
         if (!state?.pendingDeletions && !state?.followupRequested) return;

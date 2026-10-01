@@ -3,8 +3,8 @@ import {validateRecovery} from './recovery-sanitizer.mjs';
 
 // Operator-only; never expose either operation through a public HTTP route.
 // Initialization is permitted only with all deletion writers stopped/drained.
-export async function initializeDeletionLedger(bucket, {accessClosed, oldWritersDrained, startedAt = Date.now(), ledgerId = crypto.randomUUID()}) {
-  if (accessClosed !== true || oldWritersDrained !== true) throw new Error('Closed, drained cutover required');
+export async function initializeDeletionLedger(bucket, {accessClosed, oldWritersDrained, legacyDeletionFenceApplied, startedAt = Date.now(), ledgerId = crypto.randomUUID()}) {
+  if (accessClosed !== true || (oldWritersDrained !== true && legacyDeletionFenceApplied !== true)) throw new Error('Closed cutover and drained or fenced old deletion writers required');
   if (!Number.isSafeInteger(startedAt) || startedAt <= 0 || startedAt > Date.now() || typeof ledgerId !== 'string' || !/^[A-Za-z0-9_-]{1,128}$/.test(ledgerId)) throw new Error('Invalid deletion coverage initialization');
   if ((await bucket.list({limit: 1})).objects.length) throw new Error('Ledger bucket must be new and empty');
   const meta = {format: 'aroyn-deletion-ledger-v1', startedAt, ledgerId, retentionDays: DELETION_LEDGER_DAYS};

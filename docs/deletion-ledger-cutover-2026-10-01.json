@@ -1,0 +1,32 @@
+{
+  "date": "2026-10-01",
+  "status": "deferred-d1-daily-write-quota",
+  "retentionApproved": true,
+  "retentionDays": 35,
+  "localSuites": 12,
+  "localGroups": 146,
+  "migration0005Applied": true,
+  "gateEnabled": false,
+  "coverageInitialized": false,
+  "journalMode": "disabled",
+  "stagingAccess": "restricted",
+  "maintenance": {
+    "active": false,
+    "paused": false
+  },
+  "privateBucketProvisioned": true,
+  "publicManagedDomain": false,
+  "customBucketDomains": 0,
+  "temporaryOperatorRemoved": true,
+  "existingNamespacesPreserved": true,
+  "secretBindingNamesPreserved": true,
+  "cron": "17 3 * * *",
+  "realProfilesDeletedByTest": false,
+  "billingChanged": false,
+  "limits": [
+    "No real-data deletion coverage exists",
+    "Write-dependent storage operations may fail until quota resets",
+    "Authenticated telemetry was not verified after the quota error",
+    "New SQL receipt fence was tested locally; not by deleting an actual staging account"
+  ]
+}

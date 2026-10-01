@@ -53,7 +53,11 @@ export async function createRuntime({mock=false,port=0,persistPath=null,ownerDis
     const migrationFolder=resolve(candidate,'workers/api/migrations');
     for(const file of (await readdir(migrationFolder)).filter(f=>f.endsWith('.sql')).sort()) {
       const sql=(await readFile(resolve(migrationFolder,file),'utf8')).replace(/^\s*--.*$/gm,'');
-      const statements=sql.split(';').map(s=>s.trim()).filter(Boolean);
+      // These controlled migrations use one simple BEGIN/END trigger. Keep
+      // its inner semicolon inside the statement; this is not a general parser.
+      const triggers=[];
+      const rest=sql.replace(/CREATE TRIGGER[\s\S]*?END;/g, s=>{triggers.push(s);return ''});
+      const statements=[...rest.split(';').map(s=>s.trim()).filter(Boolean),...triggers];
       await db.batch(statements.map(s=>db.prepare(s)));
     }
     return {mf,db,api:await mf.getWorker('api'),live:await mf.getWorker('live'),oauthConfigured:true};

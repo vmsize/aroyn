@@ -8,6 +8,9 @@ const validId = id => typeof id === 'string' && /^[A-Za-z0-9_-]{1,128}$/.test(id
 const validClock = n => Number.isSafeInteger(n) && n > 0;
 
 export function ledgerRequired(env) { return env.DELETION_LEDGER_MODE === 'required'; }
+function checkIdentity(env, meta) {
+  if (env.DELETION_LEDGER_ID && env.DELETION_LEDGER_ID !== meta.ledgerId) throw new Error('Unexpected deletion ledger');
+}
 
 export async function readLedgerMetadata(bucket, now = Date.now()) {
   if (!bucket || !validClock(now)) throw new Error('Deletion ledger unavailable');
@@ -27,6 +30,7 @@ export async function recordDeletion(env, userId, requestedAt = Date.now(), now 
   if (!ledgerRequired(env)) return null;
   if (!validId(userId) || !validClock(requestedAt) || requestedAt > now) throw new Error('Invalid deletion request');
   const meta = await readLedgerMetadata(env.DELETION_LEDGER, now);
+  checkIdentity(env, meta);
   // Pending jobs predating cutover remain in D1. Preserve their intent at the
   // beginning of this ledger's coverage, before any finalization removes them.
   const event = {userId, requestedAt: Math.max(requestedAt, meta.startedAt)};
@@ -56,6 +60,7 @@ export async function recordDeletion(env, userId, requestedAt = Date.now(), now 
 export async function pruneDeletionLedger(env, {now = Date.now(), cursor = null, limit = 25} = {}) {
   if (!ledgerRequired(env)) return {done: true, cursor: null, removed: 0, visited: 0};
   const meta = await readLedgerMetadata(env.DELETION_LEDGER, now);
+  checkIdentity(env, meta);
   if (!Number.isInteger(limit) || limit < 1 || limit > 25) throw new Error('Invalid ledger page limit');
   const page = await env.DELETION_LEDGER.list({prefix: PREFIX, limit, ...(cursor ? {cursor} : {})});
   let removed = 0;
@@ -72,4 +77,15 @@ export async function pruneDeletionLedger(env, {now = Date.now(), cursor = null,
   }
   if (page.truncated && (!page.cursor || page.cursor === cursor)) throw new Error('Deletion ledger listing did not advance');
   return {done: !page.truncated, cursor: page.truncated ? page.cursor : null, removed, visited: page.objects.length};
+}
+
+export async function recordDeletionReceipt(env, userId) {
+  if (!ledgerRequired(env)) return;
+  const meta = await readLedgerMetadata(env.DELETION_LEDGER);
+  checkIdentity(env, meta);
+  const gate = await env.DB.prepare('SELECT ledger_id FROM deletion_ledger_gate WHERE singleton=1').first();
+  if (gate && gate.ledger_id !== meta.ledgerId) throw new Error('Deletion ledger fence mismatch');
+  await env.DB.prepare(`INSERT INTO account_deletion_receipts(user_id,ledger_id)
+    SELECT id, ?2 FROM users WHERE id=?1 AND EXISTS(SELECT 1 FROM account_deletions WHERE user_id=?1)
+    ON CONFLICT(user_id) DO UPDATE SET ledger_id=excluded.ledger_id`).bind(userId, meta.ledgerId).run();
 }

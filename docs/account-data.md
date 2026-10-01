@@ -24,6 +24,7 @@ Profile/avatar menu → **Account data** (`/dashboard/account/`). The page check
 | Public Roblox profile cache | 30 days after last update |
 | Web sessions | Up to 30 days, or earlier revocation |
 | Aggregate samples/peaks without account IDs | Retained |
+| Separate deletion journal (approved; activation pending) | Internal profile ID/request time for 35 days after activation |
 
 The example API cron runs daily at 03:17 UTC and enqueues a durable cycle. Alarms process bounded portions with saved progress. Expiration is cleanup on the next successful run, not an exact deletion instant. Provider logs, backups and external caches require separate production review.
 
@@ -35,7 +36,7 @@ Unassigned older history is not automatically assigned/exported/deleted merely b
 
 ## Deployment
 
-Apply all four D1 migrations, including 0003_retention_indexes.sql and 0004_auth_exchange_owner.sql to the shared DB. The API `STATS_CACHE` binding must target `VeyraStatsHub` in the actual live Worker (`script_name` equals that Worker's name). Provision/deploy that live Worker and its DO migration first. Both Workers use the same D1 database/R2 bucket.
+Apply all five D1 migrations, including 0003_retention_indexes.sql, 0004_auth_exchange_owner.sql and 0005_deletion_ledger_guard.sql to the shared DB. The API `STATS_CACHE` binding must target `VeyraStatsHub` in the actual live Worker (`script_name` equals that Worker's name). Provision/deploy that live Worker and its DO migration first. Both Workers use the same D1 database/R2 bucket.
 
 The API requires a local RETENTION_RUNNER binding to AroynRetentionRunner and its retention-runner-v1 SQLite DO migration. It also requires its own `SNAPSHOT_STORAGE` binding to `AroynSnapshotStore`, with the `snapshot-storage-v1` SQLite DO migration from the example configuration. Every runtime R2 mutation uses a coordinator determined by the full object key. Retention checks the listed ETag and current upload date inside that same coordinator before deleting. An update either happens before the check (so a replaced object is retained), or after deletion (so the fresh write remains). The queue does not store telemetry or account rows in DO storage. It uses an instance-local awaited promise chain, never a module-global lock. Missing coordination fails runtime writes closed rather than bypassing the guard. Administrative direct R2 writes bypass this mechanism and must not race cleanup.
 
@@ -63,4 +64,4 @@ The shared cleanup code subsequently passed 17 checks from a real Cron event on 
 
 ## Prepared deletion journal
 
-The source supports DELETION_LEDGER_MODE=required with a separate private R2 binding. It records minimal internal-profile ID/time intents before DB revocation and includes bounded 35-day expiry in maintenance. This optional feature is not activated on real staging data. Retention confirmation, amended notices and closed/drained cutover are still required. See [design and activation procedure](deletion-ledger.md). A newly created profile has a new internal ID and remains usable.
+The source supports DELETION_LEDGER_MODE=required with a separate private R2 binding. It records minimal internal-profile ID/time intents before DB revocation and includes bounded 35-day expiry in maintenance. This optional feature is not activated on real staging data. Retention is approved and notices explicitly mark activation pending. A closed/fenced cutover remains required after the daily D1 write quota resets; see the cutover evidence in STATUS.md. See [design and activation procedure](deletion-ledger.md). A newly created profile has a new internal ID and remains usable.

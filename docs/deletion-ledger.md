@@ -1,6 +1,6 @@
 # Independent deletion ledger — prepared, not activated
 
-The source candidate contains an optional write-ahead deletion ledger. Restricted staging still runs the previous deployment and has no real-data ledger coverage. The proposed additional 35-day retention has been explained to the owner; explicit confirmation and a closed cutover remain prerequisites. Historical real-data restore remains prohibited without trustworthy independent coverage.
+The owner approved the additional 35-day retention on 2026-10-01. Restricted staging has the new code and inactive migration 0005, but journal mode is disabled and no real-data coverage exists: D1's daily free row-write quota rejected cutover before the gate/coverage was initialized. The private dedicated bucket is reserved and uninitialized. Existing restricted access and unpaused maintenance were restored; the temporary operator Worker was removed. Current notices explicitly identify the future journal as planned/not enabled. Historical real-data restore remains prohibited without independent coverage.
 
 ## Data and registration
 
@@ -22,11 +22,11 @@ Events expire after 35 days. Daily maintenance visits at most 25 events per pers
 
 ## Controlled activation
 
-1. Obtain the retention decision and update RU/EN privacy notices before collecting real deletion events. Suggested text appears below.
+1. Retention is approved. Update RU/EN notices to active wording before collecting real deletion events; current deployed wording marks activation pending.
 2. Provision a new dedicated private bucket and bind it as DELETION_LEDGER. Do not bind the runtime payload bucket. Preserve the current resource IDs, secrets, access list and Cron.
-3. Close both API/live user access, stop maintenance and drain older deletion writers. Verify closure; a Boolean passed to the helper does not independently prove it. Do not initialize coverage while an older Worker can still complete an unrecorded deletion.
-4. Deploy required mode while access remains closed. Required mode rejects deletion until coverage is initialized. Operator-only `initializeDeletionLedger(bucket, {accessClosed:true, oldWritersDrained:true})` creates coverage once in an empty bucket; record its ID and provider-clock activation time outside profile backups. There is no initialization route in the public API.
-5. Exercise a disposable account through the same deployment configuration, verify its completed deletion has a minimal event and no credentials, verify pending jobs and maintenance continuation, then separately decide to reopen the existing restricted access list. New historical coverage begins at this cutover, never retroactively.
+3. Apply migration 0005 with an empty gate first. Close both API/live user access, deploy ledger-aware code, then await the private maintenance /pause barrier. Before coverage initialization, insert the expected ledger ID into deletion_ledger_gate and verify the trigger. Its transactional receipt check fences old finalizers; elapsed time alone does not prove requests drained. A helper Boolean is only an operator assertion, not independent evidence.
+4. Deploy required mode while access remains closed. Required mode rejects deletion until coverage is initialized. Operator-only `initializeDeletionLedger(bucket, {accessClosed:true, legacyDeletionFenceApplied:true})` creates coverage once in an empty bucket; record its ID and provider-clock activation time outside profile backups. There is no initialization route in the public API.
+5. Verify ledger/gate/config identity, fail-closed behavior and pending-job state. Disposable fixture verification must remain isolated from actual staging profiles; the six new cutover tests exercised the receipt fence locally, and the ten prior cloud checks exercised the core ledger. Resume maintenance with x-retention-restart:true to use a new cutoff after coverage, then reopen the existing restricted access list. New historical coverage begins at this cutover, never retroactively.
 
 ## Recovery from the preserved bucket
 
@@ -36,20 +36,26 @@ Use `tools/deletion-ledger-recovery.mjs` offline with original private bucket bi
 
 The export cannot detect an administrator silently deleting a valid event or forging coverage. Its completeness depends on the closed cutover, uninterrupted required mode, correct original bucket, reliable timestamps and restricted administrative writes. If any interval is uncertain, rebuild an empty profile store instead of reopening restored personal data. Retire temporary personal manifests when recovery is complete; do not publish them or include them in generic diagnostic archives.
 
-## Prepared privacy wording, pending activation
+## Approved privacy wording, pending activation
 
 EN: “To prevent a deleted profile returning from an older backup, we keep its internal Aroyn ID and deletion-request time in a separate private journal for 35 days. It contains no username, Discord ID or dashboard key. It does not prevent you signing in again to create a new empty profile. Expired entries are removed during the next successful cleanup.”
 
 RU: «Чтобы удалённый профиль не вернулся из старой резервной копии, мы сохраняем его внутренний ID Aroyn и время запроса удаления в отдельном закрытом журнале на 35 дней. В нём нет имени пользователя, Discord ID или ключа панели. Можно снова войти и создать новый пустой профиль. Просроченные записи удаляются при следующей успешной очистке.»
 
-This prepared wording is not yet the staging privacy notice or an assertion of legal compliance.
+The current staging notice includes this proposed retention with an explicit planned/not-enabled qualification. Remove that qualification only at successful activation; this is not an assertion of legal compliance.
 
 ## Evidence and limits
 
-Twelve local groups passed with isolated Miniflare D1/R2/DO, including unavailable-ledger fail-closed behavior, completed HTTP deletion, concurrent first/repeated writes, new profile with the same synthetic Discord identity, pre-cutover pending intent, original-ledger recovery, 63-record bounded expiry, corrupt data and persisted maintenance phase. The complete default gate passed 11 suites / 140 groups; the ledger suite was rerun after conditional-write and timestamp-bound hardening.
+Twelve local groups passed with isolated Miniflare D1/R2/DO, including unavailable-ledger fail-closed behavior, completed HTTP deletion, concurrent first/repeated writes, new profile with the same synthetic Discord identity, pre-cutover pending intent, original-ledger recovery, 63-record bounded expiry, corrupt data and persisted maintenance phase. The complete default gate now passed 12 suites / 146 groups; the ledger suite was rerun after conditional-write and timestamp-bound hardening.
 
 Ten actual cloud checks passed on a disposable D1 database and two separate private R2 buckets. Real D1 Time Travel resurrected an invented deleted profile and bearer session, while the independent R2 ledger retained both fixture events. A replacement Worker with fresh namespaces/secrets read the original journal, replayed sanitation in 29 steps and preserved the other profile's recent history. Both old access and deleted records were removed. Fixture-clock +36-day expiry removed events while keeping coverage. All temporary Workers/namespaces, database and buckets were removed.
 
 The first cloud attempt assumed all simultaneous writes succeeded; the wrapper reported transient rejections. Their exact provider error was not exposed by the wrapper. The implementation now accepts only a separately readable completed winner or fails closed. A later attempt correctly refused a PC-clock coverage interval; the successful run used provider clocks. The final start-bound timestamp check was additionally verified locally after the cloud run. OAuth, native live sockets, provider automatic lifecycle, multi-region outages, tampering, CPU/cost/quota limits and real staging cutover were not tested by this fixture.
 
 See [local evidence](local-deletion-ledger-2026-10-01.json) and [cloud evidence](cloud-deletion-ledger-2026-10-01.json). R2 API behavior was checked against the [Workers API reference](https://developers.cloudflare.com/r2/api/workers/workers-api-reference/) and [consistency documentation](https://developers.cloudflare.com/r2/reference/consistency/); object consistency is not a cross-store transaction.
+
+## Receipt fence and maintenance control
+
+After the gate is enabled, a BEFORE DELETE trigger rejects a users deletion unless account_deletion_receipts contains the same profile/ledger ID. New finalizers write independent intent first, then its receipt, before deleting profile/job in a D1 batch. A failed legacy batch rolls back; a pending job remains retryable. The receipt is removed by the existing user foreign-key cascade. It is part of D1 and is not the independent recovery journal.
+
+Maintenance pause/resume routes exist only on the internal Durable Object binding; they are not public API routes. Pause persists and waits behind a currently executing step. Resume after successful activation restarts with a fresh cutoff. If activation is aborted, resume without restarting an inactive old cycle. A temporary secret-gated operator deployment was removed after the deferred cutover. Its first closure check through public Worker fetch failed; using a direct service binding reached the closed API. A settings update initially omitted required DO exports and was rejected without reconciliation; a corrected update preserved every namespace. The actual gate insert then failed because of the daily D1 quota. No actual staging deletion was exercised in this attempt.

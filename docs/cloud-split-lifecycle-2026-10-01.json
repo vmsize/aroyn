@@ -1,0 +1,89 @@
+{
+  "date": "2026-10-01",
+  "source": "real-cloud-native-websockets",
+  "syntheticAccounts": 3,
+  "identitySetup": "seeded synthetic sessions; OAuth is not under test",
+  "workerTopology": "separate cloud API/live Workers, shared isolated D1/R2 and API cross-script STATS_CACHE binding; unchanged source handlers",
+  "checks": [
+    {
+      "name": "probe routes deny requests without control secret",
+      "pass": true
+    },
+    {
+      "name": "six genuine runtime/dashboard WebSockets open on real cloud",
+      "pass": true
+    },
+    {
+      "name": "logout immediately rejects the old web session",
+      "pass": true
+    },
+    {
+      "name": "logout rejects new viewer tokens",
+      "pass": true
+    },
+    {
+      "name": "deletion immediately rejects web session and runtime key",
+      "pass": true
+    },
+    {
+      "name": "deleted account cannot issue new runtime or viewer tokens",
+      "pass": true
+    },
+    {
+      "name": "idle dashboard socket closes after logout",
+      "pass": true,
+      "secondsAfterAction": 10.3
+    },
+    {
+      "name": "idle dashboard socket closes after account deletion",
+      "pass": true,
+      "secondsAfterAction": 10.5
+    },
+    {
+      "name": "idle runtime socket closes after account deletion",
+      "pass": true,
+      "secondsAfterAction": 10.5
+    },
+    {
+      "name": "old issued live tokens cannot upgrade after revocation",
+      "pass": true
+    },
+    {
+      "name": "web logout preserves separately authorized runtime connection",
+      "pass": true
+    },
+    {
+      "name": "unrelated account keeps both sockets and receives fresh telemetry",
+      "pass": true
+    },
+    {
+      "name": "revoked viewers receive no later snapshots",
+      "pass": true
+    },
+    {
+      "name": "new web session restores viewer and fresh telemetry after logout",
+      "pass": true
+    },
+    {
+      "name": "rotation rejects old key and issued runtime token",
+      "pass": true
+    },
+    {
+      "name": "idle runtime socket closes after key rotation",
+      "pass": true
+    },
+    {
+      "name": "new key reconnects runtime while valid viewer remains connected",
+      "pass": true
+    },
+    {
+      "name": "deletion clears fixture D1 and R2 while other profiles remain",
+      "pass": true
+    }
+  ],
+  "passed": true,
+  "temporaryR2ObjectsRemaining": 0,
+  "temporaryResourcesRemoved": true,
+  "hibernationForced": false,
+  "startupNote": "First attempt stopped at a 404 during fixture setup. A diagnostic request succeeded; the synthetic D1 store was reset and the full run then passed. The initial 404 cause was not independently established."
+}

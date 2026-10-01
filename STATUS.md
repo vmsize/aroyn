@@ -1,6 +1,10 @@
 # Source package status — 2026-10-01
 
-## Latest update: D1 quota incident correction
+## Latest update: read-only account usage report
+
+The operator collector now queries the full account's D1 usage for the current UTC day, validates account identity/completeness and includes deleted databases. Four targeted local groups passed. Its generated query was executed through the existing authenticated connector; nine real groups normalized successfully and the 119,082-row capture correctly blocked cloud work. Standalone token transport was tested with synthetic responses only. The configured default gate now has fourteen suites / 159 groups; the last full run remains thirteen suites / 155 groups plus the subsequent four targeted checks. No additional cloud fixture or D1 write was performed. The journal remains disabled pending reset and a fresh budget; activation/failure instructions now require the account-wide preflight. See [collection and limits](docs/d1-write-budget.md).
+
+## Previous update: D1 quota incident correction
 
 Account-wide read-only analytics attributed 105,242 of 118,919 written rows on 2026-10-01 to the disposable large mutation fixture; restricted staging contributed 3,027. The large cloud seed is disabled and fourteen archived fixture entrypoints are blocked pending adaptation. New small cloud checks require fresh account-wide metrics, 30,000 rows of headroom and a shared 2,000-row daily fixture reservation. Large capacity checks remain local. These operator controls are not a global provider spending cap.
 

@@ -22,6 +22,8 @@ Events expire after 35 days. Daily maintenance visits at most 25 events per pers
 
 ## Controlled activation
 
+Before any cutover mutation, collect a fresh [account-wide D1 budget report](d1-write-budget.md), confirm headroom and reserve a conservative small operator allowance. An exhausted report blocks the cutover; healthy HTTP responses do not override it. Check pending-job cardinality read-only before reopening maintenance; a small gate insert is not an estimate of every pending cascade. Do not rerun the historical large cloud fixture.
+
 1. Retention is approved. Update RU/EN notices to active wording before collecting real deletion events; current deployed wording marks activation pending.
 2. Provision a new dedicated private bucket and bind it as DELETION_LEDGER. Do not bind the runtime payload bucket. Preserve the current resource IDs, secrets, access list and Cron.
 3. Apply migration 0005 with an empty gate first. Close both API/live user access, deploy ledger-aware code, then await the private maintenance /pause barrier. Before coverage initialization, insert the expected ledger ID into deletion_ledger_gate and verify the trigger. Its transactional receipt check fences old finalizers; elapsed time alone does not prove requests drained. A helper Boolean is only an operator assertion, not independent evidence.
@@ -29,6 +31,8 @@ Events expire after 35 days. Daily maintenance visits at most 25 events per pers
 5. Verify ledger/gate/config identity, fail-closed behavior and pending-job state. Disposable fixture verification must remain isolated from actual staging profiles; the six new cutover tests exercised the receipt fence locally, and the ten prior cloud checks exercised the core ledger. Resume maintenance with x-retention-restart:true to use a new cutoff after coverage, then reopen the existing restricted access list. New historical coverage begins at this cutover, never retroactively.
 
 ## Recovery from the preserved bucket
+
+If activation stops before both gate and coverage exist, inspect their actual state read-only. With an empty gate and no coverage, the previous disabled/restricted configuration can be restored and inactive maintenance resumed without restarting. If the gate has been populated or any coverage state is uncertain, keep access closed while reconciling the original bucket, gate and required-mode identities; do not backdate coverage, delete ledger records or claim successful activation. Record the outcome outside profile backups.
 
 Use `tools/deletion-ledger-recovery.mjs` offline with original private bucket bindings. Close/drain API/live access and pause ledger cleanup before reading. Supply the recorded expected ledger ID and a trustworthy provider-clock backup point/access-freeze time. The cloud fixture revealed local PC time approximately 2 seconds behind provider time; a copy wrongly dated before activation was correctly rejected. Do not backdate coverage to bypass this check.
 

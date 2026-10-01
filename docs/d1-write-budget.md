@@ -35,6 +35,18 @@ The mutation harness reserves 250 setup rows and 750 execution/cleanup rows. Oth
 
 Pass absolute paths as `AROYN_D1_BUDGET_METRICS` and `AROYN_CLOUD_TEST_RESERVATIONS`. Do not fabricate a low usage count or change the date to bypass the check. Validate that the account matches the fixture deployment. An operator-controlled report is not an independent provider attestation. [D1 analytics](https://developers.cloudflare.com/d1/observability/metrics-analytics/)
 
+### Read-only report collection
+
+`tools/d1-account-usage.mjs` collects the report from a single fixed Cloudflare GraphQL request. Set `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN` in the operator environment, using an existing token allowed to read the account's analytics; never put the token in source, command arguments or chat. Run:
+
+```sh
+node tools/d1-account-usage.mjs ABSOLUTE_PRIVATE_REPORT_PATH
+```
+
+Keep the output outside the public repository. The collector checks the returned account identity, UTC day, nonnegative integer counters, unique database groups and potential 1,000-group truncation. It rejects GraphQL errors, HTTP failures, unavailable reads, stale or day-crossing captures. It includes all reported databases without consulting the surviving database inventory. Its console summary contains row totals, not credentials. Collection itself does not reserve permission or perform a D1 SQL write; the fixture preflight still consumes a shared reservation separately. Analytics lag and unrelated later writes remain possible.
+
+Four new local groups passed. The generated query was also executed through the authenticated Cloudflare connector: nine real database groups normalized to 119,082 written rows, and the budget correctly blocked further cloud checks. The collector's standalone API-token transport was tested with synthetic responses; no new token was requested or stored, and the live check used the existing connector. This is a capture during 2026-10-01, not the day's final total. No new cloud fixture ran.
+
 ## Runtime reduction
 
 `claimRuntimeSession` previously updated the ownership timestamp on every HTTP telemetry snapshot. It now creates ownership immediately and updates its retention checkpoint at most once per minute for the same session. A skipped write still checks the current profile, pending deletion, account/Roblox identity and conflicting presence/history rows. No cached authorization or client-side promise replaces these checks. Clock regression does not move the checkpoint backwards.

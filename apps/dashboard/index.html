@@ -35,13 +35,12 @@
         </a>
         <div class="script-launch" data-script-launch hidden>
           <button class="script-copy-button" type="button" data-copy-script>Copy launch script <span aria-hidden="true">↗</span></button>
-          <p class="script-copy-status" role="status" data-copy-status></p>
-          <details>
-            <summary>View launch command</summary>
+          
+          <div class="script-manual-copy" data-manual-copy hidden>
             <label for="launchCommand">Aroyn Hub launch command</label>
             <textarea id="launchCommand" data-launch-command rows="3" readonly spellcheck="false"></textarea>
             <p>Starts Aroyn Hub in Greedy Growers. Dashboard access requires an invited account during the test.</p>
-          </details>
+          </div>
         </div>
       </div>
     </section>
@@ -58,6 +57,8 @@
     <nav aria-label="Project links"><a href="/status/">Service status</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a><a href="/cookies/">Cookies &amp; storage</a></nav>
     <span>Aroyn · vmsize</span>
   </footer>
+
+  <div class="script-copy-notice" role="status" aria-live="polite" aria-atomic="true" data-copy-status></div>
 
   <button class="btn background-motion-toggle" type="button" data-background-motion aria-pressed="false" hidden>Pause background</button>
   <script type="module" src="/assets/js/pages/home.js"></script>

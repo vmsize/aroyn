@@ -14,15 +14,15 @@ await check('launch command rejects credentials, invalid schemes and URL payload
   assert.equal(launchCommand('https://aroyn-staging.pages.dev/scripts/loader.luau'),'loadstring(game:HttpGet("https://aroyn-staging.pages.dev/scripts/loader.luau"))()');
 });
 function fixture(){
- const nodes={button:{disabled:false,addEventListener(type,fn){this.click=fn;}},status:{textContent:''},field:{value:'',focus(){this.focused=true},select(){this.selected=true}},details:{open:false}};
- const root={hidden:true,querySelector(selector){return({'[data-copy-script]':nodes.button,'[data-copy-status]':nodes.status,'[data-launch-command]':nodes.field,'details':nodes.details})[selector];}};
+ const nodes={button:{disabled:false,addEventListener(type,fn){this.click=fn;}},status:{textContent:'',classList:{add(){},remove(){}}},field:{value:'',focus(){this.focused=true},select(){this.selected=true}},manual:{hidden:true}};
+ const root={hidden:true,querySelector(selector){return({'[data-copy-script]':nodes.button,'[data-copy-status]':nodes.status,'[data-launch-command]':nodes.field,'[data-manual-copy]':nodes.manual})[selector];}};
  return {root,...nodes};
 }
 await check('clipboard success copies exact command and announces result',async()=>{
- const f=fixture();let copied='';mountScriptLaunch(f.root,'https://aroyn-staging.pages.dev/scripts/loader.luau',{writeText:async text=>{copied=text}});await f.button.click();assert.equal(copied,f.field.value);assert.equal(f.status.textContent,'Launch script copied.');assert.equal(f.button.disabled,false);
+ const f=fixture();let copied='';mountScriptLaunch(f.root,'https://aroyn-staging.pages.dev/scripts/loader.luau',{writeText:async text=>{copied=text}});await f.button.click();assert.equal(copied,f.field.value);assert.equal(f.status.textContent,'Script copied');assert.equal(f.button.disabled,false);
 });
 await check('clipboard denial exposes focused selected manual command',async()=>{
- const f=fixture();mountScriptLaunch(f.root,'https://aroyn-staging.pages.dev/scripts/loader.luau',{writeText:async()=>{throw new Error('denied')}});await f.button.click();assert.ok(f.details.open&&f.field.focused&&f.field.selected);assert.match(f.status.textContent,/manually/);
+ const f=fixture();mountScriptLaunch(f.root,'https://aroyn-staging.pages.dev/scripts/loader.luau',{writeText:async()=>{throw new Error('denied')}});await f.button.click();assert.ok(!f.manual.hidden&&f.field.focused&&f.field.selected);assert.match(f.status.textContent,/manually/);
 });
 await check('unpublished loader stays hidden',()=>{const f=fixture();mountScriptLaunch(f.root,'');assert.equal(f.root.hidden,true);assert.equal(f.button.click,undefined);});
 await check('health sends no credentials and accepts only explicit ok true',async()=>{

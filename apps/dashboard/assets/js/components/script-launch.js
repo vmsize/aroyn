@@ -13,11 +13,18 @@ export function mountScriptLaunch(root, loaderUrl, clipboard = globalThis.naviga
   root.hidden = !command;
   if (!command) return;
   const button = root.querySelector('[data-copy-script]');
-  const status = root.querySelector('[data-copy-status]');
+  const status = root.ownerDocument?.querySelector('[data-copy-status]') || root.querySelector('[data-copy-status]');
   const field = root.querySelector('[data-launch-command]');
-  const details = root.querySelector('details');
+  const manual = root.querySelector('[data-manual-copy]');
   field.value = command;
   let copying = false;
+  let dismissTimer;
+  function announce(message) {
+    clearTimeout(dismissTimer);
+    status.textContent = message;
+    status.classList.add('is-visible');
+    dismissTimer = setTimeout(() => status.classList.remove('is-visible'), 3000);
+  }
   async function copy() {
     if (copying) return;
     copying = true;
@@ -25,12 +32,13 @@ export function mountScriptLaunch(root, loaderUrl, clipboard = globalThis.naviga
     try {
       if (!clipboard?.writeText) throw new Error('Clipboard unavailable');
       await clipboard.writeText(command);
-      status.textContent = 'Launch script copied.';
+      manual.hidden = true;
+      announce('Script copied');
     } catch {
-      details.open = true;
+      manual.hidden = false;
       field.focus();
       field.select();
-      status.textContent = 'Copy the selected command manually.';
+      announce('Copy the selected command manually.');
     } finally { copying = false; button.disabled = false; }
   }
   button.addEventListener('click', copy);

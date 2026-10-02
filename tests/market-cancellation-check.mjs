@@ -7,7 +7,7 @@ import {spawnSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 import {luauTestRuntime} from '../tools/luau-test-runtime.mjs';
 const root=fileURLToPath(new URL('../',import.meta.url));
-const candidate=path.join(root,'apps/dashboard/releases/4.3.82/greedy-growers.luau');
+const candidate=path.join(root,'apps/dashboard/releases/4.3.83/greedy-growers.luau');
 const source=(await fs.readFile(candidate,'utf8')).replaceAll('\r\n','\n');
 const inner=source.split('local __fa_source=[===========[',2)[1]?.split(']===========]',1)[0];assert.ok(inner);
 const runtime=await luauTestRuntime();const temp=await fs.mkdtemp(path.join(os.tmpdir(),'aroyn-market-'));
@@ -61,7 +61,7 @@ local defaults=table.clone(FarmRuntime.MarketRuntime)
 local function reset()
  now,order,jobs=0,0,{}
  state={running=true,generation=1,autoMarketEnabled=true,marketSubmitted=0,marketClaims=0,marketCollected=0,marketTickets=0,marketErrors=0}
- FarmRuntime=table.clone(original);FarmRuntime.MarketRuntime=table.clone(defaults)
+ FarmRuntime=table.clone(original);FarmRuntime.MarketRuntime=table.clone(defaults);FarmRuntime.AutomationRuntime={}
  ui={};CompostRuntime={selectedItemId='x'};activities=0;calls={give=0,claim=0,get=0,pickup=0};claimedFruits={};queuedFruits={}
  offers={rows={{reward=10,cells={{given=false},{given=false},{given=false}}}},claimed={}}
  FarmRuntime.setMarketStatus=function(value,isError) state.marketStatus=value;if isError then state.marketErrors+=1 end end
@@ -158,5 +158,6 @@ const groups=result.stdout.split(/\r?\n/).filter(s=>s.startsWith('PASS '));asser
 const previous=await fs.readFile(path.join(root,'apps/dashboard/releases/4.3.80/greedy-growers.luau'));
 assert.equal(crypto.createHash('sha256').update(previous).digest('hex'),'ece5e3a123ee4a9f4024eec909cf0a5fb37fccc773a7eba6bf2f88ab1adb3b8a');
 assert.equal(crypto.createHash('sha256').update(await fs.readFile(path.join(root,'apps/dashboard/releases/4.3.81/greedy-growers.luau'))).digest('hex'),'6c65f4c0f03adadfb9fda06d34173cb90b452ed5a58db4eba5f66a6c1cfb77df');
-console.log('PASS both candidate chunks compile; immutable 4.3.80 release unchanged');
+assert.equal(crypto.createHash('sha256').update(await fs.readFile(path.join(root,'apps/dashboard/releases/4.3.82/greedy-growers.luau'))).digest('hex'),'2b350e1ca9ae1dfd4c27e2ede26b2b5885e043d1f550102f508b2d618bd28c57');
+console.log('PASS both candidate chunks compile; immutable 4.3.80, 4.3.81 and 4.3.82 releases unchanged');
 await fs.writeFile(new URL('market-cancellation-results.json',import.meta.url),JSON.stringify({date:'2026-10-02',passed:17,luauVersion:runtime.version,checks:groups.map(s=>s.slice(5)),scope:'Actual extracted Luau functions with deterministic coroutines and stubbed remotes; full outer and embedded chunks compile. No Roblox execution.'},null,2)+'\n');

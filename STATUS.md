@@ -1,8 +1,12 @@
-# Source package status — 2026-10-02
+# Source package status — 2026-10-03
 
-## Latest correction: delayed authorization and analytics invalidation
+## Latest candidate: client cancellation and profile response fencing
 
-AF-01/AF-02 are corrected in the source and the isolated local gate passed 22 suites. Logout/key rotation share the account mutation queue; untrusted request bodies are read before authentication/queue admission, and key issuance has a session-expiry fence at its D1 write. Analytics invalidation drains the full pipeline without blocking prior I/O, and profile cleanup follows that drain. See [changes, evidence and limits](docs/server-auth-cache-fixes.md). Cloud rollout and hosted CI for this commit are pending. General registration remains restricted; remaining independent review stages, full UTC-day D1 use and ordinary post-activation maintenance completion remain open.
+AF-03/AF-04 are fixed locally. Candidate 4.3.83 prevents stale Compost/Pet Drops/Leaves sends and confirmations, restores movement before Stop can wait on network disconnect, protects newer claims/tickets and preserves watchdog recovery. Profile, exchange and key responses are fenced by session generation; logout cannot be undone by a late profile body. The local gate passed 25 suites; the four affected client suites passed again after the final movement cleanup, including 65 new focused scenarios across client/auth checks. Full outer/embedded client chunks compile and 4.3.80–4.3.82 remain unchanged. See [fixes and limitations](docs/client-auth-continuation-fixes.md) and [local verification](docs/local-client-auth-gate-2026-10-03.json). Publication, hosted CI and owner game verification of 4.3.83 are pending. General access remains restricted; ordinary daily cleanup, full UTC-day D1 use and targeted independent review remain release gates.
+
+## Previous correction: delayed authorization and analytics invalidation
+
+AF-01/AF-02 are corrected in the source and the isolated local gate passed 22 suites. Logout/key rotation share the account mutation queue; untrusted request bodies are read before authentication/queue admission, and key issuance has a session-expiry fence at its D1 write. Analytics invalidation drains the full pipeline without blocking prior I/O, and profile cleanup follows that drain. See [changes, evidence and limits](docs/server-auth-cache-fixes.md). AF-01/AF-02 code commit `146910cc544002806d64522f5cb7d5a5552488ef` passed hosted CI and was deployed on API 71c76b56 and live 448b2df8; nine guest/service probes passed. This does not replace owner authenticated telemetry verification. General registration remains restricted; remaining independent review stages, full UTC-day D1 use and ordinary post-activation maintenance completion remain open.
 
 ## Latest update: stable loader and GUI update checks published in 4.3.82
 

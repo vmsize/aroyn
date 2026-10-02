@@ -87,10 +87,10 @@ export function mountAccount(){
     if(button){button.disabled=true;button.textContent=confirm?'Replacing…':'Generating…'}
     try{
       const result=await authService.generateDashboardKey(confirm);lastKey=result.dashboardKey||'';confirmReplace=false;renderPanel(authService.getSnapshot());toast(result.replaced?'Dashboard key replaced':'Dashboard key created',result.replaced?'The previous key no longer works.':'Paste the new key in Aroyn Hub → Session.','success');
-    }catch(err){toast('Dashboard key error',err instanceof Error?err.message:String(err),'danger');renderPanel(authService.getSnapshot())}
+    }catch(err){if(err?.code==='AUTH_CHANGED')return;toast('Dashboard key error',err instanceof Error?err.message:String(err),'danger');renderPanel(authService.getSnapshot())}
   }
 
-  const sync=snap=>{renderTrigger(snap);if(panel.dataset.open==='true')renderPanel(snap)};
+  const sync=snap=>{if(snap.status==='guest'){lastKey='';confirmReplace=false;close()}renderTrigger(snap);if(panel.dataset.open==='true')renderPanel(snap)};
   sync(authService.getSnapshot());authService.subscribe(sync);authService.init();
   return{trigger,panel};
 }

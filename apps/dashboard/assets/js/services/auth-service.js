@@ -11,8 +11,10 @@ class AroynAuthService{
     this.status=this.token?'loading':'guest';
     this.listeners=new Set();
     this.initPromise=null;
+    this.generation=0;
     window.addEventListener('storage',event=>{
       if((event.key==='aroyn.auth.session'||event.key==='veyra.auth.session'||event.key===null)&&this.token&&(event.newValue===null||event.newValue==='')){
+        this.generation+=1;
         storage.setRaw('auth.session','');
         this.token='';this.user=null;this.status='guest';this.emit();
         window.dispatchEvent(new CustomEvent('aroyn:auth-logout'));
@@ -24,12 +26,16 @@ class AroynAuthService{
   getSnapshot(){return{status:this.status,token:this.token,user:this.user,apiBase:this.apiBase}}
   isAuthenticated(){return Boolean(this.token&&this.user)}
   authHeaders(extra={}){return this.token?{...extra,Authorization:`Bearer ${this.token}`}:{...extra}}
+  requestTicket(){return{token:this.token,generation:this.generation}}
+  requestCurrent(ticket){return ticket.token===this.token&&ticket.generation===this.generation}
+  assertRequestCurrent(ticket){if(!this.requestCurrent(ticket)){const error=new Error('The Aroyn session changed.');error.code='AUTH_CHANGED';throw error}}
   async init(){
     if(this.initPromise)return this.initPromise;
     this.initPromise=this.#init();
     return this.initPromise;
   }
   async #init(){
+    const ticket=this.requestTicket();
     const url=new URL(location.href);
     const exchange=url.searchParams.get('aroyn_auth')||url.searchParams.get('veyra_auth');
     if(exchange){
@@ -40,14 +46,16 @@ class AroynAuthService{
       try{
         const response=await fetch(`${this.apiBase}/api/v2/auth/exchange`,{
           method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},
-          body:JSON.stringify({code:exchange}),cache:'no-store'
+          body:JSON.stringify({code:exchange}),cache:'no-store',signal:AbortSignal.timeout(8000)
         });
         const body=await response.json().catch(()=>({}));
+        if(!this.requestCurrent(ticket))return this.getSnapshot();
         if(!response.ok||!body.token||!body.user)throw new Error(body.error||`Login failed (${response.status})`);
         this.token=body.token;this.user=body.user;this.status='authenticated';storage.setRaw('auth.session',this.token);this.emit();
         window.dispatchEvent(new CustomEvent('aroyn:auth-login',{detail:{user:this.user}}));
         return this.getSnapshot();
       }catch(err){
+        if(!this.requestCurrent(ticket))return this.getSnapshot();
         this.token='';this.user=null;this.status='guest';storage.setRaw('auth.session','');this.emit();
         window.dispatchEvent(new CustomEvent('aroyn:auth-error',{detail:{message:err instanceof Error?err.message:String(err)}}));
         return this.getSnapshot();
@@ -55,11 +63,13 @@ class AroynAuthService{
     }
     if(!this.token){this.status='guest';this.emit();return this.getSnapshot()}
     try{
-      const response=await fetch(`${this.apiBase}/api/v2/auth/me`,{headers:this.authHeaders({'Accept':'application/json'}),cache:'no-store'});
+      const response=await fetch(`${this.apiBase}/api/v2/auth/me`,{headers:this.authHeaders({'Accept':'application/json'}),cache:'no-store',signal:AbortSignal.timeout(8000)});
       const body=await response.json().catch(()=>({}));
+      if(!this.requestCurrent(ticket))return this.getSnapshot();
       if(!response.ok||!body.user)throw new Error(body.error||`Session expired (${response.status})`);
       this.user=body.user;this.status='authenticated';this.emit();
     }catch{
+      if(!this.requestCurrent(ticket))return this.getSnapshot();
       this.token='';this.user=null;this.status='guest';storage.setRaw('auth.session','');this.emit();
     }
     return this.getSnapshot();
@@ -70,27 +80,33 @@ class AroynAuthService{
   }
   async refreshUser(){
     if(!this.token)return null;
-    const response=await fetch(`${this.apiBase}/api/v2/auth/me`,{headers:this.authHeaders({'Accept':'application/json'}),cache:'no-store'});
+    const ticket=this.requestTicket();
+    const response=await fetch(`${this.apiBase}/api/v2/auth/me`,{headers:this.authHeaders({'Accept':'application/json'}),cache:'no-store',signal:AbortSignal.timeout(8000)});
     const body=await response.json().catch(()=>({}));
+    this.assertRequestCurrent(ticket);
     if(!response.ok||!body.user)throw new Error(body.error||`Account refresh failed (${response.status})`);
     this.user=body.user;this.status='authenticated';this.emit();return this.user;
   }
   async generateDashboardKey(confirm=false){
     if(!this.token)throw new Error('Sign in with Discord first.');
+    const ticket=this.requestTicket();
     const response=await fetch(`${this.apiBase}/api/v2/dashboard-key/generate`,{
       method:'POST',headers:this.authHeaders({'Content-Type':'application/json','Accept':'application/json'}),
-      body:JSON.stringify({confirm:Boolean(confirm)}),cache:'no-store'
+      body:JSON.stringify({confirm:Boolean(confirm)}),cache:'no-store',signal:AbortSignal.timeout(8000)
     });
     const body=await response.json().catch(()=>({}));
+    this.assertRequestCurrent(ticket);
     if(!response.ok)throw new Error(body.error||`Key generation failed (${response.status})`);
     await this.refreshUser();
+    this.assertRequestCurrent(ticket);
     return body;
   }
   async logout(){
     const token=this.token;
+    this.generation+=1;
     this.token='';this.user=null;this.status='guest';storage.setRaw('auth.session','');this.emit();
     if(token){
-      try{await fetch(`${this.apiBase}/api/v2/auth/logout`,{method:'POST',headers:{Authorization:`Bearer ${token}`,'Accept':'application/json'},cache:'no-store'})}catch{}
+      try{await fetch(`${this.apiBase}/api/v2/auth/logout`,{method:'POST',headers:{Authorization:`Bearer ${token}`,'Accept':'application/json'},cache:'no-store',signal:AbortSignal.timeout(8000)})}catch{}
     }
     window.dispatchEvent(new CustomEvent('aroyn:auth-logout'));
   }
@@ -116,6 +132,7 @@ class AroynAuthService{
     return body;
   }
   clearLocalAccountData(notice){
+    this.generation+=1;
     for(const store of [localStorage,sessionStorage]){
       try{for(const key of Object.keys(store))if(key.startsWith('aroyn.')||key.startsWith('veyra.'))store.removeItem(key)}catch{}
     }

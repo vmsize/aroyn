@@ -1,0 +1,79 @@
+{
+  "at": "2026-10-02T21:22:30.086076+00:00",
+  "version": "4.3.83",
+  "localGate": {
+    "at": "2026-10-02T21:20:46Z",
+    "exitCode": 0,
+    "suites": [
+      "client-updates-check",
+      "market-cancellation-check",
+      "compost-cancellation-check",
+      "neighbor-cancellation-check",
+      "auth-ui-race-check",
+      "web-check",
+      "accessibility-ui-check",
+      "deployment-config-check",
+      "dashboard-stability-check",
+      "check",
+      "security-check",
+      "data-check",
+      "snapshot-race-check",
+      "access-check",
+      "hibernation-check",
+      "retention-check",
+      "recovery-check",
+      "mutation-race-check",
+      "deletion-ledger-check",
+      "ledger-cutover-check",
+      "write-budget-check",
+      "usage-report-check",
+      "p1-regression-check",
+      "auth-revocation-check",
+      "analytics-deletion-check"
+    ],
+    "suiteCount": 25,
+    "seconds": 129.55,
+    "scope": "Local isolated project copy; official pinned Luau CLI and stubbed/miniflare environments; no cloud deployment or real game execution."
+  },
+  "finalClientSuites": [
+    "client-updates-check",
+    "market-cancellation-check",
+    "compost-cancellation-check",
+    "neighbor-cancellation-check"
+  ],
+  "finalClientSuitesPassed": true,
+  "newFocusedScenarios": 65,
+  "release": {
+    "version": "4.3.83",
+    "date": "2026-10-03",
+    "status": "verified locally; publication pending",
+    "stableLaunchUrl": "https://aroyn-staging.pages.dev/scripts/loader.luau",
+    "updateManifestUrl": "https://aroyn-staging.pages.dev/scripts/version.json",
+    "gameCheck": "No real game execution of 4.3.83 yet. Earlier market/restart checks were owner-confirmed on 4.3.81.",
+    "files": [
+      {
+        "path": "apps/dashboard/releases/4.3.83/greedy-growers.luau",
+        "bytes": 583364,
+        "sha256": "f1d0f21bd4a6d6980f6554b28eb4d4e64aa58ab857a5d9b7d95cad1378bce946"
+      },
+      {
+        "path": "apps/dashboard/scripts/loader.luau",
+        "bytes": 2040,
+        "sha256": "8478d04460ce3eb9354b16290ab13c63b71cbf2c1327b84fbc76cc4d8d43df88"
+      },
+      {
+        "path": "apps/dashboard/scripts/version.json",
+        "bytes": 188,
+        "sha256": "18203656fd8d1ddfa287b609f747f56d9523c4082335dbb9400a9fed83e0703c"
+      }
+    ]
+  },
+  "workingClientMatches": true,
+  "productPublished": false,
+  "generalRegistration": "restricted",
+  "notes": [
+    "The isolated full 25-suite pass preceded the final pre-disconnect movement cleanup; all four affected client suites were rerun against the final bytes.",
+    "No real game or browser automation was used.",
+    "Full UTC-day D1 use and ordinary post-ledger daily cleanup remain pending."
+  ]
+}

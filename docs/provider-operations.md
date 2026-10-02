@@ -2,13 +2,13 @@
 
 Reviewed against provider documentation on 2026-10-01. This records operational limits, not independent certification or a legal assessment.
 
-Updated on 2026-10-02 to reflect the completed restricted-staging journal activation. D1 Time Travel and Workers Logs retention references were rechecked against the linked provider documentation; actual account settings were not re-inspected in this session.
+Updated on 2026-10-02 to reflect the completed restricted-staging journal activation. D1 Time Travel and Workers Logs retention references were rechecked against the linked provider documentation; restricted-staging settings were subsequently re-inspected; see [settings evidence](provider-settings-2026-10-02.json). This did not establish the account plan or provider-internal retention.
 
 ## Data after application deletion
 
 D1 Time Travel is always enabled for production-storage databases. Its documented recovery window is seven days on Workers Free and thirty days on Workers Paid. A completed application deletion does not erase those earlier database states immediately. The account's exact plan and provider-internal retention were not independently established here. [D1 Time Travel](https://developers.cloudflare.com/d1/reference/time-travel/)
 
-The test configuration disables application Workers observability and Logpush; public R2 access was previously checked as disabled. This does not establish the absence of Cloudflare's own infrastructure/security records. If Workers Logs is later enabled, its documented retention is three days on Free and seven on Paid. [Workers Logs](https://developers.cloudflare.com/workers/observability/logs/workers-logs/)
+A read-only inspection of both Workers found Logpush=false, no Tail consumers and Observability=null (no explicit configuration returned). Do not infer the absence of provider records from a null field. Pages Web Analytics has no configured tag/token. Both R2 buckets have r2.dev disabled and no custom domains. Their only lifecycle rule aborts incomplete multipart uploads after seven days; it does not expire stored snapshots or deletion events, which rely on application maintenance. This does not establish the absence of Cloudflare's own infrastructure/security records. If Workers Logs is later enabled, its documented retention is three days on Free and seven on Paid. [Workers Logs](https://developers.cloudflare.com/workers/observability/logs/workers-logs/)
 
 R2 binding reads reflect completed object deletion immediately. This is an application-read guarantee, not a promise of physical erasure of all provider copies. No public object-cache purge is needed for the current private binding path. [R2 consistency](https://developers.cloudflare.com/r2/reference/consistency/)
 

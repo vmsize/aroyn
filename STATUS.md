@@ -1,6 +1,12 @@
 # Source package status — 2026-10-02
 
-## Latest update: privacy wording aligned with source
+## Latest update: provider configuration and contact instructions checked
+
+Read-only provider inspection on 2026-10-02 confirmed Logpush disabled and no Tail consumers on API/live, no Pages Web Analytics tag/token, and both R2 buckets with r2.dev disabled and no custom domains. Workers script-settings returned Observability=null; this is recorded without claiming all provider logging is absent. R2 lifecycle only aborts unfinished multipart uploads, so application expiry still depends on maintenance. See [settings evidence](docs/provider-settings-2026-10-02.json).
+
+Contact notices now explain sending septave a Discord friend request when direct messages are unavailable. The owner confirmed friend-request delivery from a second account on 2026-10-02; this is a user-observed functional check, not a future-availability guarantee. No second private contact was selected. Provider settings and user data were not changed. Full-day consumption remains deferred by the owner; cleanup completion and final independent review remain unverified.
+
+## Previous update: privacy wording aligned with source
 
 On 2026-10-02, RU/EN privacy notices were clarified for connection-IP request limiting and account-export scope. Server authorization credential records are excluded; stored runtime snapshot contents are preserved. Account-data documentation now reflects the active restricted-staging journal. No API/live code, credentials or access list changed. Ten existing local web checks passed. See [targeted consistency review](docs/privacy-code-check-2026-10-02.md).
 

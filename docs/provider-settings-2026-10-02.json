@@ -1,0 +1,105 @@
+{
+  "date": "2026-10-02",
+  "scope": "Read-only restricted-staging provider configuration inspection",
+  "workers": [
+    {
+      "name": "aroyn-api-staging",
+      "success": true,
+      "status": 200,
+      "observability": null,
+      "logpush": false,
+      "tailConsumers": null
+    },
+    {
+      "name": "aroyn-live-staging",
+      "success": true,
+      "status": 200,
+      "observability": null,
+      "logpush": false,
+      "tailConsumers": null
+    }
+  ],
+  "pages": {
+    "success": true,
+    "status": 200,
+    "webAnalyticsTagPresent": false,
+    "webAnalyticsTokenPresent": false
+  },
+  "buckets": [
+    {
+      "bucket": "aroyn-staging-payloads",
+      "managed": {
+        "status": 200,
+        "success": true,
+        "enabled": false
+      },
+      "custom": {
+        "status": 200,
+        "success": true,
+        "domainCount": 0
+      },
+      "lifecycle": {
+        "status": 200,
+        "success": true,
+        "rules": [
+          {
+            "id": "Default Multipart Abort Rule",
+            "enabled": true,
+            "conditions": {},
+            "abortMultipartUploadsTransition": {
+              "condition": {
+                "type": "Age",
+                "maxAge": 604800
+              }
+            }
+          }
+        ]
+      },
+      "errors": []
+    },
+    {
+      "bucket": "aroyn-staging-deletions",
+      "managed": {
+        "status": 200,
+        "success": true,
+        "enabled": false
+      },
+      "custom": {
+        "status": 200,
+        "success": true,
+        "domainCount": 0
+      },
+      "lifecycle": {
+        "status": 200,
+        "success": true,
+        "rules": [
+          {
+            "id": "Default Multipart Abort Rule",
+            "enabled": true,
+            "conditions": {},
+            "abortMultipartUploadsTransition": {
+              "condition": {
+                "type": "Age",
+                "maxAge": 604800
+              }
+            }
+          }
+        ]
+      },
+      "errors": []
+    }
+  ],
+  "limits": [
+    "Observability null is recorded as no explicit configuration, not proof of absent provider/security logs",
+    "No actual log records, account plan or provider-internal retention inspected",
+    "R2 lifecycle rule aborts incomplete multipart uploads; it does not expire stored runtime or deletion-journal objects",
+    "Full-day D1 consumption deferred by owner; ordinary cleanup completion unobserved",
+    "Contact delivery was tested by the owner; future availability and independent end-to-end handling are not guaranteed"
+  ],
+  "contact": {
+    "discordUsername": "septave",
+    "friendRequestDelivery": "confirmed by owner from second account on 2026-10-02",
+    "independentDeliveryTest": false,
+    "secondPrivateContactSelected": false
+  }
+}

@@ -1,8 +1,8 @@
 # Source package status — 2026-10-02
 
-## Latest update: keyboard, focus, contrast and retained-record labels corrected locally
+## Latest update: keyboard, focus, contrast and retained-record labels published
 
-AR-07–AR-09 and AR-11 are implemented locally. The full local gate passed 18 suites / 205 groups; twelve focused component checks also passed after the final confirmation-reset adjustment. See [correction and limits](docs/dashboard-accessibility.md). Publication, hosted CI and staging rollout are pending for this batch. The owner confirmed the previous cloud Discord login correction works. General access remains restricted; AR-10, full UTC-day D1 usage, ordinary daily cleanup and targeted independent review remain open.
+AR-07–AR-09 and AR-11 are implemented locally. The full local gate passed 18 suites / 205 groups; twelve focused component checks also passed after the final confirmation-reset adjustment. See [correction and limits](docs/dashboard-accessibility.md). Published code commit `03983c4183166dc361dca7301cb86d3c866698aa` passed hosted CI (18 suites / 205 groups) and is deployed on restricted Pages b71b7ef5. Eleven assets, three health/guest checks and functional cloud login/callback checks passed; see [rollout evidence](docs/dashboard-accessibility-rollout-2026-10-02.json). Owner keyboard/menu/theme verification remains pending. The owner confirmed the previous cloud Discord login correction works. General access remains restricted; AR-10, full UTC-day D1 usage, ordinary daily cleanup and targeted independent review remain open.
 
 ## Previous update: staging login configuration corrected
 

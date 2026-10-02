@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-02",
+  "findings": [
+    "AR-07",
+    "AR-08",
+    "AR-09",
+    "AR-11"
+  ],
+  "sourceCommit": "03983c4183166dc361dca7301cb86d3c866698aa",
+  "workflowUrl": "https://github.com/vmsize/aroyn/actions/runs/37023442596",
+  "conclusion": "success",
+  "suites": 18,
+  "groups": 205,
+  "countDerivation": {
+    "PASSLogLines": 163,
+    "web": 11,
+    "accessibility": 12,
+    "deploymentConfig": 4,
+    "dashboardStability": 15
+  },
+  "stagingFrontend": {
+    "deploymentId": "b71b7ef5-e33a-4b5f-b22e-da480a7d596e",
+    "url": "https://aroyn-staging.pages.dev/dashboard/",
+    "assetChecks": 11,
+    "healthGuestChecks": 3,
+    "usesFunctions": false,
+    "webAnalytics": false
+  },
+  "loginChecks": {
+    "date": "2026-10-02T14:57:39.369Z",
+    "configEndpointsCorrect": true,
+    "actualHostedLoginTargetCorrect": true,
+    "oauthStartStatus": 302,
+    "discordHostCorrect": true,
+    "callbackCorrect": true,
+    "stateValuesExcluded": true
+  },
+  "publicSourceFilesVerified": 173,
+  "zipSourceBytesMatched": true,
+  "backendModifiedByBatch": false,
+  "cloudFixturesCreated": false,
+  "manualBrowserCheck": "Pending owner keyboard/menu/theme check; previous Discord hotfix confirmed by owner.",
+  "remaining": [
+    "AR-10 delayed Luau cancellation",
+    "ordinary daily cleanup observation",
+    "full UTC-day D1 usage (owner deferred)",
+    "targeted independent review",
+    "owner decision on general release"
+  ]
+}

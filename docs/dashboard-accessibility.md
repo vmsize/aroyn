@@ -13,3 +13,7 @@ The full local gate passed 18 suites / 205 groups. A final small account confirm
 The owner confirmed the previous Discord login correction works. This frontend batch does not change the API/live backend, Luau client or registration access. AR-10 delayed Luau cancellation, deferred full UTC-day D1 usage, the next ordinary daily cleanup and targeted independent review remain open.
 
 Cloud bundles must be prepared with tools/prepare-dashboard.mjs and explicit staging endpoints; repository config.js remains local preview configuration.
+
+## Publication and restricted staging
+
+Code commit `03983c4183166dc361dca7301cb86d3c866698aa` passed hosted CI: 18 suites / 205 groups. Pages b71b7ef5-e33a-4b5f-b22e-da480a7d596e serves the prepared cloud configuration. Eleven assets matched bytes, three backend health/guest checks passed, and actual hosted login construction plus the Discord OAuth callback passed. Public source and ZIP were verified for 173 files before this rollout evidence was added. No API/live or Luau deployment was performed. Real keyboard/menu/theme verification by the owner remains pending. See [rollout evidence](dashboard-accessibility-rollout-2026-10-02.json).

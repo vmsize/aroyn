@@ -6,7 +6,7 @@ Implemented in the source candidate on 2026-10-01 and exercised on a separate re
 
 Profile/avatar menu → **Account data** (`/dashboard/account/`). The page checks the retention endpoint before enabling its actions.
 
-- **Download my data** exports JSON Lines containing profile fields, linked accounts, explicitly associated history and account-scoped v2/v3 R2 objects. Credentials and other users' records are excluded. The browser waits for a completion record before offering a file.
+- **Download my data** exports JSON Lines containing profile fields, linked accounts, explicitly associated history and account-scoped v2/v3 R2 objects. Server authorization credential records and other users' records are excluded. Stored runtime snapshot contents are preserved, so callers must not send secrets inside snapshots. The browser waits for a completion record before offering a file.
 - **Delete account…** requires exactly `DELETE` and a Discord web session created within 15 minutes. Older sessions require signing in and confirming again. Cancel or Escape clears confirmation.
 - Deletion first revokes all web sessions, exchange codes and dashboard-key access. Live checks reject the deletion marker. The current browser clears Aroyn local/session storage; other tabs react to session removal. Local caches on other devices cannot be remotely erased.
 - Cleanup removes owned records and the profile. Later sign-in creates a new empty Aroyn account. Discord and Roblox accounts are unaffected.
@@ -24,7 +24,7 @@ Profile/avatar menu → **Account data** (`/dashboard/account/`). The page check
 | Public Roblox profile cache | 30 days after last update |
 | Web sessions | Up to 30 days, or earlier revocation |
 | Aggregate samples/peaks without account IDs | Retained |
-| Separate deletion journal (approved; activation pending) | Internal profile ID/request time for 35 days after activation |
+| Separate deletion journal (active on restricted staging) | Internal profile ID/request time for 35 days after activation |
 
 The example API cron runs daily at 03:17 UTC and enqueues a durable cycle. Alarms process bounded portions with saved progress. Expiration is cleanup on the next successful run, not an exact deletion instant. Provider logs, backups and external caches require separate production review.
 
@@ -62,6 +62,6 @@ A separate native runtime receiver confirmed terminal WebSocket closure after da
 
 The shared cleanup code subsequently passed 17 checks from a real Cron event on an isolated temporary cloud Worker with separate synthetic D1/R2 and actual per-key DO coordination. Snapshot age used an isolated +8-day test clock; cache transport was stubbed. Concurrent replacements and pending-deletion retry passed. The temporary resources were removed and the corrected API was deployed to restricted staging. Its ordinary daily invocation has not yet been observed; larger volume, other lifecycle races and provider recovery remain separate concerns.
 
-## Prepared deletion journal
+## Active deletion journal on restricted staging
 
-The source supports DELETION_LEDGER_MODE=required with a separate private R2 binding. It records minimal internal-profile ID/time intents before DB revocation and includes bounded 35-day expiry in maintenance. This optional feature is not activated on real staging data. Retention is approved and notices explicitly mark activation pending. A closed/fenced cutover remains required after the daily D1 write quota resets; see the cutover evidence in STATUS.md. See [design and activation procedure](deletion-ledger.md). A newly created profile has a new internal ID and remains usable.
+The source supports DELETION_LEDGER_MODE=required with a separate private R2 binding. It records minimal internal-profile ID/time intents before DB revocation and includes bounded 35-day expiry in maintenance. Restricted staging activated this feature on 2026-10-02 with matching required-mode, SQL receipt-fence and original private R2 coverage identities. Notices describe it as active. Coverage begins at activation; earlier backups are unsupported. Do not reinitialize the existing journal. See [activation evidence](deletion-ledger-cutover-2026-10-02.json). Ordinary post-activation daily cleanup completion is still unobserved. See [design and activation procedure](deletion-ledger.md). A newly created profile has a new internal ID and remains usable.

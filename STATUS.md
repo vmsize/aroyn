@@ -1,6 +1,12 @@
 # Source package status — 2026-10-02
 
-## Latest update: operational documentation reconciled
+## Latest update: privacy wording aligned with source
+
+On 2026-10-02, RU/EN privacy notices were clarified for connection-IP request limiting and account-export scope. Server authorization credential records are excluded; stored runtime snapshot contents are preserved. Account-data documentation now reflects the active restricted-staging journal. No API/live code, credentials or access list changed. Ten existing local web checks passed. See [targeted consistency review](docs/privacy-code-check-2026-10-02.md).
+
+The owner deferred ordinary full-day D1 consumption until later; the earlier partial-day measurement was not marked a full-day or capacity pass. Post-activation daily cleanup completion also remains unobserved. Work continues on other release checks while restricted access remains in place.
+
+## Previous update: operational documentation reconciled
 
 On 2026-10-02, setup, testing, recovery/provider and D1-budget instructions were reconciled with the completed journal activation and all five SQL migrations. No runtime code, deployment or cloud data changed. Cloudflare/GitHub authenticated access was restored and checked. A read-only capture around 06:14 UTC reported 2,518 account-wide D1 written rows (126 staging, 2,392 legacy Veyra) and 6,109 read rows during part of the UTC day; the existing account/day/completeness validator accepted both database groups. API settings remain required/restricted with the original ledger identity, live remains restricted, and both report Logpush disabled. No cloud mutation was performed. This does not establish full-day consumption, cleanup completion or all provider logging settings. The previously successful hosted CI remains valid for its recorded source commit. Full-day normal usage, post-activation daily cleanup completion and reachable private contact remain pending.
 

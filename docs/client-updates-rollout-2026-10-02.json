@@ -1,0 +1,70 @@
+{
+  "date": "2026-10-02",
+  "version": "4.3.82",
+  "sourceCommit": "c7b2e4aecc8e72e97e7b280190e7e7655ad20796",
+  "sourceTree": "76f9c19c0ec2528389f4ed0c6129903a34473480",
+  "workflowUrl": "https://github.com/vmsize/aroyn/actions/runs/37028759360",
+  "conclusion": "success",
+  "suites": 20,
+  "groups": 234,
+  "countDerivation": {
+    "PASSLogLines": 192,
+    "web": 11,
+    "accessibility": 12,
+    "deploymentConfig": 4,
+    "dashboardStability": 15
+  },
+  "stableLaunchUrl": "https://aroyn-staging.pages.dev/scripts/loader.luau",
+  "manifestUrl": "https://aroyn-staging.pages.dev/scripts/version.json",
+  "stagingFrontend": {
+    "deploymentId": "0dcc9ba7-3b0b-4a52-9bf1-84f4fbad4048",
+    "usesFunctions": false,
+    "webAnalytics": false
+  },
+  "hostedChecks": {
+    "date": "2026-10-02T15:42:25.764Z",
+    "version": "4.3.82",
+    "assetChecks": 8,
+    "stableLaunchUrl": "https://aroyn-staging.pages.dev/scripts/loader.luau",
+    "manifestNoStore": true,
+    "loaderNoStore": true,
+    "manifestContentType": "application/json",
+    "updateChecksEnabled": true,
+    "earlierReleasesUnchanged": true,
+    "healthGuestChecks": [
+      {
+        "url": "https://aroyn-api-staging.veyra-hub.workers.dev/api/v1/health",
+        "status": 200
+      },
+      {
+        "url": "https://aroyn-live-staging.veyra-hub.workers.dev/health",
+        "status": 200
+      },
+      {
+        "url": "https://aroyn-api-staging.veyra-hub.workers.dev/api/v2/auth/me",
+        "status": 401
+      }
+    ]
+  },
+  "loginChecks": {
+    "date": "2026-10-02T15:42:24.618Z",
+    "configEndpointsCorrect": true,
+    "actualHostedLoginTargetCorrect": true,
+    "oauthStartStatus": 302,
+    "discordHostCorrect": true,
+    "callbackCorrect": true,
+    "stateValuesExcluded": true
+  },
+  "publicSourceFilesVerified": 187,
+  "zipAndWorkingClientVerified": true,
+  "ownerGameCheck4_3_81": "Owner confirmed requested checks worked.",
+  "updateNoticeGameRender": "Not directly observed; actual update and GUI label functions passed stubbed Luau checks.",
+  "backendModifiedByBatch": false,
+  "remaining": [
+    "Owner menu/theme check",
+    "ordinary daily cleanup observation",
+    "full UTC-day D1 use (owner deferred)",
+    "targeted independent review",
+    "owner final release decision"
+  ]
+}

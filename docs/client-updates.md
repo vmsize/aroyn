@@ -14,4 +14,8 @@ Both immutable earlier clients 4.3.80/4.3.81 stay archived. Existing already-run
 
 The local gate passed 20 suites / 234 groups, including twelve loader/update/actual GUI-label groups and seventeen cancellation/compiler groups. Invalid paths, unsupported games, manifest/download/compile/startup failures, stale replies and one-time notice activity are covered. This is Luau with HTTP/game stubs, not a real Roblox render test. See [local evidence](local-client-updates-gate-2026-10-02.json).
 
-Publication and hosted checks are pending at this capture. General registration remains restricted. Real menu/theme checks, ordinary daily cleanup, deferred full-day D1 and targeted independent review remain release gates.
+Publication and hosted checks subsequently completed; see the evidence below. General registration remains restricted. Real menu/theme checks, ordinary daily cleanup, deferred full-day D1 and targeted independent review remain release gates.
+
+## Publication
+
+Code commit `c7b2e4aecc8e72e97e7b280190e7e7655ad20796` passed hosted CI: 20 suites / 234 groups. Pages 0dcc9ba7 serves the stable loader, JSON manifest selecting 4.3.82 and the matching client. Eight asset byte checks, correct JSON Content-Type/no-store headers, three health/guest probes and functional cloud login/callback passed. Source hashes, ZIP and working client were verified. No API/live Worker changes were made. See [rollout evidence](client-updates-rollout-2026-10-02.json).

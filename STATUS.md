@@ -1,8 +1,8 @@
 # Source package status — 2026-10-02
 
-## Latest update: owner game check confirmed; stable loader and GUI update checks restored locally
+## Latest update: stable loader and GUI update checks published in 4.3.82
 
-The owner confirmed 4.3.81 cancellation/off-on/close-restart worked. Its corrections are retained in 4.3.82. The stable loader now selects the version through a public static manifest; the saved command has no version. GUI update-check code is restored after the staging override disabled it. Local gate passed 20 suites / 234 groups. See [update flow and limits](docs/client-updates.md). Publication and hosted checks are pending. Earlier immutable clients are preserved; general registration remains restricted. Ordinary daily cleanup, deferred full UTC-day D1 use, owner menu/theme checks and targeted independent review remain open.
+The owner confirmed 4.3.81 cancellation/off-on/close-restart worked. Its corrections are retained in 4.3.82. The stable loader now selects the version through a public static manifest; the saved command has no version. GUI update-check code is restored after the staging override disabled it. Local gate passed 20 suites / 234 groups. See [update flow and limits](docs/client-updates.md). Published code commit `c7b2e4aecc8e72e97e7b280190e7e7655ad20796` passed hosted CI (20 suites / 234 groups) and is deployed on Pages 0dcc9ba7. Eight assets, JSON/no-store headers, three health/guest probes and functional cloud login/callback passed; see [rollout evidence](docs/client-updates-rollout-2026-10-02.json). Earlier immutable clients are preserved; general registration remains restricted. Ordinary daily cleanup, deferred full UTC-day D1 use, owner menu/theme checks and targeted independent review remain open.
 
 ## Previous update: AR-10 cancellation candidate published for owner test
 

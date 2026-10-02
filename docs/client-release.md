@@ -1,4 +1,4 @@
-# Aroyn Hub 4.3.83 (local candidate)
+# Aroyn Hub 4.3.83
 
 The readable client and stable loader are included under `apps/dashboard`. Original code uses the repository's MIT license; embedded brand assets have separate terms.
 
@@ -41,8 +41,8 @@ The maintainer will update the existing ScriptBlox/rscripts listings after revie
 
 Prepare the new client with its matching UpdateVersion, keep earlier release files unchanged, and update scripts/version.json to the new version. Publish the release asset and manifest together in one prepared Pages deployment; the stable loader and homepage command stay unchanged. Update the release hash record and run the client suites. The manifest and loader use no-store cache headers; versioned assets remain immutable.
 
-## 4.3.83 cancellation candidate
+## 4.3.83 cancellation fixes
 
 Compost, Pet Drops and Leaves bind yielding work to the feature enable cycle and client generation. Disable, off/on and Stop discard old continuations, retries and confirmations. Teleport cleanup is idempotent and cannot restore an old position over a newer task. A cancelled claim is released without clearing a newer claim. The shared automation watchdog cancels stale ownership before handing it to another worker. An already sent game request cannot be recalled.
 
-This version is local only until its publication record says otherwise. The stable launch command and GUI update check remain unchanged. No real game execution of 4.3.83 has been performed.
+This version is published on restricted staging: code commit `7dbff7b6122f33814cc057e290389bb7ecc2f6e8` passed hosted CI (25 suites); Pages `2c234f16-c1b1-4ee9-a178-85c43f5597f0` serves the verified assets. Nine asset byte/header checks and five service/login/guest checks passed. See [rollout evidence](client-auth-rollout-2026-10-03.json). The stable launch command and GUI update check remain unchanged. No real game execution of 4.3.83 has been performed.

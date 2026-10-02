@@ -1,6 +1,6 @@
 # Client cancellation and dashboard auth continuation fixes
 
-Local candidate: 4.3.83. Closed staging still serves 4.3.82 until a verified rollout.
+Published client: 4.3.83 on restricted staging. Code commit `7dbff7b6122f33814cc057e290389bb7ecc2f6e8` passed hosted CI (25 suites). Pages `2c234f16-c1b1-4ee9-a178-85c43f5597f0` passed nine asset byte/header checks and five service/login/guest checks. [Rollout evidence](client-auth-rollout-2026-10-03.json).
 
 ## AF-03 (P2): cancelled automation continues after a wait
 
@@ -16,4 +16,4 @@ Eight VM scenarios run the actual service: held refresh during logout POST, loca
 
 ## Gates still open
 
-Hosted CI, cloud asset verification and owner checks of this candidate; ordinary daily retention after ledger activation; complete UTC-day D1/account usage; targeted independent review. Public registration remains restricted.
+Owner game/telemetry checks of 4.3.83; ordinary daily retention after ledger activation; complete UTC-day D1/account usage; targeted independent review. Public registration remains restricted.

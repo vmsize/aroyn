@@ -1,7 +1,7 @@
 {
   "version": "4.3.83",
   "date": "2026-10-03",
-  "status": "verified locally; publication pending",
+  "status": "published on restricted staging; owner game check pending",
   "stableLaunchUrl": "https://aroyn-staging.pages.dev/scripts/loader.luau",
   "updateManifestUrl": "https://aroyn-staging.pages.dev/scripts/version.json",
   "gameCheck": "No real game execution of 4.3.83 yet. Earlier market/restart checks were owner-confirmed on 4.3.81.",
@@ -21,5 +21,8 @@
       "bytes": 188,
       "sha256": "18203656fd8d1ddfa287b609f747f56d9523c4082335dbb9400a9fed83e0703c"
     }
-  ]
+  ],
+  "codeCommit": "7dbff7b6122f33814cc057e290389bb7ecc2f6e8",
+  "pagesDeployment": "2c234f16-c1b1-4ee9-a178-85c43f5597f0",
+  "hostedCi": "success (25 suites)"
 }

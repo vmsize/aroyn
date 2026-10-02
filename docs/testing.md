@@ -30,7 +30,7 @@ The Miniflare harness refuses non-mock mode and replaces external Discord/Roblox
 
 Local synthetic results are not evidence of real OAuth behavior, all Cloudflare topology/hibernation cases, large loads, every Roblox environment, or legal/WCAG compliance. Separate cloud/user observations and remaining gates are in [STATUS.md](../STATUS.md).
 
-GitHub Actions is configured for Linux with the same Node/npm commands, a read-only repository token and a ten-minute timeout. A clean Windows installation passed locally. The first hosted run stopped before executing any step because of an external account restriction; remote CI remains unverified. Resolve that restriction and rerun the workflow before treating its check as a release gate.
+GitHub Actions is configured for Linux with the same Node/npm commands, a read-only repository token and a ten-minute timeout. A clean Windows installation passed locally. After two attempts stopped before test execution because of an external account restriction, attempt 3 passed all fourteen suites / 159 groups on Ubuntu 24.04.5 with Node.js 24.21.0 on 2026-10-02. The tested commit is 9bed86447ce600b1b3d79c8b891f80f0bb7d748f; all job steps succeeded. See [hosted evidence](hosted-ci-2026-10-02.json). These are synthetic Miniflare checks, not new production cloud storage or Roblox farming checks.
 
 A separate temporary real-cloud API/live deployment passed 18 lifecycle checks on seeded synthetic profiles, including logout/deletion/key rotation, idle socket revocation, account isolation and new-session/new-key reconnection. This is separate from npm test and did not test OAuth or force hibernation. See [sanitized results](cloud-split-lifecycle-2026-10-01.json). All temporary resources were removed.
 

@@ -1,6 +1,12 @@
 # Source package status — 2026-10-02
 
-## Latest update: deletion journal activated on restricted staging
+## Latest update: hosted CI and owner UI checks confirmed
+
+GitHub Actions attempt 3 passed on 2026-10-02 after the external account restriction was resolved. All job steps, including dependency installation and the complete fourteen-suite / 159-group synthetic gate, succeeded on Ubuntu 24.04.5 / Node.js 24.21.0 at source commit 9bed86447ce600b1b3d79c8b891f80f0bb7d748f. See [hosted evidence](docs/hosted-ci-2026-10-02.json). No production cloud fixture or real profile deletion was performed.
+
+The owner confirmed post-cutover game telemetry updates and the planned owner analytics checks: populated statistics/charts, search/filter empty states, Refresh, Pause/Resume and period switching. A 394×842 browser responsive-mode screenshot supported the narrow layout check; this was not a physical-phone or full accessibility review. Read-only provider analytics captured 1,995 account-wide D1 written rows, including 19 staging rows, during part of the UTC day; analytics may lag. A successful ordinary scheduled invocation was observed at 2026-10-02T03:17:48Z, before journal activation. The first daily invocation after activation, completion of its alarm-driven cleanup and a full UTC day's normal resource usage remain wider-access gates.
+
+## Previous update: deletion journal activated on restricted staging
 
 On 2026-10-02, fresh account-wide D1 analytics showed 1,928 written rows before initialization; a small 250-row operator allowance was reserved. API/live access was closed, native maintenance paused and existing bindings/namespaces/secret names preserved. The receipt fence and matching private R2 coverage were initialized with the provider clock. Required journal mode is now enabled. Inspection found matching gate/configuration/bucket identities, no pending deletion jobs and no deletion events. No actual profile was deleted and no large fixture was repeated.
 
@@ -73,7 +79,7 @@ The client 4.3.80 release, owner analytics UI and public status page are now inc
 - Public status checks both HTTP endpoints from the browser without credentials. It makes no uptime, sign-in, storage or telemetry guarantee. Cloud API/live health responded and anonymous account/owner-data requests returned 401.
 - Owner analytics includes pause/resume, refresh, period selection, mobile layouts, keyboard table regions, safe external URLs and stale/error states. A delayed response after sign-out cannot reopen private analytics. Synthetic mobile preview and unauthenticated cloud gate were verified; the owner’s full authenticated browser view remains a manual follow-up. Backend synthetic owner/non-owner checks passed.
 - New browser storage uses aroyn.* and reads legacy veyra.* preferences. Sign-out updates both session namespaces; reset/deletion removes both. Database columns, durable-object class names, OAuth compatibility fields and Cloudflare account hostname retain legacy names to preserve data.
-- Six portable synthetic suites passed 85 check groups after a clean npm dependency install on Windows. CI is configured for Node 24 on Linux. The first hosted job was stopped by an external account restriction before executing any step; remote CI has not passed. The source and clean local checks were published successfully.
+- Six portable synthetic suites passed 85 check groups after a clean npm dependency install on Windows. CI is configured for Node 24 on Linux. Initial hosted attempts were stopped by an external account restriction; the later complete hosted gate passed as documented above. The source and clean local checks were published successfully.
 
 ## Separate cloud lifecycle verification
 

@@ -1,0 +1,29 @@
+{
+  "date": "2026-10-02",
+  "status": "passed",
+  "workflow": "Synthetic checks",
+  "runId": 36966267367,
+  "runAttempt": 3,
+  "jobId": 110722492307,
+  "testedCommit": "9bed86447ce600b1b3d79c8b891f80f0bb7d748f",
+  "url": "https://github.com/vmsize/aroyn/actions/runs/36966267367",
+  "environment": {
+    "os": "Ubuntu 24.04.5",
+    "node": "24.21.0"
+  },
+  "commands": [
+    "npm ci --ignore-scripts",
+    "npm test"
+  ],
+  "suites": 14,
+  "groups": 159,
+  "allJobStepsSucceeded": true,
+  "externalAccountRestrictionResolved": true,
+  "completedBy": "2026-10-02T05:45:14Z",
+  "scope": "Isolated synthetic Miniflare tests on a GitHub-hosted runner",
+  "limits": [
+    "No production cloud storage fixture or actual profile deletion",
+    "No new real Roblox farming-feature verification",
+    "No full-day D1 cost or post-activation daily cleanup completion proof"
+  ]
+}

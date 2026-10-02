@@ -1,0 +1,19 @@
+{
+  "version": "4.3.81",
+  "date": "2026-10-02",
+  "status": "candidate-pending-owner-game-check",
+  "defaultLoaderVersion": "4.3.80",
+  "files": [
+    {
+      "path": "apps/dashboard/releases/4.3.81/greedy-growers.luau",
+      "bytes": 573383,
+      "sha256": "6c65f4c0f03adadfb9fda06d34173cb90b452ed5a58db4eba5f66a6c1cfb77df"
+    }
+  ],
+  "localGate": {
+    "suites": 19,
+    "groups": 222,
+    "focused": 17
+  },
+  "defaultLoaderPromotion": "Pending owner game test; not changed by candidate preparation."
+}

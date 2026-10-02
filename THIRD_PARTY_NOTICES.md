@@ -15,3 +15,5 @@ The readable Luau release carries the logo and navigation image strip embedded i
 The synthetic harness uses Miniflare, esbuild, ws and LinkeDOM as npm development dependencies; their upstream licenses remain applicable. They are not bundled into the browser site or Luau client. The exact graph is recorded in package-lock.json.
 
 LinkeDOM 0.18.12 (Andrea Giammarchi / WebReflection) is used only for parsed-DOM component tests under its ISC license. Focus events are explicitly modeled in the harness; these checks do not certify browser tab order or screen-reader behavior. Dependency sources are fetched by npm, and are excluded from the website and source ZIP.
+
+The Luau cancellation harness downloads the official Luau 0.740 development CLI from luau-lang/luau (MIT license). Pinned Windows, Ubuntu and macOS archive SHA-256 values are checked before extraction into a temporary development cache. The downloaded executables are not distributed in this repository, website or client. Tests execute extracted project functions with stubbed game calls; they do not connect to Roblox.

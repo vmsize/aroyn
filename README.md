@@ -11,6 +11,7 @@ Some technical service and class names still use `Veyra` for compatibility.
 - `workers/live`: editable live source compared with the deployed bundle before local changes, now with signed presence tokens, revocable live access, scoped cleanup and rate controls. First anonymous reports remain unverified. See [backend review](docs/security-review.md).
 - `workers/shared`: account data lifecycle helpers used by both Workers.
 - `apps/dashboard/releases/4.3.80`: readable Greedy Growers client; `scripts/loader.luau` downloads this fixed release.
+- `apps/dashboard/releases/4.3.81`: cancellation correction candidate; the default loader remains on 4.3.80 until the owner game check. See [candidate verification](docs/market-cancellation.md).
 - `apps/dashboard/status` and `admin`: public HTTP availability checks and a server-authorized private owner interface.
 - `tests`: synthetic backend, lifecycle, access and browser-component checks; GitHub Actions runs `npm ci` and `npm test`.
 - `docs`: architecture, usage methodology, data lifecycle and release review notes.

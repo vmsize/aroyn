@@ -1,0 +1,21 @@
+{
+  "date": "2026-10-02",
+  "finding": "AR-10",
+  "candidateVersion": "4.3.81",
+  "candidateSha256": "6c65f4c0f03adadfb9fda06d34173cb90b452ed5a58db4eba5f66a6c1cfb77df",
+  "suites": 19,
+  "groups": 222,
+  "exitCode": 0,
+  "focusedGroups": 17,
+  "countDerivation": {
+    "PASSLogLines": 180,
+    "web-check": 11,
+    "accessibility-ui": 12,
+    "deployment-config": 4,
+    "dashboard-stability": 15
+  },
+  "previousReleaseAndDefaultLoaderUnchanged": true,
+  "scope": "Actual extracted Luau functions, deterministic coroutine scheduling and stubbed remotes. Outer and embedded full chunks compile. No Roblox execution.",
+  "publicationAndHostedCI": "Pending at this local capture",
+  "ownerGameCheck": "Pending; do not promote loader until checked."
+}

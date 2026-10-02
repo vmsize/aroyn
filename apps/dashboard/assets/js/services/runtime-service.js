@@ -46,9 +46,11 @@ class AroynRuntimeService {
 
     this.listeners = new Set();
     this.timer = null;
-    this.inFlight = false;
-    this.accountsInFlight = false;
+    this.requests = new Map();
+    this.selectionRevision = 0;
+    this.pollEpoch = 0;
     this.accountsFetchedAt = 0;
+    this.accountsFailures = 0;
     this.generation = 0;
     this.logCutoff = 0;
 
@@ -110,6 +112,61 @@ class AroynRuntimeService {
     });
   }
 
+  beginRequest(kind, gen, auth, selected = null) {
+    const ticket = { kind, gen, token: auth.token, selected, revision: this.selectionRevision, controller: new AbortController() };
+    this.requests.set(kind, ticket);
+    return ticket;
+  }
+
+  requestIsCurrent(ticket) {
+    return this.requests.get(ticket.kind) === ticket &&
+      ticket.gen === this.generation && ticket.token === authService.getSnapshot().token &&
+      (ticket.selected === null || (ticket.revision === this.selectionRevision &&
+        ticket.selected === String(this.state.bridge.selectedRobloxUserId || '')));
+  }
+
+  finishRequest(ticket) {
+    if (this.requests.get(ticket.kind) === ticket) this.requests.delete(ticket.kind);
+  }
+
+  cancelRequests(kinds = [...this.requests.keys()]) {
+    for (const kind of kinds) {
+      const ticket = this.requests.get(kind);
+      this.requests.delete(kind);
+      ticket?.controller.abort();
+    }
+  }
+
+  invalidateSelection() {
+    this.selectionRevision += 1;
+    this.cancelRequests(['snapshot', 'live-token']);
+    this.disconnectLive(false);
+  }
+
+  async requestJSON(ticket, url, options) {
+    const signal = ticket.controller.signal;
+    let timeout, onAbort;
+    const cancelled = new Promise((_, reject) => {
+      onAbort = () => reject(new Error(signal.reason?.message || 'Request cancelled.'));
+      signal.addEventListener('abort', onAbort, { once: true });
+      if (signal.aborted) onAbort();
+      timeout = setTimeout(() => ticket.controller.abort(new Error('Aroyn API request timed out. Retrying automatically.')), 8000);
+    });
+    try {
+      return await Promise.race([
+        (async () => {
+          const response = await fetch(url, { ...options, signal });
+          const body = await response.json().catch(() => ({}));
+          return { response, body };
+        })(),
+        cancelled
+      ]);
+    } finally {
+      clearTimeout(timeout);
+      signal.removeEventListener('abort', onAbort);
+    }
+  }
+
   getApiBase() { return this.apiBase; }
   setApiBase(value) {
     this.apiBase = String(value || API_DEFAULT).trim().replace(/\/+$/, '') || API_DEFAULT;
@@ -124,7 +181,7 @@ class AroynRuntimeService {
     return (this.state.bridge.accounts || []).find(account => String(account.userId) === id) || null;
   }
   isPageVisible() { return typeof document === 'undefined' || document.visibilityState !== 'hidden'; }
-  pollDelay() { return this.isPageVisible() ? 6000 : 30000; }
+  pollDelay() { return Math.max(this.isPageVisible() ? 6000 : 30000, this.state.bridge.accountsLoaded ? 0 : Math.min(30000, 6000 * 2 ** Math.max(0, this.accountsFailures - 1))); }
   accountsDelay() { return this.isPageVisible() ? 60000 : 180000; }
 
   isLiveSocketOpenForSelected() {
@@ -151,7 +208,7 @@ class AroynRuntimeService {
       // authService can publish the same authenticated snapshot more than once
       // during page startup. Do not allow a second startup pass to skip the
       // in-flight /accounts request and prematurely resolve the dashboard loader.
-      if (this.initialHydrationPromise) {
+      if (same && this.initialHydrationPromise) {
         await this.initialHydrationPromise;
         return;
       }
@@ -161,7 +218,11 @@ class AroynRuntimeService {
           this.generation += 1;
           const gen = this.generation;
           this.stopPolling();
-          this.disconnectLive(false);
+          this.cancelRequests();
+          this.accountsFetchedAt = 0;
+          this.accountsFailures = 0;
+          this.state.live = null;
+          this.invalidateSelection();
 
           const saved = storage.getRaw(this.selectionKey(auth.user.id), '');
           this.state.bridge.accounts = [];
@@ -174,10 +235,10 @@ class AroynRuntimeService {
           const accountsReady = await this.refreshAccounts(gen, true);
           if (gen !== this.generation) return;
 
-          // Do not consider the dashboard hydrated until the accounts endpoint
-          // has actually completed successfully. This prevents the temporary
-          // "No Roblox account" state from flashing on startup.
           if (!accountsReady || !this.state.bridge.accountsLoaded) {
+            // Show the error and keep retrying even when the first lookup fails.
+            this.markInitialSyncComplete('initial-runtime-error');
+            this.startPolling(gen);
             return;
           }
 
@@ -215,7 +276,9 @@ class AroynRuntimeService {
   disconnectAccount() {
     this.generation += 1;
     this.stopPolling();
-    this.disconnectLive(false);
+    this.cancelRequests();
+    this.invalidateSelection();
+    this.initialHydrationPromise = null;
     const config = { ...this.state.config };
     this.state = clone(mockRuntime);
     this.state.config = config;
@@ -238,17 +301,20 @@ class AroynRuntimeService {
   startPolling(gen = this.generation) {
     this.stopPolling();
 
+    const epoch = this.pollEpoch;
+    const current = () => epoch === this.pollEpoch && gen === this.generation && authService.isAuthenticated();
     const tick = async () => {
-      if (gen !== this.generation || !authService.isAuthenticated()) return;
+      if (!current()) return;
 
-      if (Date.now() - this.accountsFetchedAt > this.accountsDelay()) {
+      if (!this.state.bridge.accountsLoaded || Date.now() - this.accountsFetchedAt > this.accountsDelay()) {
         await this.refreshAccounts(gen, false);
       }
 
+      if (!current()) return;
       if (!this.isLiveSocketOpenForSelected()) this.connectLive(gen);
-      if (!this.isLiveHealthy()) await this.pollOnce(gen);
+      if (this.state.bridge.accountsLoaded && !this.isLiveHealthy()) await this.pollOnce(gen);
 
-      if (gen === this.generation && authService.isAuthenticated()) {
+      if (current()) {
         this.timer = setTimeout(tick, this.pollDelay());
       }
     };
@@ -257,6 +323,7 @@ class AroynRuntimeService {
   }
 
   stopPolling() {
+    this.pollEpoch += 1;
     if (this.timer) {
       clearTimeout(this.timer);
       this.timer = null;
@@ -316,11 +383,13 @@ class AroynRuntimeService {
     if (this.ws && this.wsAccountId !== selected) this.disconnectLive(false);
     if (this.ws && this.ws.readyState === WebSocket.CONNECTING && this.wsAccountId === selected) return true;
 
+    if (this.requests.has('live-token')) return false;
+    const ticket = this.beginRequest('live-token', gen, auth, selected);
     this.state.bridge = { ...this.state.bridge, liveTransport: 'connecting' };
     this.emit();
 
     try {
-      const tokenResponse = await fetch(`${LIVE_DEFAULT}/web-token`, {
+      const { response: tokenResponse, body: tokenBody } = await this.requestJSON(ticket, `${LIVE_DEFAULT}/web-token`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${auth.token}`,
@@ -331,8 +400,7 @@ class AroynRuntimeService {
         cache: 'no-store'
       });
 
-      const tokenBody = await tokenResponse.json().catch(() => ({}));
-      if (gen !== this.generation || selected !== String(this.state.bridge.selectedRobloxUserId || '')) return false;
+      if (!this.requestIsCurrent(ticket)) return false;
       if (!tokenResponse.ok || !tokenBody.token) throw new Error(tokenBody.error || `Live token API returned ${tokenResponse.status}`);
 
       const socket = new WebSocket(`${LIVE_WS_DEFAULT}?token=${encodeURIComponent(tokenBody.token)}`);
@@ -392,29 +460,29 @@ class AroynRuntimeService {
 
       return true;
     } catch (err) {
-      if (gen !== this.generation) return false;
+      if (!this.requestIsCurrent(ticket)) return false;
       const message = err instanceof Error ? err.message : String(err);
       this.state.bridge = { ...this.state.bridge, liveTransport: 'reconnecting', error: message };
       this.emit();
       this.scheduleLiveReconnect(gen);
       return false;
+    } finally {
+      this.finishRequest(ticket);
     }
   }
 
   async refreshAccounts(gen = this.generation, force = false) {
     const auth = authService.getSnapshot();
-    if (!auth.token || this.accountsInFlight) return false;
+    if (!auth.token || gen !== this.generation || this.requests.has('accounts')) return false;
     if (!force && Date.now() - this.accountsFetchedAt < 30000) return true;
 
-    this.accountsInFlight = true;
+    const ticket = this.beginRequest('accounts', gen, auth);
     try {
-      const response = await fetch(`${this.apiBase}/api/v2/runtime/accounts`, {
+      const { response, body } = await this.requestJSON(ticket, `${this.apiBase}/api/v2/runtime/accounts`, {
         headers: { Authorization: `Bearer ${auth.token}`, 'Accept': 'application/json' },
         cache: 'no-store'
       });
-      if (gen !== this.generation) return false;
-
-      const body = await response.json().catch(() => ({}));
+      if (!this.requestIsCurrent(ticket)) return false;
       if (!response.ok) throw new Error(body.error || `Accounts API returned ${response.status}`);
 
       const accounts = Array.isArray(body.accounts) ? body.accounts : [];
@@ -425,23 +493,28 @@ class AroynRuntimeService {
         selected = String((online || accounts[0])?.userId || '') || null;
       }
 
+      if (String(selected || '') !== previous) this.invalidateSelection();
       this.state.bridge = {
         ...this.state.bridge,
         accounts,
         accountsLoaded: true,
-        selectedRobloxUserId: selected
+        selectedRobloxUserId: selected,
+        error: null
       };
       if (selected && auth.user?.id) storage.setRaw(this.selectionKey(auth.user.id), selected);
       this.accountsFetchedAt = Date.now();
+      this.accountsFailures = 0;
       this.emit();
       return true;
     } catch (err) {
-      if (gen !== this.generation) return false;
+      if (!this.requestIsCurrent(ticket)) return false;
+      this.accountsFailures = Math.min(4, this.accountsFailures + 1);
       this.state.bridge = { ...this.state.bridge, error: err instanceof Error ? err.message : String(err) };
+      if (!this.state.bridge.accountsLoaded) this.state.connection = { state: 'disconnected', label: 'Offline', detail: 'Cannot load your accounts. Retrying automatically.' };
       this.emit();
       return false;
     } finally {
-      this.accountsInFlight = false;
+      this.finishRequest(ticket);
     }
   }
 
@@ -451,7 +524,9 @@ class AroynRuntimeService {
     if (!account || id === String(this.state.bridge.selectedRobloxUserId || '')) return Boolean(account);
 
     const auth = authService.getSnapshot();
-    this.disconnectLive(false);
+    const gen = this.generation;
+    this.invalidateSelection();
+    const revision = this.selectionRevision;
     this.state.bridge = { ...this.state.bridge, selectedRobloxUserId: id, error: null, liveTransport: 'connecting' };
     if (auth.user?.id) storage.setRaw(this.selectionKey(auth.user.id), id);
 
@@ -459,8 +534,8 @@ class AroynRuntimeService {
     this.state.connection = { state: 'idle', label: 'Switching account', detail: `Loading ${account.username || account.displayName || 'Roblox account'}.` };
     this.emit();
 
-    await this.pollOnce(this.generation);
-    this.connectLive(this.generation);
+    await this.pollOnce(gen);
+    if (gen === this.generation && revision === this.selectionRevision) this.connectLive(gen);
     return true;
   }
 
@@ -468,17 +543,26 @@ class AroynRuntimeService {
     const id = String(userId || '');
     const auth = authService.getSnapshot();
     if (!id || !auth.token) throw new Error('Authentication required.');
+    const gen = this.generation;
+    if (this.requests.has('remove-account')) throw new Error('An account removal is already pending.');
+    const ticket = this.beginRequest('remove-account', gen, auth);
 
-    const response = await fetch(`${this.apiBase}/api/v2/runtime/accounts/${encodeURIComponent(id)}`, {
-      method: 'DELETE',
-      headers: { Authorization: `Bearer ${auth.token}`, 'Accept': 'application/json' },
-      cache: 'no-store'
-    });
-    const body = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(body.error || `Remove account API returned ${response.status}`);
+    let response, body;
+    try {
+      ({ response, body } = await this.requestJSON(ticket, `${this.apiBase}/api/v2/runtime/accounts/${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${auth.token}`, 'Accept': 'application/json' },
+        cache: 'no-store'
+      }));
+      if (!this.requestIsCurrent(ticket)) return false;
+      if (!response.ok) throw new Error(body.error || `Remove account API returned ${response.status}`);
+    } finally {
+      this.finishRequest(ticket);
+    }
 
+    this.cancelRequests(['accounts']);
     const wasSelected = id === String(this.state.bridge.selectedRobloxUserId || '');
-    if (wasSelected) this.disconnectLive(false);
+    if (wasSelected) this.invalidateSelection();
 
     this.state.bridge = {
       ...this.state.bridge,
@@ -492,17 +576,18 @@ class AroynRuntimeService {
     if (wasSelected) this.state.live = null;
     this.emit();
 
-    await this.refreshAccounts(this.generation, true);
+    await this.refreshAccounts(gen, true);
+    if (gen !== this.generation || auth.token !== authService.getSnapshot().token) return false;
     if (wasSelected) {
-      await this.pollOnce(this.generation);
-      this.connectLive(this.generation);
+      await this.pollOnce(gen);
+      if (gen === this.generation) this.connectLive(gen);
     }
     return true;
   }
 
   async pollOnce(gen = this.generation) {
     const auth = authService.getSnapshot();
-    if (!auth.token || this.inFlight) return false;
+    if (!auth.token || gen !== this.generation || !this.state.bridge.accountsLoaded || this.requests.has('snapshot')) return false;
 
     const selected = String(this.state.bridge.selectedRobloxUserId || '');
     if (!selected) {
@@ -515,23 +600,24 @@ class AroynRuntimeService {
       return false;
     }
 
-    this.inFlight = true;
+    const ticket = this.beginRequest('snapshot', gen, auth, selected);
     const started = performance.now();
     try {
       const endpoint = new URL(`${this.apiBase}/api/v2/runtime/snapshot`);
       endpoint.searchParams.set('robloxUserId', selected);
-      const response = await fetch(endpoint.toString(), {
+      const { response, body } = await this.requestJSON(ticket, endpoint.toString(), {
         headers: { Authorization: `Bearer ${auth.token}`, 'Accept': 'application/json' },
         cache: 'no-store'
       });
 
-      if (gen !== this.generation) return false;
-      const body = await response.json().catch(() => ({}));
+      if (!this.requestIsCurrent(ticket)) return false;
       if (!response.ok) throw new Error(body.error || `API returned ${response.status}`);
+      if (body.account && String(body.account.userId) !== selected) throw new Error('Runtime account response did not match the selected account.');
+      if (body.snapshot?.player?.userId != null && String(body.snapshot.player.userId) !== selected) throw new Error('Runtime snapshot did not match the selected account.');
       this.applyEnvelope(body, Math.round(performance.now() - started));
       return true;
     } catch (err) {
-      if (gen !== this.generation) return false;
+      if (!this.requestIsCurrent(ticket)) return false;
       const message = err instanceof Error ? err.message : String(err);
       this.state.bridge = { ...this.state.bridge, error: message };
       this.state.connection = this.state.live
@@ -540,7 +626,7 @@ class AroynRuntimeService {
       this.emit();
       return false;
     } finally {
-      this.inFlight = false;
+      this.finishRequest(ticket);
     }
   }
 

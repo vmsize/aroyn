@@ -1,10 +1,20 @@
 # Source package status — 2026-10-02
 
-## Latest update: three Astra P1 findings corrected locally
+## Latest update: dashboard stability corrections verified locally
+
+AR-04–AR-06 are corrected: stale account responses are rejected, initial API failures recover through bounded requests/retries, and route subscriptions are disposed. The full local gate passed 16 suites / 189 groups. See [dashboard correction](docs/dashboard-stability.md). This frontend batch is being prepared for restricted-staging publication; its real-browser owner check is pending. Remaining AR-07–AR-11, full-day usage, the next ordinary daily cleanup and targeted independent review remain open.
+
+## Previous update: P1 fixes published and verified on restricted staging
+
+AR-01–AR-03 are included in public source commit `dff3e8f03851cef3c85dd351726ae3ce2e8a66de`. GitHub Actions passed 15 suites / 174 groups with no failures. API, live and frontend were deployed on the existing restricted staging; original bindings, namespaces, secret names, access settings and journal identity were preserved. Eight published files matched prepared source bytes and seven guest/health probes passed. The owner confirmed real game telemetry still updates after deployment. See [rollout and CI evidence](docs/hosted-p1-ci-2026-10-02.json).
+
+Maintenance was resumed without reinitialization: saved completed state showed 14 steps, zero failures and no pending deletions. This is not observation of the next ordinary daily Cron. Full UTC-day D1 usage remains deferred. AR-04–AR-11 and targeted independent review remain pending; general access remains restricted.
+
+## Previous update: three Astra P1 findings corrected locally
 
 AR-01 escapes runtime status labels and limits state classes. AR-02 separates the fixed ledger expiry cutoff from current event validation after reads. AR-03 orders account deletion and maintenance/recovery continuations with runtime mutations, reauthenticates queued requests and guards linked live D1 inserts against deleted ownership. Cleanup wake-up is outside the user queue to avoid mutual waiting. Legacy disabled writes retain HTTP 410.
 
-The local default gate passed 15 suites / 174 groups, exit 0, including 14 new P1 regression groups and one additional web check. See [current local evidence](docs/local-p1-gate-2026-10-02.json). These changes are not yet deployed or published; earlier GitHub CI/cloud observations do not verify them. Remaining AR-04–AR-11, staging verification, full-day D1 consumption and ordinary cleanup completion remain pending. General access remains restricted.
+The local default gate passed 15 suites / 174 groups, exit 0, including 14 new P1 regression groups and one additional web check. See [current local evidence](docs/local-p1-gate-2026-10-02.json). These changes were subsequently published and deployed; see the newer evidence above. Remaining AR-04–AR-11, full-day D1 consumption and ordinary daily cleanup completion remain pending. General access remains restricted.
 
 ## Previous update: provider configuration and contact instructions checked
 

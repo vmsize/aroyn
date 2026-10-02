@@ -1,4 +1,4 @@
-import { initPage, escapeHTML } from './common.js';
+import { initPage, subscribePage, escapeHTML } from './common.js';
 import { runtimeService } from '../services/runtime-service.js';
 import { formatMoney } from '../utils/number-format.js';
 
@@ -183,4 +183,4 @@ filters?.addEventListener('click',event=>{
 });
 
 render(lastSnapshot);
-runtimeService.subscribe(render);
+subscribePage(runtimeService, render);

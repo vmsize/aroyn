@@ -1,0 +1,28 @@
+{
+  "date": "2026-10-02",
+  "exitCode": 0,
+  "suites": 16,
+  "passGroups": 189,
+  "newDashboardRegressionGroups": 15,
+  "scope": "Local VM deferred fetch/body and controlled timers, actual page module lifecycle, and existing native D1/R2/DO regressions. No browser/game control or cloud fixtures.",
+  "suiteNames": [
+    "web-check",
+    "dashboard-stability-check",
+    "check",
+    "security-check",
+    "data-check",
+    "snapshot-race-check",
+    "access-check",
+    "hibernation-check",
+    "retention-check",
+    "recovery-check",
+    "mutation-race-check",
+    "deletion-ledger-check",
+    "ledger-cutover-check",
+    "write-budget-check",
+    "usage-report-check",
+    "p1-regression-check"
+  ],
+  "logSha256": "712811ea3ab7ee07b83736292b0f720f1065b0ed1d898acb69a05f990fa06d80",
+  "browserCheck": "Pending owner follow-up for this frontend update"
+}

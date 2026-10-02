@@ -51,3 +51,11 @@ The recovery suite copies synthetic rows/objects between two local runtimes. A s
 Optional `npm run test:account-capacity` verifies scoped SQL deletion and foreign-key cascades at 1,000/10,000 local history rows plus associated ownership, web sessions and exchanges. A separate actual cloud fixture exercised 5,000 history rows and 15,000 related rows, and twelve concurrent push/unlink pairs. No cloud CPU/quota or supported user-count guarantee follows. See [runtime mutation correction and scope](runtime-mutations.md).
 
 A separate 10-check actual-cloud journal fixture restored D1 with Time Travel while retaining the dedicated R2 deletion ledger, then derived the recovery manifest from that ledger and sanitized the closed destination. Its temporary resources were removed. The first real-data cutover attempt was deferred by the D1 quota; restricted staging subsequently activated the journal on 2026-10-02. Ordinary post-activation daily cleanup completion and full-day normal usage are still unverified. See [deletion ledger](deletion-ledger.md).
+
+## P1 staging verification — 2026-10-02
+
+Public source dff3e8f passed hosted CI: 15 suites / 174 groups. The corrected API/live/frontend are on restricted staging, and the owner confirmed telemetry updates. The original journal and resource identities were preserved; maintenance is resumed with a saved completed cycle, no failures or pending deletions. The next ordinary daily cycle and full-day consumption are still unobserved. See [current evidence](hosted-p1-ci-2026-10-02.json).
+
+## Dashboard stability regression gate — 2026-10-02
+
+The default gate now includes dashboard-stability-check: 16 suites / 189 groups pass locally. Fifteen new checks exercise actual runtime source with controlled timers and delayed fetch/body, logout and recovery; page lifetime is tested with actual Modules-page mounts. Browser behavior requires an owner follow-up. See [scope](dashboard-stability.md).

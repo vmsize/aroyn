@@ -1,4 +1,4 @@
-import { initPage, statusHTML, escapeHTML } from './common.js';
+import { initPage, subscribePage, statusHTML, escapeHTML } from './common.js';
 import { runtimeService } from '../services/runtime-service.js';
 import { formatMoney } from '../utils/number-format.js';
 import { transportLabel } from '../utils/transport-label.js';
@@ -72,4 +72,4 @@ function render(s){
 }
 
 render(runtimeService.getSnapshot());
-runtimeService.subscribe(render);
+subscribePage(runtimeService, render);

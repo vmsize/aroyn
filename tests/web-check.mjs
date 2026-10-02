@@ -10,14 +10,14 @@ const base=path.dirname(fileURLToPath(import.meta.url));
 const checks=[];
 async function check(name,fn){await fn();checks.push(name);}
 await check('runtime status text cannot inject markup or class attributes',async()=>{
- const source=(await fs.readFile(path.join(base,'../apps/dashboard/assets/js/pages/common.js'),'utf8')).replace(/^import .*;\r?\n/gm,'').replace(/^export /gm,'');
+ const source=(await fs.readFile(path.join(base,'../apps/dashboard/assets/js/pages/common.js'),'utf8')).replace(/^import .*;\r?\n/gm,'').replace(/^export \{[^\n]*\} from [^\n]*;\r?\n/gm,'').replace(/^export /gm,'');
  const context=vm.createContext({});vm.runInContext(source+';this.status=statusHTML',context);
  const payload='<img src=x onerror="attack()"> & <svg onload=attack()>';
  const html=context.status('success" onclick="attack()',payload);
  assert(!/<(?:img|svg)\b/i.test(html));assert(html.includes('&lt;img'));assert(html.includes('&amp;'));assert(!html.includes('class="status success" onclick='));assert(html.includes('class="status idle"'));
  for(const state of ['connected','disconnected','running','paused','success','warning','error','info','idle'])assert(context.status(state,'Ready').includes(`class="status ${state}"`));
  const nodes=new Map();const document={querySelector(q){if(!nodes.has(q))nodes.set(q,{value:'',innerHTML:'',hidden:false,addEventListener(){}});return nodes.get(q)},querySelectorAll(){return []}};
- Object.assign(context,{document,mountDashboardShell(){},setActiveNav(){},runtimeService:{getSnapshot:()=>({modules:[{name:'test',type:'local',status:payload,loaded:'yes'}]}),subscribe(){}}});
+ Object.assign(context,{document,beginPage(){},subscribePage:(service,fn)=>service.subscribe(fn),mountDashboardShell(){},setActiveNav(){},runtimeService:{getSnapshot:()=>({modules:[{name:'test',type:'local',status:payload,loaded:'yes'}]}),subscribe(){}}});
  const modules=(await fs.readFile(path.join(base,'../apps/dashboard/assets/js/pages/modules.js'),'utf8')).replace(/^import .*;\r?\n/gm,'');vm.runInContext(modules,context);
  assert(!nodes.get('[data-module-body]').innerHTML.includes('<img'));assert(nodes.get('[data-module-body]').innerHTML.includes('&lt;img'));
 });

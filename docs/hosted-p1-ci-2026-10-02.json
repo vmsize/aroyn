@@ -1,0 +1,35 @@
+{
+  "date": "2026-10-02",
+  "sourceCommit": "dff3e8f03851cef3c85dd351726ae3ce2e8a66de",
+  "workflowUrl": "https://github.com/vmsize/aroyn/actions/runs/37012536657",
+  "conclusion": "success",
+  "suites": 15,
+  "passGroups": 174,
+  "failGroups": 0,
+  "staging": {
+    "apiVersion": "b58451bb-aa6f-446c-93bb-e644f21b3106",
+    "liveVersion": "e0e8e5a3-0797-45f3-989a-b136faac43e1",
+    "pagesDeployment": "c61b2b6a",
+    "restrictedAccessPreserved": true,
+    "existingBindingsNamespacesSecretNamesPreserved": true,
+    "deletionLedgerIdentityPreserved": true,
+    "temporaryOperatorRemoved": true,
+    "publishedFilesChecked": 8,
+    "guestAccessProbesPassed": 7,
+    "ownerConfirmedTelemetryUpdating": true
+  },
+  "maintenanceObserved": {
+    "active": false,
+    "completedAt": 1790916500117,
+    "steps": 14,
+    "pendingDeletions": 0,
+    "failures": 0,
+    "paused": false
+  },
+  "limitations": [
+    "Ordinary next daily Cron completion not observed",
+    "Full UTC-day D1 usage deferred by owner",
+    "No comprehensive cross-service crash or mixed-version atomicity proof",
+    "Independent review incomplete; AR-04 through AR-11 remain"
+  ]
+}

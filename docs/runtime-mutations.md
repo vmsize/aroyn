@@ -39,3 +39,7 @@ The corrected API and new native mutation binding were uploaded after the checks
 ## Local P1 correction — 2026-10-02
 
 Fourteen additional local groups cover delayed deletion mutations, maintenance continuations, R2 failure/retry, runner recreation, concurrent journal events and linked live SQL writes after deletion. The full current gate passed 15 suites / 174 groups. This correction is not yet deployed; historical staging results above are for earlier versions. See [evidence](local-p1-gate-2026-10-02.json).
+
+## P1 staging verification — 2026-10-02
+
+Public source dff3e8f passed hosted CI: 15 suites / 174 groups. The corrected API/live/frontend are on restricted staging, and the owner confirmed telemetry updates. The original journal and resource identities were preserved; maintenance is resumed with a saved completed cycle, no failures or pending deletions. The next ordinary daily cycle and full-day consumption are still unobserved. See [current evidence](hosted-p1-ci-2026-10-02.json).

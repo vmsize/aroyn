@@ -1,4 +1,4 @@
-import { initPage, statusHTML, escapeHTML } from './common.js';
+import { initPage, subscribePage, pageCallback, statusHTML, escapeHTML } from './common.js';
 import { runtimeService } from '../services/runtime-service.js';
 import { authService } from '../services/auth-service.js';
 import { transportLabel } from '../utils/transport-label.js';
@@ -26,7 +26,7 @@ function renderAccount(){
   accountPanel.innerHTML=`<div class="panel-header"><span class="panel-title">Aroyn account</span><span class="tag">Discord</span></div><div class="panel-body"><dl class="kv-list">${kv('Account',u.displayName||u.username)}${kv('Aroyn ID',u.id)}${kv('Dashboard key',key)}${kv('Runtime linking',u.dashboardKey?.exists?'Enter the key in Aroyn Hub → Session':'Generate a key from the avatar menu')}</dl></div>`;
 }
 
-authService.subscribe(renderAccount);authService.init().then(renderAccount);renderAccount();
+subscribePage(authService, renderAccount);authService.init().then(pageCallback(renderAccount));renderAccount();
 
 function render(s){
   document.querySelector('[data-runtime-state]').innerHTML=statusHTML(s.connection.state,s.connection.label);
@@ -38,4 +38,4 @@ function render(s){
   }
   if(bridgePanel){bridgePanel.innerHTML=`<div class="panel-header"><span class="panel-title">Runtime identity</span></div><div class="panel-body">${s.live?`<dl class="kv-list">${kv('Display name',s.live.player?.displayName||'—')}${kv('User ID',s.live.player?.userId!=null?String(s.live.player.userId):'—')}${kv('Script',`${s.live.product?.name||'Aroyn Hub'} ${s.live.product?.version||''}`.trim())}${kv('Schema',String(s.live.schemaVersion||1))}</dl>`:`<p class="secondary" style="font-size:.8rem;line-height:1.65;margin:0">The website authenticates your Aroyn account. Aroyn Hub uses the separate dashboard key only for pushing runtime telemetry.</p>`}</div>`}
 }
-render(runtimeService.getSnapshot());runtimeService.subscribe(render);
+render(runtimeService.getSnapshot());subscribePage(runtimeService, render);

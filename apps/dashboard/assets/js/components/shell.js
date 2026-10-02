@@ -1,3 +1,4 @@
+import { disposePage } from '../core/page-lifecycle.js';
 import { icons } from '../core/icons.js';
 import { storage } from '../core/storage.js';
 import { mountSettings } from './settings.js';
@@ -266,6 +267,7 @@ function mountDashboardRouter(shell,drawer){
 
       const leaveAnimation=await leaveCurrentContent(reduce);
 
+      disposePage();
       main.innerHTML=next.innerHTML;
       document.title=title;
       if(push)history.pushState({aroyn:true},'',url.pathname+url.search+url.hash);

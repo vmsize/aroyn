@@ -1,0 +1,38 @@
+{
+  "date": "2026-10-02",
+  "findings": [
+    "AR-04",
+    "AR-05",
+    "AR-06"
+  ],
+  "sourceCommit": "16cc7c1eee7b65427746c2ab4f21129b2a0d6190",
+  "sourceTree": "cd73d27f9fe4fe2b078bd8d9b462793f5a6beb4f",
+  "workflowUrl": "https://github.com/vmsize/aroyn/actions/runs/37017804956",
+  "conclusion": "success",
+  "suites": 16,
+  "passGroups": 189,
+  "newRegressionGroups": 15,
+  "countDerivation": {
+    "PASSLogLines": 163,
+    "webCheckGroups": 11,
+    "dashboardStabilityGroups": 15
+  },
+  "stagingFrontend": {
+    "deploymentId": "61b997d6-e1ce-44fb-b52f-90c92e8a9371",
+    "url": "https://aroyn-staging.pages.dev/dashboard/",
+    "assetChecks": 12,
+    "healthGuestChecks": 3,
+    "publicSourceFilesVerified": 165,
+    "usesFunctions": false,
+    "webAnalytics": false
+  },
+  "backendModifiedByBatch": false,
+  "cloudFixturesCreated": false,
+  "manualBrowserCheck": "Pending owner verification; no PC/browser control used",
+  "remaining": [
+    "AR-07 through AR-11",
+    "ordinary next daily cleanup observation",
+    "full UTC-day D1 use (deferred)",
+    "targeted independent review"
+  ]
+}

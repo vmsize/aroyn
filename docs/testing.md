@@ -59,3 +59,5 @@ Public source dff3e8f passed hosted CI: 15 suites / 174 groups. The corrected AP
 ## Dashboard stability regression gate — 2026-10-02
 
 The default gate now includes dashboard-stability-check: 16 suites / 189 groups pass locally. Fifteen new checks exercise actual runtime source with controlled timers and delayed fetch/body, logout and recovery; page lifetime is tested with actual Modules-page mounts. Browser behavior requires an owner follow-up. See [scope](dashboard-stability.md).
+
+The dashboard stability source commit 16cc7c1eee7b65427746c2ab4f21129b2a0d6190 also passed hosted GitHub Actions: 16 suites / 189 groups. Its corrected frontend is on restricted staging; browser follow-up is still pending. See [rollout evidence](dashboard-stability-rollout-2026-10-02.json).

@@ -1,8 +1,8 @@
 # Source package status — 2026-10-02
 
-## Latest update: dashboard stability corrections verified locally
+## Latest update: dashboard stability corrections published and deployed
 
-AR-04–AR-06 are corrected: stale account responses are rejected, initial API failures recover through bounded requests/retries, and route subscriptions are disposed. The full local gate passed 16 suites / 189 groups. See [dashboard correction](docs/dashboard-stability.md). This frontend batch is being prepared for restricted-staging publication; its real-browser owner check is pending. Remaining AR-07–AR-11, full-day usage, the next ordinary daily cleanup and targeted independent review remain open.
+AR-04–AR-06 are corrected: stale account responses are rejected, initial API failures recover through bounded requests/retries, and route subscriptions are disposed. The full local gate passed 16 suites / 189 groups. See [dashboard correction](docs/dashboard-stability.md). The frontend batch is published in source commit `16cc7c1eee7b65427746c2ab4f21129b2a0d6190` and deployed on restricted staging. Hosted CI passed the same 16 suites / 189 groups; twelve asset byte checks and three health/guest probes passed. See [rollout evidence](docs/dashboard-stability-rollout-2026-10-02.json). Its real-browser owner check is pending. Remaining AR-07–AR-11, full-day usage, the next ordinary daily cleanup and targeted independent review remain open.
 
 ## Previous update: P1 fixes published and verified on restricted staging
 

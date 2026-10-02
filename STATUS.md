@@ -1,6 +1,10 @@
-# Source package status — 2026-10-01
+# Source package status — 2026-10-02
 
-## Latest update: read-only account usage report
+## Latest update: complete local release gate
+
+On 2026-10-02, the complete fourteen-suite / 159-group local gate passed on Windows with Node.js 24, exit code 0. The release archive's 152 pre-update files matched the source bytes and recorded Git blob hashes, with no private paths, known actual dashboard keys, session-token patterns or test allowlist IDs found; both secret example files contained only placeholders. Documentation/evidence updates are then included in a regenerated archive. This is local verification, not a new cloud storage, authenticated UI, hosted CI or complete Roblox-feature check. No cloud write or desktop control was performed. The deletion journal is still not independently confirmed active: its last verified mode was disabled, with no coverage. Cloudflare control tools are currently unavailable in this chat. See [local release evidence](docs/local-release-gate-2026-10-02.json).
+
+## Previous update: read-only account usage report
 
 The operator collector now queries the full account's D1 usage for the current UTC day, validates account identity/completeness and includes deleted databases. Four targeted local groups passed. Its generated query was executed through the existing authenticated connector; nine real groups normalized successfully and the 119,082-row capture correctly blocked cloud work. Standalone token transport was tested with synthetic responses only. The configured default gate now has fourteen suites / 159 groups; the last full run remains thirteen suites / 155 groups plus the subsequent four targeted checks. No additional cloud fixture or D1 write was performed. The journal remains disabled pending reset and a fresh budget; activation/failure instructions now require the account-wide preflight. See [collection and limits](docs/d1-write-budget.md).
 

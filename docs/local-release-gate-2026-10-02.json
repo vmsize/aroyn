@@ -1,0 +1,11 @@
+{
+  "date": "2026-10-02",
+  "environment": "Windows, Node.js 24, isolated local Miniflare",
+  "command": "node tests/run.mjs",
+  "fullGate": {"exitCode": 0, "suites": 14, "groups": 159, "passed": true},
+  "suites": ["web-check", "check", "security-check", "data-check", "snapshot-race-check", "access-check", "hibernation-check", "retention-check", "recovery-check", "mutation-race-check", "deletion-ledger-check", "ledger-cutover-check", "write-budget-check", "usage-report-check"],
+  "archiveAuditBeforeDocumentationUpdate": {"files": 152, "allSourceBytesAndManifestHashesMatch": true, "privatePathsExcluded": true, "knownCredentialPatternsAbsent": true, "secretExamplesUsePlaceholders": true},
+  "cloudWritesPerformed": false,
+  "desktopControlPerformed": false,
+  "limitations": ["Credential-pattern checks are not a proof that every possible secret is absent", "No new authenticated cloud or owner UI verification", "No hosted CI success is claimed", "Full Roblox farming-feature coverage is not established", "Deletion journal activation still requires fresh cloud checks and controlled cutover"]
+}

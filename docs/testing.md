@@ -7,7 +7,7 @@ npm ci --ignore-scripts
 npm test
 ```
 
-The fourteen configured suites run sequentially and fail the process on a failed assertion (159 check groups). The last complete run passed thirteen suites / 155 groups; the subsequent read-only usage-report suite passed its four targeted groups. The full fourteen-suite run has not been repeated for this operator-only addition.
+The fourteen suites run sequentially and fail the process on a failed assertion (159 check groups). The complete gate passed on Windows with Node.js 24 on 2026-10-02, exit code 0. This includes the four read-only usage-report groups as part of the full run. See [local release evidence](local-release-gate-2026-10-02.json).
 
 | Suite | Checks | Scope |
 | --- | ---: | --- |

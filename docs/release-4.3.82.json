@@ -1,0 +1,24 @@
+{
+  "version": "4.3.82",
+  "date": "2026-10-02",
+  "stableLaunchUrl": "https://aroyn-staging.pages.dev/scripts/loader.luau",
+  "updateManifestUrl": "https://aroyn-staging.pages.dev/scripts/version.json",
+  "ownerMarketAndRestartCheck": "Owner confirmed 4.3.81 worked; 4.3.82 retains that market code and restores version polling.",
+  "files": [
+    {
+      "path": "apps/dashboard/releases/4.3.82/greedy-growers.luau",
+      "bytes": 587845,
+      "sha256": "2b350e1ca9ae1dfd4c27e2ede26b2b5885e043d1f550102f508b2d618bd28c57"
+    },
+    {
+      "path": "apps/dashboard/scripts/loader.luau",
+      "bytes": 2040,
+      "sha256": "8478d04460ce3eb9354b16290ab13c63b71cbf2c1327b84fbc76cc4d8d43df88"
+    },
+    {
+      "path": "apps/dashboard/scripts/version.json",
+      "bytes": 204,
+      "sha256": "34fbf7224c4d2a778fd7fb29f7ebfb2cfda3851a0f31b6f90fe9a6f77f0d522c"
+    }
+  ]
+}

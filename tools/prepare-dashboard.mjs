@@ -52,7 +52,7 @@ export async function prepareDashboard({ source, output, apiBase, liveBase, scri
   await fs.access(configPath); await fs.writeFile(configPath, config);
   const headers = (restrictedStaging ? '/*\n  X-Robots-Tag: noindex, nofollow\n' : '/*\n') +
     '  X-Content-Type-Options: nosniff\n  Referrer-Policy: no-referrer\n  Permissions-Policy: camera=(), microphone=(), geolocation=()\n\n' +
-    '/assets/js/*\n  Cache-Control: no-store\n\n/scripts/*\n  Cache-Control: no-store\n  Content-Type: text/plain; charset=utf-8\n\n' +
+    '/assets/js/*\n  Cache-Control: no-store\n\n/scripts/*\n  Cache-Control: no-store\n\n/scripts/loader.luau\n  Content-Type: text/plain; charset=utf-8\n\n' +
     '/releases/*\n  Cache-Control: public, max-age=31536000, immutable\n  Content-Type: text/plain; charset=utf-8\n';
   await fs.writeFile(path.join(target, '_headers'), headers);
   return { files, output: target, apiBase: new URL(apiBase).origin, liveBase: new URL(liveBase).origin };

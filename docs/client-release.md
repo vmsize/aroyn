@@ -1,6 +1,6 @@
-# Aroyn Hub 4.3.80
+# Aroyn Hub 4.3.82
 
-The readable client and fixed-release loader are included under `apps/dashboard`. Original code uses the repository's MIT license; embedded brand assets have separate terms.
+The readable client and stable loader are included under `apps/dashboard`. Original code uses the repository's MIT license; embedded brand assets have separate terms.
 
 The current launch command is:
 
@@ -10,7 +10,7 @@ loadstring(game:HttpGet("https://aroyn-staging.pages.dev/scripts/loader.luau"))(
 
 This downloads executable Luau. Read the source and use a compatible environment you already trust. This document does not distribute or recommend an executor. The loader supports Greedy Growers (GameId `10440833423`), checks the downloaded size and rejects HTML fallback responses before compiling. Other games return a warning without downloading the client. It reports download, compilation and startup failures.
 
-The loader downloads `/releases/4.3.80/greedy-growers.luau`; this path is immutable. Publish changed client bytes under a new version instead of replacing that file. `docs/release-4.3.80.json` records SHA-256 hashes. HTTPS provides transport authentication; the loader does not independently verify that SHA-256 hash in the game environment.
+The saved launch command has no version. The stable loader reads `/scripts/version.json` without using account credentials, validates the version and downloads the corresponding immutable `/releases/<version>/greedy-growers.luau`. Updating the manifest selects a new release without changing the user command or loader. Source paths remain immutable; publish changed client bytes under a new version. `docs/release-4.3.82.json` records current hashes. HTTPS provides transport authentication; the loader does not independently verify that SHA-256 hash in the game environment.
 
 ## Settings migration
 
@@ -19,9 +19,13 @@ The loader downloads `/releases/4.3.80/greedy-growers.luau`; this path is immuta
 - Existing key format and database/transport identifiers remain compatible. The free Worker hostname still contains the Cloudflare account name `veyra-hub`; changing the product name does not rename an account hostname.
 - Re-execution unloads the preceding Aroyn/legacy instance, disconnects transport and clears connections before replacing it. Legacy singleton aliases permit an older client to unload the new one as well.
 
-The release uses the restricted Aroyn staging API/live endpoints. Account and telemetry access remain limited to invited Discord accounts. Automatic update downloads are disabled; updating the public loader is a separate release action.
+The release uses the restricted Aroyn staging API/live endpoints. Account and telemetry access remain limited to invited Discord accounts. Update checks are restored. After startup, and then every 30 minutes, the client checks the public static manifest and shows the original GUI header notice when a newer version is available. The check executes no downloaded code and writes no D1 rows. To update, rerun the same saved loader command; the existing singleton is unloaded before the new instance starts. An already running script is not forcibly replaced during a game action.
 
-## Verification scope
+## Current update and cancellation verification
+
+The owner confirmed the 4.3.81 market cancellation, off/on and close/restart check worked. Version 4.3.82 preserves those corrections and restores the update URL/check logic. Actual loader, update-check and GUI label functions pass twelve local Luau groups with HTTP/game stubs; cancellation and full chunk compilation pass seventeen groups. Real execution of the newly restored update notice has not yet been observed in the game.
+
+## Previous 4.3.80 verification scope
 
 The prepared and exact published loader ran in the owner's connected Greedy Growers session. Compilation, initial HTTP snapshot, signed presence, WebSocket acknowledgment, repeat execution and stop/restart passed. Eight controlled loader scenarios passed.
 
@@ -32,3 +36,7 @@ During agent testing, `__AROYN_VERIFY_ONLY` disabled restored farming and suppre
 For your own service, change `BASE` in the loader, the client API/live/site endpoints, and `SCRIPT_LOADER_URL` in dashboard configuration. Provision your own backend and credentials. Do not copy private runtime configuration or an account key into a release.
 
 The maintainer will update the existing ScriptBlox/rscripts listings after reviewing this release. These listings were not modified by this update. Additional promotion is undecided. No paid domain is needed for the current Pages/Workers deployment.
+
+## Publishing a later update
+
+Prepare the new client with its matching UpdateVersion, keep earlier release files unchanged, and update scripts/version.json to the new version. Publish the release asset and manifest together in one prepared Pages deployment; the stable loader and homepage command stay unchanged. Update the release hash record and run the client suites. The manifest and loader use no-store cache headers; versioned assets remain immutable.

@@ -1,0 +1,19 @@
+{
+  "date": "2026-10-02",
+  "version": "4.3.82",
+  "suites": 20,
+  "groups": 234,
+  "exitCode": 0,
+  "updateGroups": 12,
+  "cancellationGroups": 17,
+  "countDerivation": {
+    "PASSLogLines": 192,
+    "web": 11,
+    "accessibility": 12,
+    "deploymentConfig": 4,
+    "dashboardStability": 15
+  },
+  "ownerPreviousCandidateCheck": "Owner confirmed all 4.3.81 requested checks worked.",
+  "scope": "Actual Luau loader, update-check, GUI indicator and market functions with stubs. No real game execution of restored notices.",
+  "publication": "Pending at this capture."
+}

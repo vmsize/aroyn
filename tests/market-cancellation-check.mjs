@@ -7,7 +7,7 @@ import {spawnSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 import {luauTestRuntime} from '../tools/luau-test-runtime.mjs';
 const root=fileURLToPath(new URL('../',import.meta.url));
-const candidate=path.join(root,'apps/dashboard/releases/4.3.81/greedy-growers.luau');
+const candidate=path.join(root,'apps/dashboard/releases/4.3.82/greedy-growers.luau');
 const source=(await fs.readFile(candidate,'utf8')).replaceAll('\r\n','\n');
 const inner=source.split('local __fa_source=[===========[',2)[1]?.split(']===========]',1)[0];assert.ok(inner);
 const runtime=await luauTestRuntime();const temp=await fs.mkdtemp(path.join(os.tmpdir(),'aroyn-market-'));
@@ -157,6 +157,6 @@ const result=spawnSync(runtime.runtime,[file],{encoding:'utf8',timeout:30000});a
 const groups=result.stdout.split(/\r?\n/).filter(s=>s.startsWith('PASS '));assert.equal(groups.length,16);console.log(result.stdout.trim());
 const previous=await fs.readFile(path.join(root,'apps/dashboard/releases/4.3.80/greedy-growers.luau'));
 assert.equal(crypto.createHash('sha256').update(previous).digest('hex'),'ece5e3a123ee4a9f4024eec909cf0a5fb37fccc773a7eba6bf2f88ab1adb3b8a');
-assert.equal(crypto.createHash('sha256').update(await fs.readFile(path.join(root,'apps/dashboard/scripts/loader.luau'))).digest('hex'),'e91f9a1194722fe0bd72e6ee68ec0bbe25f0542727db58a886131bf4f7805404');
+assert.equal(crypto.createHash('sha256').update(await fs.readFile(path.join(root,'apps/dashboard/releases/4.3.81/greedy-growers.luau'))).digest('hex'),'6c65f4c0f03adadfb9fda06d34173cb90b452ed5a58db4eba5f66a6c1cfb77df');
 console.log('PASS both candidate chunks compile; immutable 4.3.80 release unchanged');
 await fs.writeFile(new URL('market-cancellation-results.json',import.meta.url),JSON.stringify({date:'2026-10-02',passed:17,luauVersion:runtime.version,checks:groups.map(s=>s.slice(5)),scope:'Actual extracted Luau functions with deterministic coroutines and stubbed remotes; full outer and embedded chunks compile. No Roblox execution.'},null,2)+'\n');

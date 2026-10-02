@@ -1,6 +1,6 @@
 # Aroyn
 
-Aroyn (formerly Veyra) is a web dashboard for Roblox runtime telemetry, backed by Cloudflare Pages and Workers. This repository contains the static website, backend source and the Aroyn Hub 4.3.80 client release. Original project code is licensed under MIT, with attribution to vmsize. The supplied mark has separate permissions for source redistribution and truthful references to Aroyn. See [brand assets](BRAND_ASSETS.md) for scope and provenance. Third-party components retain their own licenses; see [notices](THIRD_PARTY_NOTICES.md).
+Aroyn (formerly Veyra) is a web dashboard for Roblox runtime telemetry, backed by Cloudflare Pages and Workers. This repository contains the static website, backend source and the Aroyn Hub 4.3.82 client release. Original project code is licensed under MIT, with attribution to vmsize. The supplied mark has separate permissions for source redistribution and truthful references to Aroyn. See [brand assets](BRAND_ASSETS.md) for scope and provenance. Third-party components retain their own licenses; see [notices](THIRD_PARTY_NOTICES.md).
 
 Some technical service and class names still use `Veyra` for compatibility.
 
@@ -10,8 +10,8 @@ Some technical service and class names still use `Veyra` for compatibility.
 - `workers/api`: API Worker imported from Cloudflare on 2026-09-30, then hardened locally with bounded JSON, atomic login/key handling, rate controls, account export/deletion and daily retention.
 - `workers/live`: editable live source compared with the deployed bundle before local changes, now with signed presence tokens, revocable live access, scoped cleanup and rate controls. First anonymous reports remain unverified. See [backend review](docs/security-review.md).
 - `workers/shared`: account data lifecycle helpers used by both Workers.
-- `apps/dashboard/releases/4.3.80`: readable Greedy Growers client; `scripts/loader.luau` downloads this fixed release.
-- `apps/dashboard/releases/4.3.81`: cancellation correction candidate; the default loader remains on 4.3.80 until the owner game check. See [candidate verification](docs/market-cancellation.md).
+- `apps/dashboard/releases`: immutable readable Greedy Growers releases; the stable `scripts/loader.luau` selects the current version from `scripts/version.json`.
+- `apps/dashboard/releases/4.3.82`: current client with market cancellation and restored update notices; 4.3.80 and 4.3.81 are preserved as earlier releases.
 - `apps/dashboard/status` and `admin`: public HTTP availability checks and a server-authorized private owner interface.
 - `tests`: synthetic backend, lifecycle, access and browser-component checks; GitHub Actions runs `npm ci` and `npm test`.
 - `docs`: architecture, usage methodology, data lifecycle and release review notes.

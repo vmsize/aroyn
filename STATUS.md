@@ -1,6 +1,10 @@
 # Source package status — 2026-10-02
 
-## Latest update: AR-10 cancellation candidate published for owner test
+## Latest update: owner game check confirmed; stable loader and GUI update checks restored locally
+
+The owner confirmed 4.3.81 cancellation/off-on/close-restart worked. Its corrections are retained in 4.3.82. The stable loader now selects the version through a public static manifest; the saved command has no version. GUI update-check code is restored after the staging override disabled it. Local gate passed 20 suites / 234 groups. See [update flow and limits](docs/client-updates.md). Publication and hosted checks are pending. Earlier immutable clients are preserved; general registration remains restricted. Ordinary daily cleanup, deferred full UTC-day D1 use, owner menu/theme checks and targeted independent review remain open.
+
+## Previous update: AR-10 cancellation candidate published for owner test
 
 New immutable candidate 4.3.81 guards Auto Market delayed tasks, remote entry points, confirmation/reply continuations and burst timeouts with generation/revision tokens. Destroy blocks market actions before network disconnect yields. The full local gate passed 19 suites / 222 groups; seventeen focused groups passed with actual Luau functions and compiler checks. See [candidate scope and owner check](docs/market-cancellation.md). Published candidate code commit `70baced555afd8e92a8dccaf8b8ee08a522cceec` passed hosted CI (19 suites / 222 groups) and is uploaded on Pages 0277f54a. Six assets, three health/guest probes and functional cloud login checks passed; see [rollout evidence](docs/market-cancellation-rollout-2026-10-02.json). Default loader and release 4.3.80 are unchanged until the owner game check. General access remains restricted; real keyboard/game checks, ordinary daily cleanup, deferred full UTC-day D1 usage and targeted independent review remain open.
 

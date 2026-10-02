@@ -1,3 +1,7 @@
+## Current result — owner check confirmed
+
+The owner confirmed 4.3.81 worked in the game. Its market corrections are retained in 4.3.82, which restores update notices and the stable manifest-based loader. The following candidate record describes the earlier testing stage; the current launch flow is documented in [client release](client-release.md).
+
 # Auto Market cancellation candidate 4.3.81 — 2026-10-02
 
 AR-10 is corrected in a new immutable candidate at `apps/dashboard/releases/4.3.81/greedy-growers.luau`. Release 4.3.80 and the default loader remain unchanged pending the owner game check.

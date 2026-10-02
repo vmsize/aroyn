@@ -1,8 +1,8 @@
--- Aroyn Hub loader. Public distribution is enabled only after release checks.
+-- Aroyn Hub stable loader. Save this URL once; the manifest selects the release.
 -- This free Pages address is fixed deliberately; no executor key is embedded.
 local BASE = "https://aroyn-staging.pages.dev"
-local RELEASE = "4.3.80"
 local MAX_SOURCE_BYTES = 900000
+local MAX_MANIFEST_BYTES = 4096
 
 if not game:IsLoaded() then game.Loaded:Wait() end
 if game.GameId ~= 10440833423 then
@@ -11,6 +11,20 @@ if game.GameId ~= 10440833423 then
 end
 if type(loadstring) ~= "function" then
     warn("[Aroyn] Luau compilation is unavailable in this environment.")
+    return
+end
+
+local manifestOk, manifest = pcall(function()
+    local raw = game:HttpGet(BASE .. "/scripts/version.json?t=" .. tostring(os.time()))
+    if type(raw) ~= "string" or #raw == 0 or #raw > MAX_MANIFEST_BYTES then
+        error("invalid release manifest size")
+    end
+    return game:GetService("HttpService"):JSONDecode(raw)
+end)
+local RELEASE = manifestOk and type(manifest) == "table" and manifest.version or nil
+if type(RELEASE) ~= "string" or #RELEASE > 32
+    or not RELEASE:match("^%d+%.%d+%.%d+$") then
+    warn("[Aroyn] Could not check the current release. Try again later.")
     return
 end
 

@@ -1,5 +1,9 @@
 # Source package status — 2026-10-02
 
+## Latest correction: delayed authorization and analytics invalidation
+
+AF-01/AF-02 are corrected in the source and the isolated local gate passed 22 suites. Logout/key rotation share the account mutation queue; untrusted request bodies are read before authentication/queue admission, and key issuance has a session-expiry fence at its D1 write. Analytics invalidation drains the full pipeline without blocking prior I/O, and profile cleanup follows that drain. See [changes, evidence and limits](docs/server-auth-cache-fixes.md). Cloud rollout and hosted CI for this commit are pending. General registration remains restricted; remaining independent review stages, full UTC-day D1 use and ordinary post-activation maintenance completion remain open.
+
 ## Latest update: stable loader and GUI update checks published in 4.3.82
 
 The owner confirmed 4.3.81 cancellation/off-on/close-restart worked. Its corrections are retained in 4.3.82. The stable loader now selects the version through a public static manifest; the saved command has no version. GUI update-check code is restored after the staging override disabled it. Local gate passed 20 suites / 234 groups. See [update flow and limits](docs/client-updates.md). Published code commit `c7b2e4aecc8e72e97e7b280190e7e7655ad20796` passed hosted CI (20 suites / 234 groups) and is deployed on Pages 0dcc9ba7. Eight assets, JSON/no-store headers, three health/guest probes and functional cloud login/callback passed; see [rollout evidence](docs/client-updates-rollout-2026-10-02.json). Earlier immutable clients are preserved; general registration remains restricted. Ordinary daily cleanup, deferred full UTC-day D1 use, owner menu/theme checks and targeted independent review remain open.

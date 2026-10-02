@@ -1,5 +1,9 @@
 # Runtime mutation ordering — 2026-10-01
 
+## Latest correction — 2026-10-02
+
+Logout and dashboard-key generation/rotation now use the same account queue. JSON mutation bodies are fully bounded/read before account routing; queued handlers reauthenticate, and key issuance checks web-session expiry at its D1 write. A mutation accepted before rotation completes before rotation acknowledges; later old-key requests cannot change runtime state. Analytics invalidation and deletion profile cleanup are also coordinated across the full cache pipeline. The 22-suite local gate includes dedicated delayed-body and native analytics/deletion regressions. See [corrections and release limits](server-auth-cache-fixes.md). Earlier verification counts and cloud observations below are historical.
+
 ## Reproduced defect
 
 A deterministic synthetic request paused just after checking the unlink marker. Unlink then returned 200, deleted the account row/snapshots and stored the marker. Resuming the previously authorized push returned 200 and recreated both the row and snapshot. A per-object R2 lock alone did not serialize the whole D1/R2 lifecycle. This was reproduced in isolated data; no real user's account was used.

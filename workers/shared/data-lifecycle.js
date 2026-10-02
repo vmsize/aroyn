@@ -80,13 +80,16 @@ export async function finishAccountDeletionInOrder(env, job, {maxObjects = 25} =
     env.DB.prepare('DELETE FROM analytics_sessions WHERE session_id IN (SELECT session_id FROM runtime_session_owners WHERE veyra_user_id=?1)').bind(id),
     env.DB.prepare('DELETE FROM runtime_presence WHERE session_id IN (SELECT session_id FROM runtime_session_owners WHERE veyra_user_id=?1)').bind(id),
     env.DB.prepare('DELETE FROM live_presence WHERE veyra_user_id=?1').bind(id),
-    env.DB.prepare(`DELETE FROM roblox_profile_cache WHERE roblox_user_id IN
-      (SELECT roblox_user_id FROM roblox_accounts WHERE veyra_user_id=?1)
-      AND NOT EXISTS (SELECT 1 FROM roblox_accounts r WHERE r.roblox_user_id=roblox_profile_cache.roblox_user_id AND r.veyra_user_id<>?1)`).bind(id),
     env.DB.prepare('DELETE FROM owner_analytics_cache'),
   ]);
   await invalidateDataCaches(env);
   await env.DB.batch([
+    // Prior analytics may have refreshed profiles while deletion was waiting.
+    // Remove them only after that whole pipeline has drained. New analytics
+    // cannot rediscover this account's already-removed session history.
+    env.DB.prepare(`DELETE FROM roblox_profile_cache WHERE roblox_user_id IN
+      (SELECT roblox_user_id FROM roblox_accounts WHERE veyra_user_id=?1)
+      AND NOT EXISTS (SELECT 1 FROM roblox_accounts r WHERE r.roblox_user_id=roblox_profile_cache.roblox_user_id AND r.veyra_user_id<>?1)`).bind(id),
     env.DB.prepare('DELETE FROM users WHERE id=?1').bind(id),
     env.DB.prepare('DELETE FROM account_deletions WHERE user_id=?1').bind(id),
   ]);

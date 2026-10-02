@@ -629,8 +629,14 @@ async function handleAccountAuthApi(request, env) {
             SET dashboard_key_hash = ?1, dashboard_key_suffix = ?2, updated_at = ?3
             WHERE id = ?4 AND (dashboard_key_hash IS NULL OR ?5 = 1)
               AND NOT EXISTS (SELECT 1 FROM account_deletions WHERE user_id=?4)
-        `).bind(keyHash, suffix, now, auth.session.user.id, body.confirm === true ? 1 : 0).run();
-        if (!changed.meta?.changes) return jsonResponse(request, env, { error: "Confirmation required to replace the current dashboard key." }, 409);
+              AND EXISTS (SELECT 1 FROM web_sessions WHERE token_hash=?6 AND user_id=?4
+                AND expires_at>CAST((julianday('now')-2440587.5)*86400000 AS INTEGER))
+        `).bind(keyHash, suffix, now, auth.session.user.id, body.confirm === true ? 1 : 0, auth.session.tokenHash).run();
+        if (!changed.meta?.changes) {
+            const current = await requireWebSession(request, env);
+            if (current.error) return current.error;
+            return jsonResponse(request, env, { error: "Confirmation required to replace the current dashboard key." }, 409);
+        }
         return jsonResponse(request, env, { ok: true, dashboardKey: key, suffix, replaced: alreadyExists });
     }
 
@@ -901,7 +907,7 @@ async function handleLegacyRuntimeApi(request, env) {
 
 function isRuntimeMutation(request) {
     const path = new URL(request.url).pathname;
-    return request.method === 'POST' && ['/api/v2/runtime/push', '/api/v2/runtime/link', '/api/v2/runtime/disconnect', '/api/v2/account/delete', '/api/v1/runtime/push', '/api/v1/runtime/disconnect'].includes(path)
+    return request.method === 'POST' && ['/api/v2/runtime/push', '/api/v2/runtime/link', '/api/v2/runtime/disconnect', '/api/v2/account/delete', '/api/v2/dashboard-key/generate', '/api/v2/auth/logout', '/api/v1/runtime/push', '/api/v1/runtime/disconnect'].includes(path)
         || request.method === 'DELETE' && /^\/api\/v2\/runtime\/accounts\/\d+$/.test(path);
 }
 
@@ -928,6 +934,7 @@ export class AroynRuntimeMutations {
                     return Response.json({deleted: !job || await finishAccountDeletionInOrder(env, job, {maxObjects})});
                 }
                 if (path === '/api/v2/account/delete') return await handleAccountDataApi(request, env);
+                if (path === '/api/v2/dashboard-key/generate' || path === '/api/v2/auth/logout') return await handleAccountAuthApi(request, env);
                 if (path.startsWith('/api/v1/runtime/')) return await handleLegacyRuntimeApi(request, env);
                 return await handleRuntimeV2(request, env);
             }
@@ -942,13 +949,25 @@ export class AroynRuntimeMutations {
 }
 
 async function dispatchRuntimeMutation(request, env) {
-    if (new URL(request.url).pathname.startsWith('/api/v1/runtime/') && env.ALLOW_LEGACY_RUNTIME !== 'true') {
+    const path = new URL(request.url).pathname;
+    if (path.startsWith('/api/v1/runtime/') && env.ALLOW_LEGACY_RUNTIME !== 'true') {
         return jsonResponse(request, env, {error: 'Legacy runtime disabled. Use /api/v2/runtime/.'}, 410);
     }
     const dbError = requireDb(request, env);
     if (dbError) return dbError;
+    // Finish reading the untrusted stream before authorization and before
+    // joining the account queue. A slow upload must not hold up logout or
+    // key rotation. The queued handler only receives a bounded, finite body.
+    if (request.method === 'POST' && path !== '/api/v2/auth/logout' && path !== '/api/v1/runtime/disconnect') {
+        const maxBytes = path === '/api/v2/runtime/push' ? ACCOUNT_MAX_RUNTIME_BODY
+            : path === '/api/v1/runtime/push' ? LEGACY_MAX_RUNTIME_BODY : 8192;
+        const body = await boundedJson(request, maxBytes);
+        const headers = new Headers(request.headers);
+        headers.delete('content-length');
+        request = new Request(request, {headers, body: JSON.stringify(body)});
+    }
     let userId;
-    if (request.method === 'DELETE' || new URL(request.url).pathname === '/api/v2/account/delete') {
+    if (request.method === 'DELETE' || ['/api/v2/account/delete', '/api/v2/dashboard-key/generate', '/api/v2/auth/logout'].includes(path)) {
         const auth = await requireWebSession(request, env);
         if (auth.error) return auth.error;
         userId = auth.session.user.id;

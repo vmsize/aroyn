@@ -450,7 +450,7 @@ async function fetchRobloxUserProfile(userId) {
   try {
     const response = await fetch(
       `https://users.roblox.com/v1/users/${encodeURIComponent(userId)}`,
-      { headers: { Accept: "application/json" } },
+      { headers: { Accept: "application/json" }, signal: AbortSignal.timeout(3000) },
     );
     if (!response.ok) return null;
     const body = await response.json().catch(() => null);
@@ -483,6 +483,7 @@ async function fetchRobloxAvatarBusts(userIds) {
 
     const response = await fetch(url.toString(), {
       headers: { Accept: "application/json" },
+      signal: AbortSignal.timeout(3000),
     });
     if (!response.ok) return result;
 
@@ -615,6 +616,7 @@ async function readLatestScriptBloxSnapshot(env) {
 
 async function fetchScriptBloxSnapshot(env) {
   const response = await fetch(SCRIPTBLOX_API_URL, {
+    signal: AbortSignal.timeout(3000),
     headers: {
       Accept: "application/json",
       "User-Agent": "Veyra-Owner-Analytics/1.0",
@@ -2191,9 +2193,22 @@ export class VeyraStatsHub {
     this.ownerAnalyticsInFlight = new Map();
     this.ownerAnalyticsRealtimeCache = new Map();
     this.dataCacheRevision = 0;
+    this.ownerAnalyticsTail = Promise.resolve();
   }
 
-  async getCachedOwnerAnalytics(rangeValue, timezoneOffsetMinutes) {
+  enqueueOwnerAnalytics(operation) {
+    // Coordinate the entire pipeline, including profile and persistent-cache
+    // writes. Keep the event loop open so earlier external I/O can finish.
+    const task = this.ownerAnalyticsTail.then(operation);
+    this.ownerAnalyticsTail = task.then(() => undefined, () => undefined);
+    return task;
+  }
+
+  getCachedOwnerAnalytics(rangeValue, timezoneOffsetMinutes) {
+    return this.enqueueOwnerAnalytics(() => this.readOwnerAnalytics(rangeValue, timezoneOffsetMinutes));
+  }
+
+  async readOwnerAnalytics(rangeValue, timezoneOffsetMinutes) {
     const revision = this.dataCacheRevision;
     const range = analyticsRangeConfig(rangeValue).range;
 
@@ -2256,7 +2271,7 @@ export class VeyraStatsHub {
 
         try {
           baseAnalytics = await promise;
-          if (revision !== this.dataCacheRevision) return this.getCachedOwnerAnalytics(rangeValue, timezoneOffsetMinutes);
+          if (revision !== this.dataCacheRevision) return this.readOwnerAnalytics(rangeValue, timezoneOffsetMinutes);
 
           const persisted = await writePersistentOwnerAnalyticsCache(
             this.env,
@@ -2264,7 +2279,7 @@ export class VeyraStatsHub {
             baseAnalytics,
             ttlMs,
           );
-          if (revision !== this.dataCacheRevision) return this.getCachedOwnerAnalytics(rangeValue, timezoneOffsetMinutes);
+          if (revision !== this.dataCacheRevision) return this.readOwnerAnalytics(rangeValue, timezoneOffsetMinutes);
 
           baseCachedAt = Number(persisted.generatedAt || Date.now());
 
@@ -2310,7 +2325,7 @@ export class VeyraStatsHub {
       realtimeHit = true;
     } else {
       analytics = await overlayOwnerRealtimeAnalytics(this.env, baseAnalytics);
-      if (revision !== this.dataCacheRevision) return this.getCachedOwnerAnalytics(rangeValue, timezoneOffsetMinutes);
+      if (revision !== this.dataCacheRevision) return this.readOwnerAnalytics(rangeValue, timezoneOffsetMinutes);
 
       this.ownerAnalyticsRealtimeCache.set(key, {
         analytics,
@@ -2416,13 +2431,11 @@ export class VeyraStatsHub {
 
   async fetch(request) {
     if (new URL(request.url).pathname === '/invalidate-user-data' && request.method === 'POST') {
-      await this.ctx.blockConcurrencyWhile(async () => {
-        const inFlight = [...this.ownerAnalyticsInFlight.values()];
+      await this.enqueueOwnerAnalytics(async () => {
         this.dataCacheRevision++;
         this.ownerAnalyticsCache.clear();
         this.ownerAnalyticsRealtimeCache.clear();
         this.ownerAnalyticsInFlight.clear();
-        await Promise.allSettled(inFlight);
         await this.env.DB.prepare('DELETE FROM owner_analytics_cache').run();
       });
       return new Response(null, {status: 204});

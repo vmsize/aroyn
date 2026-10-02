@@ -76,11 +76,19 @@ try {
 
   await restore();pause=barrier();once=true;
   env.PAYLOADS={...normal,head:async key=>{const value=await normal.head(key);if(once&&key===marker()){once=false;pause.enter();await pause.gate;}return value;}};
-  const oldActive=push();await pause.entered;const oldQueued=push(a,444);
-  const rotated=await request('/api/v2/dashboard-key/generate',a.token,'POST',{confirm:true});assert.equal(rotated.status,200);a.key=(await rotated.json()).dashboardKey;
-  pause.release();assert.equal((await oldActive).status,401);assert.equal((await oldQueued).status,401);assert.equal(await bucket.head(accountKey()),null);
+  const oldActive=push();await pause.entered;
+  const rotationCount=queued.get(a.id)||0;
+  let rotationSettled=false;
+  const rotating=request('/api/v2/dashboard-key/generate',a.token,'POST',{confirm:true}).then(r=>{rotationSettled=true;return r;});
+  while((queued.get(a.id)||0)===rotationCount)await new Promise(r=>setTimeout(r,5));
+  const oldQueued=push(a,444);
+  assert.equal(rotationSettled,false);
+  pause.release();assert.equal((await oldActive).status,200);
+  const rotated=await rotating;assert.equal(rotated.status,200);a.key=(await rotated.json()).dashboardKey;
+  assert.equal((await oldQueued).status,401);
+  assert.equal((await (await bucket.get(accountKey())).json()).snapshot.cash,111);
   env.PAYLOADS=normal;assert.equal((await push(a,555)).status,200);
-  pass('rotation rejects active old-key result and reauthenticates queued old-key request');
+  pass('rotation acknowledges after accepted push; later old-key request is rejected without changing snapshot');
 
   pause=barrier();once=true;
   env.PAYLOADS={...normal,head:async key=>{const value=await normal.head(key);if(once&&key===marker()){once=false;pause.enter();await pause.gate;}return value;}};

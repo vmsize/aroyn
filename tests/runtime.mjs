@@ -10,10 +10,11 @@ const {Miniflare,Log,LogLevel,convertV4MiniflareOptions}=require('miniflare');
 const {build}=require('esbuild');
 const candidate=resolve(folder,'..');
 
-export async function createRuntime({mock=false,port=0,persistPath=null,ownerDiscordId='local-owner-not-configured',apiBindings={},liveBindings={},mockDiscordIds=['900001','900003']}={}) {
+export async function createRuntime({mock=false,port=0,persistPath=null,ownerDiscordId='local-owner-not-configured',apiBindings={},liveBindings={},mockDiscordIds=['900001','900003'],outboundHook=null}={}) {
   if(!mock)throw new Error('This harness supports synthetic tests only');
   const json=data=>new Response(JSON.stringify(data),{headers:{'content-type':'application/json'}});
   const mockOutbound=async request=>{
+    if (outboundHook) await outboundHook(request);
     const url=new URL(request.url);
     if(url.hostname==='discord.com'&&url.pathname==='/api/oauth2/token') {
       const body=new URLSearchParams(await request.text());

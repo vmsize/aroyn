@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-02",
+  "finding": "AR-10",
+  "candidateVersion": "4.3.81",
+  "candidateSha256": "6c65f4c0f03adadfb9fda06d34173cb90b452ed5a58db4eba5f66a6c1cfb77df",
+  "sourceCommit": "70baced555afd8e92a8dccaf8b8ee08a522cceec",
+  "sourceTree": "d25692991d63b7567fc25489847cfc83cae51b3b",
+  "workflowUrl": "https://github.com/vmsize/aroyn/actions/runs/37026445185",
+  "conclusion": "success",
+  "suites": 19,
+  "groups": 222,
+  "countDerivation": {
+    "PASSLogLines": 180,
+    "web": 11,
+    "accessibility": 12,
+    "deploymentConfig": 4,
+    "dashboardStability": 15
+  },
+  "stagingFrontend": {
+    "deploymentId": "0277f54a-e3f3-4bf5-93ab-c278619e2ea2",
+    "usesFunctions": false,
+    "webAnalytics": false,
+    "assetChecks": 6,
+    "healthGuestChecks": 3
+  },
+  "functionalLogin": {
+    "date": "2026-10-02T15:22:50.048Z",
+    "configEndpointsCorrect": true,
+    "actualHostedLoginTargetCorrect": true,
+    "oauthStartStatus": 302,
+    "discordHostCorrect": true,
+    "callbackCorrect": true,
+    "stateValuesExcluded": true
+  },
+  "publicSourceFilesVerified": 180,
+  "candidateUploaded": true,
+  "defaultLoaderVersion": "4.3.80",
+  "oldReleaseAndLoaderUnchanged": true,
+  "backendModifiedByBatch": false,
+  "gameExecutionByAgent": false,
+  "ownerGameCheck": "Pending explicit owner result; do not promote default loader.",
+  "remaining": [
+    "Owner keyboard/menu/theme check",
+    "Owner market cancellation and restart check",
+    "Promote loader and client after game check",
+    "ordinary daily cleanup observation",
+    "full UTC-day D1 usage (owner deferred)",
+    "targeted independent review",
+    "owner final general-release decision"
+  ]
+}

@@ -29,4 +29,8 @@ If no suitable fruit is available, record that the market behavior check remains
 
 After this check, update the default loader and working client together, record hashes, verify the hosted loader and publish the release notes. General registration remains restricted pending the other release gates.
 
-Full local gate: **19 suites / 222 groups**, exit 0. The final immutable-loader hash assertion also passed in a focused rerun (17 groups). See [local evidence](local-market-gate-2026-10-02.json). Hosted CI and candidate upload are pending at this capture.
+Full local gate: **19 suites / 222 groups**, exit 0. The final immutable-loader hash assertion also passed in a focused rerun (17 groups). See [local evidence](local-market-gate-2026-10-02.json). Hosted CI and candidate upload subsequently completed; see the newer evidence below.
+
+## Published candidate
+
+Code commit `70baced555afd8e92a8dccaf8b8ee08a522cceec` passed hosted CI: **19 suites / 222 groups**. The candidate is uploaded on restricted staging Pages 0277f54a. Six asset byte checks, three health/guest checks and the actual hosted cloud login/callback passed. The default loader still downloads immutable 4.3.80. No API/live settings or databases were changed by this batch; no real game test has been performed by the agent. See [rollout evidence](market-cancellation-rollout-2026-10-02.json).

@@ -1,8 +1,8 @@
 # Source package status — 2026-10-02
 
-## Latest update: AR-10 cancellation candidate prepared locally
+## Latest update: AR-10 cancellation candidate published for owner test
 
-New immutable candidate 4.3.81 guards Auto Market delayed tasks, remote entry points, confirmation/reply continuations and burst timeouts with generation/revision tokens. Destroy blocks market actions before network disconnect yields. The full local gate passed 19 suites / 222 groups; seventeen focused groups passed with actual Luau functions and compiler checks. See [candidate scope and owner check](docs/market-cancellation.md). Publication, hosted CI and staging candidate upload are pending. Default loader and release 4.3.80 are unchanged until the owner game check. General access remains restricted; real keyboard/game checks, ordinary daily cleanup, deferred full UTC-day D1 usage and targeted independent review remain open.
+New immutable candidate 4.3.81 guards Auto Market delayed tasks, remote entry points, confirmation/reply continuations and burst timeouts with generation/revision tokens. Destroy blocks market actions before network disconnect yields. The full local gate passed 19 suites / 222 groups; seventeen focused groups passed with actual Luau functions and compiler checks. See [candidate scope and owner check](docs/market-cancellation.md). Published candidate code commit `70baced555afd8e92a8dccaf8b8ee08a522cceec` passed hosted CI (19 suites / 222 groups) and is uploaded on Pages 0277f54a. Six assets, three health/guest probes and functional cloud login checks passed; see [rollout evidence](docs/market-cancellation-rollout-2026-10-02.json). Default loader and release 4.3.80 are unchanged until the owner game check. General access remains restricted; real keyboard/game checks, ordinary daily cleanup, deferred full UTC-day D1 usage and targeted independent review remain open.
 
 ## Previous update: keyboard, focus, contrast and retained-record labels published
 

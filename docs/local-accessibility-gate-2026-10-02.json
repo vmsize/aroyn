@@ -1,0 +1,11 @@
+{
+  "date": "2026-10-02",
+  "suites": 18,
+  "groups": 205,
+  "exitCode": 0,
+  "focusedAccessibilityGroups": 12,
+  "finalMinorChange": "Account confirmation resets on reopening after Escape; focused 12-group suite rerun passed after the full gate.",
+  "scope": "Local actual-component DOM focus-event model, CSS numeric contrast and synthetic backend suites; no real browser or assistive technology validation.",
+  "ownerConfirmedDiscordLogin": true,
+  "cloudRollout": "Pending at this evidence capture; general access remains restricted."
+}

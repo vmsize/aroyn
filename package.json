@@ -14,8 +14,9 @@
     "test:account-capacity": "node tests/account-capacity-check.mjs"
   },
   "devDependencies": {
-    "miniflare": "5.20260926.1-alpha",
     "esbuild": "0.28.1",
+    "linkedom": "0.18.12",
+    "miniflare": "5.20260926.1-alpha",
     "ws": "8.21.0"
   }
 }

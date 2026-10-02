@@ -1,6 +1,10 @@
 # Source package status — 2026-10-02
 
-## Latest update: staging login configuration corrected
+## Latest update: keyboard, focus, contrast and retained-record labels corrected locally
+
+AR-07–AR-09 and AR-11 are implemented locally. The full local gate passed 18 suites / 205 groups; twelve focused component checks also passed after the final confirmation-reset adjustment. See [correction and limits](docs/dashboard-accessibility.md). Publication, hosted CI and staging rollout are pending for this batch. The owner confirmed the previous cloud Discord login correction works. General access remains restricted; AR-10, full UTC-day D1 usage, ordinary daily cleanup and targeted independent review remain open.
+
+## Previous update: staging login configuration corrected
 
 The AR-04–AR-06 frontend upload mistakenly replaced cloud endpoint configuration with repository local preview defaults. The owner observed login redirecting to 127.0.0.1. Existing staging API/live/WSS endpoints were restored in Pages deployment e3fc1685. The actual hosted auth service now constructs the cloud login target; OAuth start returns 302 to Discord with the correct staging callback. No backend settings or account data changed. See [incident and verification](docs/login-config-correction-2026-10-02.json).
 

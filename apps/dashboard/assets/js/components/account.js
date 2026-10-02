@@ -1,3 +1,4 @@
+import { mountDisclosure, preservePanelFocus } from '../core/disclosure.js';
 import { authService } from '../services/auth-service.js';
 import { toast } from '../core/toast.js';
 
@@ -20,8 +21,9 @@ export function mountAccount(){
 
   let lastKey='';let confirmReplace=false;
 
-  const close=()=>{panel.dataset.open='false';trigger.setAttribute('aria-expanded','false');confirmReplace=false};
-  const open=()=>{panel.dataset.open='true';trigger.setAttribute('aria-expanded','true');renderPanel(authService.getSnapshot())};
+  const disclosure = mountDisclosure({ trigger, panel, id: 'aroyn-account-panel' });
+  const close=()=>{disclosure.close();confirmReplace=false};
+  const open=()=>{confirmReplace=false;renderPanel(authService.getSnapshot());disclosure.open()};
 
   trigger.addEventListener('click',e=>{
     e.stopPropagation();
@@ -35,7 +37,7 @@ export function mountAccount(){
     const clickedTrigger=path.includes(trigger)||trigger.contains(e.target);
     if(panel.dataset.open==='true'&&!clickedPanel&&!clickedTrigger)close();
   },true);
-  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&panel.dataset.open==='true'){close();trigger.focus()}});
+
 
   function renderTrigger(snap){
     const u=snap.user;
@@ -49,14 +51,15 @@ export function mountAccount(){
     trigger.className='account-trigger';trigger.innerHTML=`${avatar}<span class="account-name">${esc(u.displayName||u.username)}</span>`;trigger.title=`${u.displayName||u.username} · Aroyn account`;
   }
 
-  function renderPanel(snap){
+  function renderPanel(snap){preservePanelFocus(panel,()=>renderPanelContent(snap))}
+  function renderPanelContent(snap){
     const u=snap.user;
-    if(!u){panel.innerHTML='<div class="account-empty"><strong>Aroyn account</strong><p>Sign in with Discord to manage your dashboard connection.</p><button class="btn btn-primary" data-account-login>Sign in with Discord</button></div>';panel.querySelector('[data-account-login]')?.addEventListener('click',()=>authService.login(location.pathname+location.search));return}
+    if(!u){panel.innerHTML='<div class="account-empty"><strong>Aroyn account</strong><p>Sign in with Discord to manage your dashboard connection.</p><button class="btn btn-primary" data-account-login data-focus-key="account-login">Sign in with Discord</button></div>';panel.querySelector('[data-account-login]')?.addEventListener('click',()=>authService.login(location.pathname+location.search));return}
     const avatar=u.avatarUrl?`<img class="account-panel-avatar" src="${esc(u.avatarUrl)}" alt="">`:`<span class="account-panel-avatar account-avatar-fallback">${esc(initials(u))}</span>`;
     const keyStatus=u.dashboardKey?.exists?`••••••-${esc(u.dashboardKey.suffix||'')}`:'Not generated';
-    const reveal=lastKey?`<div class="account-key-reveal"><div><span>New dashboard key</span><code>${esc(lastKey)}</code></div><button class="btn" type="button" data-key-copy>Copy</button></div><p class="account-key-note">Copy it now. Aroyn does not show the full key again.</p>`:'';
+    const reveal=lastKey?`<div class="account-key-reveal"><div><span>New dashboard key</span><code>${esc(lastKey)}</code></div><button class="btn" type="button" data-key-copy data-focus-key="key-copy">Copy</button></div><p class="account-key-note">Copy it now. Aroyn does not show the full key again.</p>`:'';
     const replace=u.dashboardKey?.exists;
-    const replaceArea=confirmReplace?`<div class="account-key-confirm"><strong>Replace dashboard key?</strong><p>The previous key will stop working immediately. Existing account data stays intact.</p><div><button class="btn" type="button" data-key-cancel>Cancel</button><button class="btn btn-danger" type="button" data-key-confirm>Replace key</button></div></div>`:`<button class="btn ${replace?'':'btn-primary'}" type="button" data-key-generate>${replace?'Regenerate key':'Generate dashboard key'}</button>`;
+    const replaceArea=confirmReplace?`<div class="account-key-confirm"><strong>Replace dashboard key?</strong><p>The previous key will stop working immediately. Existing account data stays intact.</p><div><button class="btn" type="button" data-key-cancel data-focus-key="key-cancel">Cancel</button><button class="btn btn-danger" type="button" data-key-confirm data-focus-key="key-confirm">Replace key</button></div></div>`:`<button class="btn ${replace?'':'btn-primary'}" type="button" data-key-generate data-focus-key="key-generate">${replace?'Regenerate key':'Generate dashboard key'}</button>`;
     panel.innerHTML=`
       <div class="account-panel-head">${avatar}<div><strong>${esc(u.displayName||u.username)}</strong><span>@${esc(u.username)}</span></div></div>
       <div class="account-panel-body">
@@ -65,13 +68,13 @@ export function mountAccount(){
         ${reveal}
         ${replaceArea}
       </div>
-      <div class="account-panel-foot"><a class="btn btn-ghost" href="/dashboard/account/" data-account-data>Account data</a><button class="btn btn-ghost" type="button" data-account-logout>Log out</button></div>`;
+      <div class="account-panel-foot"><a class="btn btn-ghost" href="/dashboard/account/" data-account-data data-focus-key="account-data">Account data</a><button class="btn btn-ghost" type="button" data-account-logout data-focus-key="account-logout">Log out</button></div>`;
 
     panel.querySelector('[data-account-data]')?.addEventListener('click',close);
 
     panel.querySelector('[data-key-copy]')?.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(lastKey);toast('Dashboard key copied','Paste it in Aroyn Hub → Session.','success')}catch{toast('Copy failed','Select the key and copy it manually.','danger')}});
     panel.querySelector('[data-key-generate]')?.addEventListener('click',async()=>{
-      if(replace){confirmReplace=true;renderPanel(authService.getSnapshot());return}
+      if(replace){confirmReplace=true;renderPanel(authService.getSnapshot());panel.querySelector('[data-key-cancel]')?.focus();return}
       await generate(false);
     });
     panel.querySelector('[data-key-cancel]')?.addEventListener('click',()=>{confirmReplace=false;renderPanel(authService.getSnapshot())});

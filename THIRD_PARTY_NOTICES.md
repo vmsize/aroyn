@@ -12,4 +12,6 @@ The readable Luau release carries the logo and navigation image strip embedded i
 
 ## Development dependencies
 
-The synthetic harness uses Miniflare, esbuild and ws as npm development dependencies; their upstream licenses remain applicable. They are not bundled into the browser site or Luau client. The exact graph is recorded in package-lock.json.
+The synthetic harness uses Miniflare, esbuild, ws and LinkeDOM as npm development dependencies; their upstream licenses remain applicable. They are not bundled into the browser site or Luau client. The exact graph is recorded in package-lock.json.
+
+LinkeDOM 0.18.12 (Andrea Giammarchi / WebReflection) is used only for parsed-DOM component tests under its ISC license. Focus events are explicitly modeled in the harness; these checks do not certify browser tab order or screen-reader behavior. Dependency sources are fetched by npm, and are excluded from the website and source ZIP.

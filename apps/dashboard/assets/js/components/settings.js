@@ -1,3 +1,4 @@
+import { mountDisclosure } from '../core/disclosure.js';
 import { getTheme, applyTheme, toggleThemeAnimated } from '../core/theme.js';
 import { icons } from '../core/icons.js';
 const accentMeta={mono:['Mono','#9a9a96'],graphite:['Graphite','#7f8791'],slate:['Slate','#8798aa'],steel:['Steel','#94a3b8'],arctic:['Arctic','#79a7b4'],sage:['Sage','#879c88'],sand:['Sand','#ae9a78']};
@@ -52,9 +53,9 @@ export function mountSettings(){
   sync();
   window.addEventListener('aroyn:theme',sync);
 
-  const setOpen=v=>{panel.dataset.open=String(v);trigger.setAttribute('aria-expanded',String(v));};
+  const { setOpen } = mountDisclosure({ trigger, panel, id: 'aroyn-settings-panel' });
   trigger.addEventListener('click',e=>{e.stopPropagation();setOpen(panel.dataset.open!=='true')});
   document.addEventListener('click',e=>{if(panel.dataset.open==='true'&&!panel.contains(e.target)&&!trigger.contains(e.target))setOpen(false)},true);
-  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&panel.dataset.open==='true'){setOpen(false);trigger.focus()}});
+
   return panel;
 }

@@ -92,7 +92,7 @@ function scheduleRefresh(){clearTimeout(refreshTimer);if(!document.hidden&&!user
 function metric(label,value,note='',live=false){return `<article class="owner-metric${live?' is-live':''}"><div class="owner-metric-label">${esc(label)}</div><div class="owner-metric-value">${esc(value)}</div><div class="owner-metric-note">${esc(note)}</div></article>`}
 function renderMetrics(a){
   const o=a.online||{},all=a.allTime||{},r=a.selectedRange||{},p=a.peaks||{};
-  const rangeLabel=(a.range||range)==='all'?'all time':(a.range||range);
+  const rangeLabel=(a.range||range)==='all'?'retained history':(a.range||range);
   const launchesPerUser=all.uniqueUsers>0?(all.totalLaunches/all.uniqueUsers).toFixed(all.totalLaunches/all.uniqueUsers>=10?1:2):'0';
   els.metrics.innerHTML=[
     metric('Online sessions',num(o.scriptSessions),'Every active script instance',true),
@@ -100,15 +100,15 @@ function renderMetrics(a){
     metric('Online + dashboard',num(o.dashboardUsers),`${num(o.dashboardSessions)} linked sessions`,true),
     metric('Peak concurrent',num(p.scriptSessions),p.scriptSessionsAt?dateTime(p.scriptSessionsAt):'No peak recorded yet'),
     metric('Peak unique users',num(p.scriptUsers),p.scriptUsersAt?dateTime(p.scriptUsersAt):'No peak recorded yet'),
-    metric('Total launches',num(all.totalLaunches),'Every script execution recorded'),
-    metric('Unique users ever',num(all.uniqueUsers),'Distinct Roblox UserIds'),
-    metric('Dashboard users ever',num(all.dashboardUsers),`${num(all.dashboardLaunches)} linked launches`),
-    metric('Dashboard adoption',pct(all.dashboardUsers,all.uniqueUsers),'Unique users that linked the web dashboard'),
-    metric('Returning users',num(all.returningUsers),'Users with 2+ launches'),
-    metric('Launches / user',launchesPerUser,'Average executions per unique user'),
+    metric('Recorded launches',num(all.totalLaunches),'Launches in retained history'),
+    metric('Recorded users',num(all.uniqueUsers),'Distinct Roblox UserIds in retained history'),
+    metric('Recorded dashboard users',num(all.dashboardUsers),`${num(all.dashboardLaunches)} linked launches`),
+    metric('Dashboard adoption',pct(all.dashboardUsers,all.uniqueUsers),'Share of users in retained history'),
+    metric('Returning users',num(all.returningUsers),'Users with 2+ retained launches'),
+    metric('Launches / user',launchesPerUser,'Average retained launches per user'),
     metric('Runtime observed',duration(all.totalSeenMs),'Sum of recorded session time'),
     metric(`Launches · ${rangeLabel}`,num(r.launches),`${num(r.uniqueUsers)} unique users`),
-    metric(`New users · ${rangeLabel}`,num(r.newUsers),'First-ever Aroyn launch in range'),
+    metric(`New users · ${rangeLabel}`,num(r.newUsers),'First recorded user appearance in range'),
     metric(`Dashboard · ${rangeLabel}`,num(r.dashboardUsers),`${pct(r.dashboardUsers,r.uniqueUsers)} of unique users`),
     metric('Avg session seen',duration(r.avgSessionMs),`Selected range: ${rangeLabel}`)
   ].join('');
@@ -375,10 +375,10 @@ function renderTables(a){
 
   if(allUsers.length){
     els.allUsersCount.textContent=filtersActive
-      ? `${visibleUsers.length} of ${allUsers.length} users shown · first-seen order`
-      : `${allUsers.length} unique Roblox ${allUsers.length===1?'user':'users'} · first-seen order`;
+      ? `${visibleUsers.length} of ${allUsers.length} users shown · first recorded in retained history`
+      : `${allUsers.length} unique Roblox ${allUsers.length===1?'user':'users'} · first recorded in retained history`;
   }else{
-    els.allUsersCount.textContent='Every unique Roblox user ever seen';
+    els.allUsersCount.textContent='No users in retained history';
   }
 
   els.allUsers.innerHTML=visibleUsers.map(user=>{

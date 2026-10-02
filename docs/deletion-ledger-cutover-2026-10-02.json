@@ -1,0 +1,65 @@
+{
+  "date": "2026-10-02",
+  "status": "active-restricted-staging",
+  "retentionApproved": true,
+  "retentionDays": 35,
+  "coverageStartedAt": 1790916229962,
+  "gateEnabled": true,
+  "coverageInitialized": true,
+  "ledgerGateConfigurationIdentityMatches": true,
+  "journalMode": "required",
+  "stagingAccess": "restricted",
+  "pendingJobs": 0,
+  "eventsPresentAtInspection": false,
+  "privateBucket": true,
+  "publicManagedDomain": false,
+  "customBucketDomains": 0,
+  "temporaryOperatorRemoved": true,
+  "existingBindingsNamespacesAndSecretNamesPreserved": true,
+  "exportsReconciliationChanges": 0,
+  "cron": "17 3 * * *",
+  "maintenance": {
+    "paused": false,
+    "restartedWithFreshProviderCutoff": true,
+    "observedProgressSteps": 6,
+    "observedFailures": 0,
+    "completionNotObserved": true
+  },
+  "pagesDeployment": "b2f5f528-4327-4dee-a559-ead71bf8fa97",
+  "noticesVerified": [
+    "/privacy/",
+    "/privacy/ru/",
+    "/dashboard/account/"
+  ],
+  "guestProbes": {
+    "apiHealth": 200,
+    "liveHealth": 200,
+    "authMe": 401,
+    "runtimeAccounts": 401,
+    "runtimeSnapshot": 401,
+    "liveWebToken": 401
+  },
+  "quota": {
+    "utcDay": "2026-10-02",
+    "accountRowsWrittenBeforeInitializationCapture": 1928,
+    "accountRowsWrittenAfterCapture": 1928,
+    "operatorRowsReserved": 250,
+    "headroomRequired": 30000,
+    "analyticsMayLag": true,
+    "exactCutoverWriteCostNotMeasured": true
+  },
+  "realProfilesDeletedByTest": false,
+  "largeCloudFixtureRepeated": false,
+  "billingChanged": false,
+  "localGate": {
+    "suites": 14,
+    "groups": 159,
+    "rerunDuringConfigurationCutover": false
+  },
+  "limits": [
+    "Coverage begins at activation; earlier real-data backups remain unsupported",
+    "No real staging profile was deleted as a smoke test",
+    "Authenticated telemetry and ordinary daily Cron invocation remain to be observed",
+    "Provider analytics can lag; no global account spending cap is claimed"
+  ]
+}

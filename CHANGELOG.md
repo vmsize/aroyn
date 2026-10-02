@@ -1,5 +1,11 @@
 # Changelog
 
+## Restricted staging journal activation — 2026-10-02
+
+- Activate the approved independent 35-day deletion journal after a fresh D1 budget check.
+- Preserve private access, existing resources and Cron; deploy active RU/EN notices and remove the temporary operator.
+- Coverage begins at activation; earlier backups and authenticated post-cutover telemetry remain outside this verification.
+
 ## Initial source publication — 2026-10-01
 
 - Add account export/deletion, approved retention periods and restricted staging access.

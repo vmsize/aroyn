@@ -1,6 +1,12 @@
 # Source package status — 2026-10-02
 
-## Latest update: complete local release gate
+## Latest update: deletion journal activated on restricted staging
+
+On 2026-10-02, fresh account-wide D1 analytics showed 1,928 written rows before initialization; a small 250-row operator allowance was reserved. API/live access was closed, native maintenance paused and existing bindings/namespaces/secret names preserved. The receipt fence and matching private R2 coverage were initialized with the provider clock. Required journal mode is now enabled. Inspection found matching gate/configuration/bucket identities, no pending deletion jobs and no deletion events. No actual profile was deleted and no large fixture was repeated.
+
+RU/EN privacy and account notices were deployed and fetched with active wording. Maintenance resumed with a fresh cutoff, progressed without observed failures, and both Workers returned to the same restricted access list. The temporary secret-gated operator was removed; Cron and private bucket access were preserved. API/live health and unauthenticated account/token rejection passed. Provider analytics may lag, so repeated 1,928-row captures are not a measurement of the exact cutover cost. Authenticated telemetry and ordinary daily Cron execution remain to be observed. Coverage begins at activation; earlier real-data backups remain unsupported. See [activation evidence](docs/deletion-ledger-cutover-2026-10-02.json).
+
+## Previous update: complete local release gate
 
 On 2026-10-02, the complete fourteen-suite / 159-group local gate passed on Windows with Node.js 24, exit code 0. The release archive's 152 pre-update files matched the source bytes and recorded Git blob hashes, with no private paths, known actual dashboard keys, session-token patterns or test allowlist IDs found; both secret example files contained only placeholders. Documentation/evidence updates are then included in a regenerated archive. This is local verification, not a new cloud storage, authenticated UI, hosted CI or complete Roblox-feature check. No cloud write or desktop control was performed. The deletion journal is still not independently confirmed active: its last verified mode was disabled, with no coverage. Cloudflare control tools are currently unavailable in this chat. See [local release evidence](docs/local-release-gate-2026-10-02.json).
 

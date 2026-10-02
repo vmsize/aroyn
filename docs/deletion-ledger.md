@@ -1,6 +1,6 @@
-# Independent deletion ledger — prepared, not activated
+# Independent deletion ledger — active on restricted staging
 
-The owner approved the additional 35-day retention on 2026-10-01. Restricted staging has the new code and inactive migration 0005, but journal mode is disabled and no real-data coverage exists: D1's daily free row-write quota rejected cutover before the gate/coverage was initialized. The private dedicated bucket is reserved and uninitialized. Existing restricted access and unpaused maintenance were restored; the temporary operator Worker was removed. Current notices explicitly identify the future journal as planned/not enabled. Historical real-data restore remains prohibited without independent coverage.
+The owner approved the additional 35-day retention on 2026-10-01. After the earlier quota-deferred attempt, restricted staging activated the independent journal on 2026-10-02. Required mode, the SQL receipt fence and original private R2 coverage identities match. Notices are active; maintenance is resumed and access remains restricted. Coverage begins at the provider-clock activation time, never retroactively. See [activation evidence](deletion-ledger-cutover-2026-10-02.json).
 
 ## Data and registration
 
@@ -24,7 +24,7 @@ Events expire after 35 days. Daily maintenance visits at most 25 events per pers
 
 Before any cutover mutation, collect a fresh [account-wide D1 budget report](d1-write-budget.md), confirm headroom and reserve a conservative small operator allowance. An exhausted report blocks the cutover; healthy HTTP responses do not override it. Check pending-job cardinality read-only before reopening maintenance; a small gate insert is not an estimate of every pending cascade. Do not rerun the historical large cloud fixture.
 
-1. Retention is approved. Update RU/EN notices to active wording before collecting real deletion events; current deployed wording marks activation pending.
+1. Retention is approved. Update RU/EN notices to active wording before collecting real deletion events; staging wording was changed to active during the successful closed cutover.
 2. Provision a new dedicated private bucket and bind it as DELETION_LEDGER. Do not bind the runtime payload bucket. Preserve the current resource IDs, secrets, access list and Cron.
 3. Apply migration 0005 with an empty gate first. Close both API/live user access, deploy ledger-aware code, then await the private maintenance /pause barrier. Before coverage initialization, insert the expected ledger ID into deletion_ledger_gate and verify the trigger. Its transactional receipt check fences old finalizers; elapsed time alone does not prove requests drained. A helper Boolean is only an operator assertion, not independent evidence.
 4. Deploy required mode while access remains closed. Required mode rejects deletion until coverage is initialized. Operator-only `initializeDeletionLedger(bucket, {accessClosed:true, legacyDeletionFenceApplied:true})` creates coverage once in an empty bucket; record its ID and provider-clock activation time outside profile backups. There is no initialization route in the public API.
@@ -40,13 +40,13 @@ Use `tools/deletion-ledger-recovery.mjs` offline with original private bucket bi
 
 The export cannot detect an administrator silently deleting a valid event or forging coverage. Its completeness depends on the closed cutover, uninterrupted required mode, correct original bucket, reliable timestamps and restricted administrative writes. If any interval is uncertain, rebuild an empty profile store instead of reopening restored personal data. Retire temporary personal manifests when recovery is complete; do not publish them or include them in generic diagnostic archives.
 
-## Approved privacy wording, pending activation
+## Approved privacy wording
 
 EN: “To prevent a deleted profile returning from an older backup, we keep its internal Aroyn ID and deletion-request time in a separate private journal for 35 days. It contains no username, Discord ID or dashboard key. It does not prevent you signing in again to create a new empty profile. Expired entries are removed during the next successful cleanup.”
 
 RU: «Чтобы удалённый профиль не вернулся из старой резервной копии, мы сохраняем его внутренний ID Aroyn и время запроса удаления в отдельном закрытом журнале на 35 дней. В нём нет имени пользователя, Discord ID или ключа панели. Можно снова войти и создать новый пустой профиль. Просроченные записи удаляются при следующей успешной очистке.»
 
-The current staging notice includes this proposed retention with an explicit planned/not-enabled qualification. Remove that qualification only at successful activation; this is not an assertion of legal compliance.
+The current staging notice describes the active journal without a planned/not-enabled qualification. This is not an assertion of legal compliance.
 
 ## Evidence and limits
 

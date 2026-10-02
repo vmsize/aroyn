@@ -85,11 +85,13 @@ try {
   pause=barrier();once=true;
   env.PAYLOADS={...normal,head:async key=>{const value=await normal.head(key);if(once&&key===marker()){once=false;pause.enter();await pause.gate;}return value;}};
   const late=push();await pause.entered;
-  const removed=await request('/api/v2/account/delete',a.token,'POST',{confirmation:'DELETE'});assert.equal(removed.status,200);
-  pause.release();assert([401,409].includes((await late).status));env.PAYLOADS=normal;
+  const deletingQueued=(queued.get(a.id)||0);
+  const removed=request('/api/v2/account/delete',a.token,'POST',{confirmation:'DELETE'});
+  while((queued.get(a.id)||0)===deletingQueued)await new Promise(r=>setTimeout(r,5));
+  pause.release();assert.equal((await late).status,200);assert.equal((await removed).status,200);env.PAYLOADS=normal;
   assert.equal(await runtime.db.prepare('SELECT id FROM users WHERE id=?1').bind(a.id).first(),null);assert.equal((await bucket.list({prefix:`runtime-v3/${a.id}/`})).objects.length,0);
   assert.equal((await request('/api/v2/auth/me',b.token)).status,200);assert(await bucket.head(`runtime-v3/${b.id}/accounts/${b.robloxId}.json`));
-  pass('account deletion during accepted push prevents late restoration and preserves other account');
+  pass('account deletion drains accepted push before cleanup and preserves other account');
 
   // Real native Miniflare binding, no injected class/barriers.
   const native=await runtime.mf.getDurableObjectNamespace('RUNTIME_MUTATIONS','api');

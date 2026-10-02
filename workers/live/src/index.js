@@ -767,6 +767,7 @@ async function upsertAnalyticsSession(
     sessionId,
     robloxUserId,
     dashboardLinked = false,
+    userId = null,
     version = "unknown",
     gameId = null,
     placeId = null,
@@ -790,6 +791,8 @@ async function upsertAnalyticsSession(
     dashboardLinked: dashboardLinked ? 1 : 0,
   };
 
+  // Linked writes recheck ownership and deletion inside the same D1 statement;
+  // a previously accepted request cannot recreate history after deletion.
   // One statement replaces the old SELECT + optional INSERT/UPDATE sequence.
   // On conflict, SQLite only writes when metadata changed, the launch became
   // dashboard-linked, or the coarse last_seen checkpoint is due.
@@ -806,9 +809,11 @@ async function upsertAnalyticsSession(
         started_at,
         last_seen_at,
         dashboard_linked
-      ) VALUES (
-        ?1, ?2, ?3, ?4, ?5,
-        ?6, ?7, ?8, ?8, ?9
+      ) SELECT ?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?8, ?9
+      WHERE ?9 = 0 OR EXISTS (
+        SELECT 1 FROM runtime_session_owners o JOIN users u ON u.id=o.veyra_user_id
+        WHERE o.session_id=?1 AND o.roblox_user_id=?2 AND u.id=?11
+          AND NOT EXISTS (SELECT 1 FROM account_deletions d WHERE d.user_id=u.id)
       )
 
       ON CONFLICT(session_id)
@@ -903,6 +908,7 @@ async function upsertAnalyticsSession(
       now,
       normalized.dashboardLinked,
       checkpointBefore,
+      userId,
     )
     .run();
 
@@ -1931,7 +1937,7 @@ async function verifyLiveToken(env, token) {
 
 async function upsertRuntimePresence(
   env,
-  { sessionId, robloxUserId, dashboardLinked, version },
+  { sessionId, robloxUserId, dashboardLinked, version, userId = null },
 ) {
   await ensureAnalyticsSchema(env);
 
@@ -1947,13 +1953,11 @@ async function upsertRuntimePresence(
         started_at,
         last_seen_at
       )
-      VALUES (
-        ?1,
-        ?2,
-        ?3,
-        ?4,
-        ?5,
-        ?6
+      SELECT ?1, ?2, ?3, ?4, ?5, ?6
+      WHERE ?3 = 0 OR EXISTS (
+        SELECT 1 FROM runtime_session_owners o JOIN users u ON u.id=o.veyra_user_id
+        WHERE o.session_id=?1 AND o.roblox_user_id=?2 AND u.id=?7
+          AND NOT EXISTS (SELECT 1 FROM account_deletions d WHERE d.user_id=u.id)
       )
 
       ON CONFLICT(session_id)
@@ -1979,6 +1983,7 @@ async function upsertRuntimePresence(
       String(version || "unknown"),
       now,
       now,
+      userId,
     )
     .run();
   return Number(written?.meta?.changes || 0) > 0;
@@ -1986,7 +1991,7 @@ async function upsertRuntimePresence(
 
 async function touchLinkedRuntimePresence(
   env,
-  { sessionId, robloxUserId, version },
+  { sessionId, robloxUserId, version, userId },
 ) {
   if (!PRESENCE_SESSION_RE.test(String(sessionId || ""))) {
     return;
@@ -1998,6 +2003,7 @@ async function touchLinkedRuntimePresence(
     robloxUserId: String(robloxUserId),
 
     dashboardLinked: true,
+    userId,
 
     version: String(version || "unknown"),
   });
@@ -3059,6 +3065,7 @@ export class VeyraLiveSession {
           try {
             const written = await touchLinkedRuntimePresence(this.env, {
               sessionId: snapshotSessionId,
+              userId: attachment.userId,
 
               robloxUserId: attachment.robloxUserId,
 
@@ -3101,6 +3108,7 @@ export class VeyraLiveSession {
                 sessionId: snapshotSessionId,
                 robloxUserId: attachment.robloxUserId,
                 dashboardLinked: true,
+                userId: attachment.userId,
                 version: snapshotVersion,
               });
               const stats = await recordAnalyticsSnapshot(this.env);
@@ -3466,6 +3474,7 @@ const liveWorker = {
           sessionId,
           robloxUserId,
           dashboardLinked,
+          userId: veyraUserId,
           version,
         });
         if (!written) return json(request, {ok: false, error: "Session ID already belongs to another Roblox ID"}, 409, env);
@@ -3474,6 +3483,7 @@ const liveWorker = {
           sessionId,
           robloxUserId,
           dashboardLinked,
+          userId: veyraUserId,
           version,
           gameId,
           placeId,

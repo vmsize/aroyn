@@ -7,11 +7,11 @@ npm ci --ignore-scripts
 npm test
 ```
 
-The fourteen suites run sequentially and fail the process on a failed assertion (159 check groups). The complete gate passed on Windows with Node.js 24 on 2026-10-02, exit code 0. This includes the four read-only usage-report groups as part of the full run. See [local release evidence](local-release-gate-2026-10-02.json).
+The fifteen suites run sequentially and fail the process on a failed assertion (174 check groups). The current complete gate passed locally on Windows with Node.js 24 on 2026-10-02, exit code 0, including the P1 regression suite. See [current evidence](local-p1-gate-2026-10-02.json). Previous hosted CI results below refer to earlier source versions; current changes have not been published/deployed.
 
 | Suite | Checks | Scope |
 | --- | ---: | --- |
-| web-check | 10 | Launch command, Clipboard refusal/success, strict health response/timeout, external URL allowlists, storage migration/reset, JavaScript parsing |
+| web-check | 11 | Launch command, Clipboard refusal/success, strict health response/timeout, external URL allowlists, storage migration/reset, safe runtime status HTML, JavaScript parsing |
 | check | 9 | Mock OAuth, key/link/snapshot round trip and runtime/dashboard relay |
 | security-check | 29 | Concurrent credential changes, input bounds, revoked access, rate controls and owner/non-owner authorization |
 | data-check | 9 | Scoped export/deletion/retry and retention |
@@ -25,6 +25,8 @@ The fourteen suites run sequentially and fail the process on a failed assertion 
 | ledger-cutover-check | 6 | Transactional legacy-delete fence, receipt identity, fail-closed initialization/retry, native maintenance pause/eviction/resume and private routing |
 | write-budget-check | 9 | Ownership checkpoint writes without auth caching, quota headroom/stale report rejection and persistent concurrent fixture reservations |
 | usage-report-check | 4 | Account-wide aggregation including deleted databases; partial/truncated/identity/date/count rejection; fixed read-only GraphQL request and failure handling |
+
+| p1-regression-check | 14 | Concurrent ledger records, recovery after failed validation, delayed API/live writes versus full deletion, queued reauthentication, maintenance wake ordering, retry and native coordinator |
 
 The Miniflare harness refuses non-mock mode and replaces external Discord/Roblox calls with synthetic responses. Each backend suite has a fresh D1/R2 store. The tests never load private credentials. Result JSON files are ignored by Git. The pinned prerelease Miniflare version uses its V4 options converter; update the harness alongside any dependency upgrade.
 

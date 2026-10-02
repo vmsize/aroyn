@@ -3,6 +3,7 @@ import {writeFile} from 'node:fs/promises';
 import {createRuntime} from './runtime.mjs';
 import {AroynRetentionRunner,newRetentionCycle,retentionStep,RETENTION_BATCH} from '../workers/shared/retention-runner.js';
 import {runDataRetention} from '../workers/shared/data-lifecycle.js';
+import {localMutationNamespace} from './mutation-helpers.mjs';
 const runtime=await createRuntime({mock:true}),checks=[];
 const pass=name=>{checks.push({name,pass:true});console.log('PASS '+name)};
 const pause=ms=>new Promise(r=>setTimeout(r,ms));
@@ -18,6 +19,7 @@ try {
  const bucket=await runtime.mf.getR2Bucket('PAYLOADS','api'),coordinator=await runtime.mf.getDurableObjectNamespace('SNAPSHOT_STORAGE','api'),cache=await runtime.mf.getDurableObjectNamespace('STATS_CACHE','api');
  const namespace=await runtime.mf.getDurableObjectNamespace('RETENTION_RUNNER','api');
  const env={DB:runtime.db,PAYLOADS:bucket,SNAPSHOT_STORAGE:coordinator,STATS_CACHE:cache,RETENTION_RUNNER:namespace};
+ env.RUNTIME_MUTATIONS=localMutationNamespace(env);
  await assert.rejects(()=>runDataRetention({...env,RETENTION_RUNNER:null}),/binding unavailable/);pass('missing continuation binding fails closed');
  const now=Date.now()+8*86400000;
  const statements=[];for(let i=0;i<620;i++)statements.push(runtime.db.prepare('INSERT INTO analytics_sessions(session_id,roblox_user_id,started_at,last_seen_at) VALUES(?1,?2,?3,?3)').bind('old-bounded-'+i,'900001',now-31*86400000));
@@ -58,6 +60,7 @@ try {
  for(const id of ['usr_bounded_bad','usr_bounded_good']){await runtime.db.prepare('INSERT INTO users(id,discord_id,discord_username,created_at,updated_at,last_login_at) VALUES(?1,?1,?1,?2,?2,?2)').bind(id,Date.now()).run();await runtime.db.prepare('INSERT INTO account_deletions(user_id,requested_at) VALUES(?1,?2)').bind(id,Date.now()).run()}
  await bucket.put('runtime-v3/usr_bounded_bad/one.json','{}');let state=newRetentionCycle(now);
  const bad={...env,PAYLOADS:{list:options=>options.prefix.includes('usr_bounded_bad')?Promise.reject(new Error('synthetic account outage')):bucket.list(options),delete:key=>bucket.delete(key)}};
+ bad.RUNTIME_MUTATIONS=localMutationNamespace(bad);
  state=await retentionStep(bad,state);assert.equal(state.pendingDeletions,1);state=await retentionStep(env,state);assert.equal(await runtime.db.prepare("SELECT id FROM users WHERE id='usr_bounded_good'").first(),null);assert(await runtime.db.prepare("SELECT user_id FROM account_deletions WHERE user_id='usr_bounded_bad'").first());pass('failed deletion stays revoked without starving unrelated jobs');
  // Native Miniflare alarms, not the in-memory alarm clock above.
  const actual=await runDataRetention(env);assert.equal(actual.started,true);const stub=namespace.get(namespace.idFromName('daily'));

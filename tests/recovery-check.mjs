@@ -4,6 +4,7 @@ import {resolve} from 'node:path';
 import {createRuntime, folder} from './runtime.mjs';
 import {seedRecovery, recoveryInputs, hash} from './recovery-fixture.mjs';
 import {recoveryStep} from '../tools/recovery-sanitizer.mjs';
+import {localMutationNamespace} from './mutation-helpers.mjs';
 
 const original = await createRuntime({mock: true});
 let restored;
@@ -44,6 +45,7 @@ try {
   assert.equal(freshIssued.status, 200); const freshLiveToken = (await freshIssued.json()).token;
   pass('fresh signer rejects demonstrably unexpired old live token while restored linkage can issue a fresh one');
   const env = {DB: restored.db, PAYLOADS: bucket, SNAPSHOT_STORAGE: await restored.mf.getDurableObjectNamespace('SNAPSHOT_STORAGE', 'api'), STATS_CACHE: await restored.mf.getDurableObjectNamespace('STATS_CACHE', 'api')};
+  env.RUNTIME_MUTATIONS=localMutationNamespace(env);
   const {manifest, context} = recoveryInputs(seeded.backupAt);
   for (const flag of ['isolatedDestination', 'apiAccessClosed', 'liveAccessClosed', 'freshDurableObjects', 'signingSecretsRotated']) await assert.rejects(recoveryStep(env, manifest, {...context, [flag]: false}));
   await assert.rejects(recoveryStep(env, {...manifest, complete: false}, context));
@@ -66,7 +68,8 @@ try {
 
   while (state.phase !== 'delete') state = await recoveryStep(env, manifest, context, state);
   const beforeFailure = structuredClone(state);
-  await assert.rejects(recoveryStep({...env, PAYLOADS: {list: async () => {throw new Error('Fixture storage outage');}}}, manifest, context, state));
+  const brokenEnv={...env,PAYLOADS:{list:async()=>{throw new Error('Fixture storage outage');}}};brokenEnv.RUNTIME_MUTATIONS=localMutationNamespace(brokenEnv);
+  await assert.rejects(recoveryStep(brokenEnv, manifest, context, state));
   assert.deepEqual(state, beforeFailure);
   assert(await restored.db.prepare('SELECT user_id FROM account_deletions WHERE user_id=?1').bind(a.id).first());
   pass('failed deletion keeps checkpoint and deletion marker for safe retry');

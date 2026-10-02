@@ -69,7 +69,7 @@ export async function retentionStep(env, checkpoint) {
     return state;
   }
   if (state.phase === 'ledger') {
-    const page = await pruneDeletionLedger(env, {now: state.now, cursor: state.cursor, limit: RETENTION_BATCH.objects});
+    const page = await pruneDeletionLedger(env, {now: state.now, validationNow: Math.max(state.now, Date.now()), cursor: state.cursor, limit: RETENTION_BATCH.objects});
     state.ledgerRemoved = (state.ledgerRemoved || 0) + page.removed;
     state.cursor = page.cursor;
     if (page.done) state.phase = 'invalidate';

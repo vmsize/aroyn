@@ -1,0 +1,111 @@
+{
+  "date": "2026-10-02",
+  "scope": "Local synthetic Miniflare D1/R2/Durable Objects, mocked external services and injected scheduling barriers; no cloud, browser or real user operations",
+  "command": "node tests/run.mjs",
+  "exitCode": 0,
+  "suites": [
+    {
+      "suite": "web-check",
+      "passed": 11,
+      "failed": 0
+    },
+    {
+      "suite": "check",
+      "passed": 9,
+      "failed": 0
+    },
+    {
+      "suite": "security-check",
+      "passed": 29,
+      "failed": 0
+    },
+    {
+      "suite": "data-check",
+      "passed": 9,
+      "failed": 0
+    },
+    {
+      "suite": "snapshot-race-check",
+      "passed": 8,
+      "failed": 0
+    },
+    {
+      "suite": "access-check",
+      "passed": 20,
+      "failed": 0
+    },
+    {
+      "suite": "hibernation-check",
+      "passed": 9,
+      "failed": 0
+    },
+    {
+      "suite": "retention-check",
+      "passed": 13,
+      "failed": 0
+    },
+    {
+      "suite": "recovery-check",
+      "passed": 11,
+      "failed": 0
+    },
+    {
+      "suite": "mutation-race-check",
+      "passed": 10,
+      "failed": 0
+    },
+    {
+      "suite": "deletion-ledger-check",
+      "passed": 12,
+      "failed": 0
+    },
+    {
+      "suite": "ledger-cutover-check",
+      "passed": 6,
+      "failed": 0
+    },
+    {
+      "suite": "write-budget-check",
+      "passed": 9,
+      "failed": 0
+    },
+    {
+      "suite": "usage-report-check",
+      "passed": 4,
+      "failed": 0
+    },
+    {
+      "suite": "p1-regression-check",
+      "passed": 14,
+      "failed": 0
+    }
+  ],
+  "totalPassed": 174,
+  "sourceSha256": {
+    "apps/dashboard/assets/js/pages/common.js": "b0f81c7cc4c2c3ce055cc7e813df8be5479054c3e2358131760cdbfe1369746c",
+    "workers/api/src/worker.js": "31198210698c2e0c0ff6ff30ce30e6912549e230788d64007c7f0bddf00eedfe",
+    "workers/live/src/index.js": "329316cf47e112150c7516663162a8503ce161364acfa5be463eb6ff6bfcb64e",
+    "workers/shared/data-lifecycle.js": "a36a3f6f65ee2ac9bc7bfa6c4028dc3baf16c3e01d2cf568443750ca65bb61b3",
+    "workers/shared/deletion-ledger.js": "92fcbb06d5c23fecd23a33876b686a9c64a4fff1f20c4e77e818b5e43fc16119",
+    "workers/shared/retention-runner.js": "20e32cb1de5b537505411ac8fd65ee69be1a46325422e9325422f88f764329e7",
+    "tests/mutation-helpers.mjs": "219189ddde815ae5db3b7c092df119cf05e8665d9d0311228e865075a86c978a",
+    "tests/p1-regression-check.mjs": "79e2359c1e38518f5f459d9beef0614a7f5a9639ce8bf9fa3fe626c96fb4d6c6",
+    "tests/web-check.mjs": "a5c43d823019c1b9b5323f7b2d966844282b2be733aafc8afb9b21451d02f7ad",
+    "tests/run.mjs": "6f22a2b67ad5eea798be96d82f83a9bb3dd5a39446201afae39246e25f24f4bb",
+    "tests/data-check.mjs": "653ebca36be78a9c7e4e30b759d2d6bbf3070afb94babcab1a38e75394a045b9",
+    "tests/retention-check.mjs": "eb3a3ddfb5ef85eaa27874b897ed56921b8ef48e85e3d058d0001f40b3da4927",
+    "tests/recovery-check.mjs": "ee3b8adb3b21f61f71de1975af879533cf2df0cf0c88f6a3897540a4c3466a71",
+    "tests/mutation-race-check.mjs": "8e233467bc3b43259d3f5bd491c80415b0aede598f3270ffd3977fc3e8abcbbc",
+    "tests/deletion-ledger-check.mjs": "3dfdd01f66f2f78dd1d32f88310a5c19b3866e7e591aad444bf4694fef39ccf4",
+    "tests/ledger-cutover-check.mjs": "29ad8f03c5bfdd42023a06e3a2aff1b131545ddb21cd11e8a132394e36f686c0"
+  },
+  "gateLogSha256": "affcf9595c9f93f7859db023abf4b9361c8d8833d4f9b23c14808cb104df32d8",
+  "notVerified": [
+    "Deployment/CI of these changes",
+    "Mixed-version rollout and arbitrary provider crashes",
+    "Full UTC-day D1 consumption",
+    "Ordinary staging cleanup completion",
+    "Remaining AR-04 through AR-11",
+    "Full browser, game, legal or WCAG audit"
+  ]
+}

@@ -47,6 +47,19 @@ export async function invalidateDataCaches(env) {
 }
 
 export async function finishAccountDeletion(env, job, {maxObjects = 25} = {}) {
+  if (!env.RUNTIME_MUTATIONS) throw new Error('Account mutation coordination binding unavailable');
+  if (!/^[A-Za-z0-9_-]{1,128}$/.test(job.user_id) || !Number.isInteger(maxObjects) || maxObjects < 1 || maxObjects > 25) throw new Error('Invalid deletion continuation');
+  const stub = env.RUNTIME_MUTATIONS.get(env.RUNTIME_MUTATIONS.idFromName(job.user_id));
+  const response = await stub.fetch('https://internal/account-deletion/finish', {
+    method: 'POST', headers: {'x-deletion-user-id': job.user_id, 'x-deletion-max-objects': String(maxObjects)},
+  });
+  if (!response.ok) throw new Error('Coordinated account deletion failed');
+  return (await response.json()).deleted === true;
+}
+
+// Only called at the front of this user's AroynRuntimeMutations queue. HTTP
+// deletion and background/recovery continuations share that same queue.
+export async function finishAccountDeletionInOrder(env, job, {maxObjects = 25} = {}) {
   env = withSnapshotStorage(env);
   const id = job.user_id;
   // Existing pre-cutover jobs also reach the independent ledger before their

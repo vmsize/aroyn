@@ -7,6 +7,7 @@ import {initializeDeletionLedger, deletionManifestFromLedger} from '../tools/del
 import {recordDeletion, pruneDeletionLedger} from '../workers/shared/deletion-ledger.js';
 import {recoveryStep} from '../tools/recovery-sanitizer.mjs';
 import {newRetentionCycle, retentionStep} from '../workers/shared/retention-runner.js';
+import {localMutationNamespace} from './mutation-helpers.mjs';
 
 const runtime = await createRuntime({mock: true, apiBindings: {DELETION_LEDGER_MODE: 'required'}});
 let restored;
@@ -75,6 +76,7 @@ try {
   }
   assert(await restored.db.prepare('SELECT id FROM users WHERE id=?1').bind(a.id).first());
   const recoveryEnv = {DB: restored.db, PAYLOADS: await restored.mf.getR2Bucket('PAYLOADS', 'api'), SNAPSHOT_STORAGE: await restored.mf.getDurableObjectNamespace('SNAPSHOT_STORAGE', 'api'), STATS_CACHE: await restored.mf.getDurableObjectNamespace('STATS_CACHE', 'api')};
+  recoveryEnv.RUNTIME_MUTATIONS=localMutationNamespace(recoveryEnv);
   let state; let rounds = 0;
   do {state = await recoveryStep(recoveryEnv, manifest, context, state);} while (!state.sanitized && ++rounds < 100);
   assert(state.sanitized); assert.equal(state.reopenAllowed, false);

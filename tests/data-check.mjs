@@ -5,6 +5,7 @@ import {createRuntime,folder} from './runtime.mjs';
 import apiWorker from '../workers/api/src/worker.js';
 import {finishAccountDeletion} from '../workers/shared/data-lifecycle.js';
 import {drainRetention} from './retention-helpers.mjs';
+import {localMutationNamespace} from './mutation-helpers.mjs';
 const runtime=await createRuntime({mock:true,ownerDiscordId:'900003'});
 const results=[],sockets=[];
 const api=(path,options={})=>runtime.api.fetch('http://127.0.0.1:8787'+path,{redirect:'manual',...options});
@@ -37,6 +38,7 @@ try {
   const storage=await runtime.mf.getDurableObjectNamespace('SNAPSHOT_STORAGE','api');
   const runner=await runtime.mf.getDurableObjectNamespace('RETENTION_RUNNER','api');
   const env={DB:runtime.db,PAYLOADS:bucket,STATS_CACHE:cache,SNAPSHOT_STORAGE:storage,RETENTION_RUNNER:runner,API_RATE_LIMITER:{limit:async()=>({success:true})}};
+  env.RUNTIME_MUTATIONS=localMutationNamespace(env);
   assert.equal((await api('/api/v2/account/export')).status,401);
   assert.equal((await api('/api/v2/account/delete',post('',{confirmation:'DELETE'}))).status,401);
   pass('export and deletion require web authentication');
@@ -83,7 +85,8 @@ try {
   assert.equal((await (await api('/api/v2/runtime/snapshot?robloxUserId=900002',get(b.token))).json()).snapshot.cash,222);
   pass('deleted credentials revoked while other account data remains intact');
   const failedBucket={list:async()=>{throw new Error('Synthetic R2 outage')},delete:key=>bucket.delete(key)};
-  const pending=await apiWorker.fetch(new Request('http://local.test/api/v2/account/delete',post(b.token,{confirmation:'DELETE'})),{...env,PAYLOADS:failedBucket});
+  const failedEnv={...env,PAYLOADS:failedBucket};failedEnv.RUNTIME_MUTATIONS=localMutationNamespace(failedEnv);
+  const pending=await apiWorker.fetch(new Request('http://local.test/api/v2/account/delete',post(b.token,{confirmation:'DELETE'})),failedEnv);
   assert.equal(pending.status,202);assert.equal((await pending.json()).pending,true);
   assert.equal((await api('/api/v2/auth/me',get(b.token))).status,401);
   assert.equal((await live('/ws?token='+encodeURIComponent(b.liveToken),{headers:{Upgrade:'websocket'}})).status,401);

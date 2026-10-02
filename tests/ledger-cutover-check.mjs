@@ -4,11 +4,13 @@ import {createRuntime} from './runtime.mjs';
 import {seedRecovery} from './recovery-fixture.mjs';
 import {initializeDeletionLedger} from '../tools/deletion-ledger-recovery.mjs';
 import {finishAccountDeletion} from '../workers/shared/data-lifecycle.js';
+import {localMutationNamespace} from './mutation-helpers.mjs';
 const runtime=await createRuntime({mock:true,apiBindings:{DELETION_LEDGER_MODE:'required'}}),checks=[];
 const pass=name=>{checks.push({name,pass:true});console.log('PASS '+name)};
 try {
  const payload=await runtime.mf.getR2Bucket('PAYLOADS','api'),bucket=await runtime.mf.getR2Bucket('DELETION_LEDGER','api');
  const env={DB:runtime.db,PAYLOADS:payload,DELETION_LEDGER:bucket,DELETION_LEDGER_MODE:'required',DELETION_LEDGER_ID:'fixture-cutover-ledger',SNAPSHOT_STORAGE:await runtime.mf.getDurableObjectNamespace('SNAPSHOT_STORAGE','api'),STATS_CACHE:await runtime.mf.getDurableObjectNamespace('STATS_CACHE','api')};
+ env.RUNTIME_MUTATIONS=localMutationNamespace(env);
  const {accounts:[a,b]}=await seedRecovery(env);
  await runtime.db.prepare('INSERT INTO account_deletions(user_id,requested_at) VALUES(?1,?2)').bind(a.id,Date.now()).run();
  await runtime.db.prepare('INSERT INTO deletion_ledger_gate VALUES(1,?1)').bind(env.DELETION_LEDGER_ID).run();

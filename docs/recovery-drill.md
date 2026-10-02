@@ -4,7 +4,7 @@ This is a synthetic recovery exercise, not restoration of staging or real user d
 
 ## Operator helper
 
-`tools/recovery-sanitizer.mjs` exports `recoveryStep(environment, manifest, context, checkpoint)`. It is not imported by either deployed Worker and has no public endpoint or automatic deployment/reopening action. An operator must supply isolated D1/R2 bindings, snapshot coordination and analytics invalidation bindings, drive one step at a time, and save the returned checkpoint **only after success**. Keep the destination closed after errors; retry the previous checkpoint. Run serially, never through concurrent operator processes.
+`tools/recovery-sanitizer.mjs` exports `recoveryStep(environment, manifest, context, checkpoint)`. It is not imported by either deployed Worker and has no public endpoint or automatic deployment/reopening action. An operator must supply isolated D1/R2 bindings, snapshot coordination, the current API account mutation coordinator (`RUNTIME_MUTATIONS`) and analytics invalidation bindings, drive one step at a time, and save the returned checkpoint **only after success**. Keep the destination closed after errors; retry the previous checkpoint. Run serially, never through concurrent operator processes.
 
 Prerequisites include closed API/live access, independent signing secrets and fresh Durable Object namespaces. The helper validates operator assertions about these prerequisites; it does not configure or independently prove them. The isolated destination must be brought to the current schema before sanitation.
 

@@ -1,5 +1,5 @@
 
-import {RETENTION, claimRuntimeSession, accountExport, finishAccountDeletion, runDataRetention} from '../../shared/data-lifecycle.js';
+import {RETENTION, claimRuntimeSession, accountExport, finishAccountDeletionInOrder, runDataRetention} from '../../shared/data-lifecycle.js';
 import {ledgerRequired, DELETION_LEDGER_DAYS, recordDeletion} from '../../shared/deletion-ledger.js';
 import {withSnapshotStorage} from '../../shared/snapshot-storage.js';
 export {AroynSnapshotStore} from '../../shared/snapshot-storage.js';
@@ -460,11 +460,10 @@ async function handleAccountDataApi(request, env) {
         ]);
         const job = await env.DB.prepare('SELECT * FROM account_deletions WHERE user_id=?1').bind(id).first();
         try {
-            if (!job || await finishAccountDeletion(env, job)) return jsonResponse(request, env, {ok: true, deleted: true});
+            if (!job || await finishAccountDeletionInOrder(env, job)) return jsonResponse(request, env, {ok: true, deleted: true});
         } catch {
             // Credentials are already revoked; the durable job remains pending.
         }
-        try { await runDataRetention(env, Date.now(), {deletionRequested: true}); } catch { /* Daily Cron retries a failed wake-up. */ }
         return jsonResponse(request, env, {ok: true, deleted: false, pending: true,
             message: 'Access revoked. Stored-data cleanup is pending and will retry automatically.'}, 202);
     }
@@ -902,7 +901,7 @@ async function handleLegacyRuntimeApi(request, env) {
 
 function isRuntimeMutation(request) {
     const path = new URL(request.url).pathname;
-    return request.method === 'POST' && ['/api/v2/runtime/push', '/api/v2/runtime/link', '/api/v2/runtime/disconnect'].includes(path)
+    return request.method === 'POST' && ['/api/v2/runtime/push', '/api/v2/runtime/link', '/api/v2/runtime/disconnect', '/api/v2/account/delete', '/api/v1/runtime/push', '/api/v1/runtime/disconnect'].includes(path)
         || request.method === 'DELETE' && /^\/api\/v2\/runtime\/accounts\/\d+$/.test(path);
 }
 
@@ -911,11 +910,27 @@ function isRuntimeMutation(request) {
 // durable revocation/data remain in R2/D1. No credentials or telemetry are
 // stored in DO storage. Awaited work keeps the object alive until completion.
 export class AroynRuntimeMutations {
-    constructor(ctx, env) { this.env = env; this.tail = Promise.resolve(); }
+    constructor(ctx, env) { this.env = env; this.userId = ctx.id?.name; this.tail = Promise.resolve(); }
     fetch(request) {
-        if (!isRuntimeMutation(request)) return new Response('Not found', {status: 404});
+        const path = new URL(request.url).pathname;
+        const continuation = path === '/account-deletion/finish' && request.method === 'POST';
+        if (!isRuntimeMutation(request) && !continuation) return new Response('Not found', {status: 404});
         const task = this.tail.then(async () => {
-            try { return await handleRuntimeV2(request, withSnapshotStorage(this.env)); }
+            try {
+                const env = withSnapshotStorage(this.env);
+                if (continuation) {
+                    const id = request.headers.get('x-deletion-user-id');
+                    const maxObjects = Number(request.headers.get('x-deletion-max-objects'));
+                    if (!/^[A-Za-z0-9_-]{1,128}$/.test(id || '') || (this.userId && this.userId !== id) || !Number.isInteger(maxObjects) || maxObjects < 1 || maxObjects > 25) return new Response('Invalid deletion continuation', {status: 400});
+                    // Reload the durable job after waiting; stale callers cannot
+                    // replay finalization or its ledger writes after completion.
+                    const job = await env.DB.prepare('SELECT * FROM account_deletions WHERE user_id=?1').bind(id).first();
+                    return Response.json({deleted: !job || await finishAccountDeletionInOrder(env, job, {maxObjects})});
+                }
+                if (path === '/api/v2/account/delete') return await handleAccountDataApi(request, env);
+                if (path.startsWith('/api/v1/runtime/')) return await handleLegacyRuntimeApi(request, env);
+                return await handleRuntimeV2(request, env);
+            }
             catch (error) {
                 if (error instanceof RequestInputError) return jsonResponse(request, this.env, {error: error.message}, error.status);
                 throw error;
@@ -927,10 +942,13 @@ export class AroynRuntimeMutations {
 }
 
 async function dispatchRuntimeMutation(request, env) {
+    if (new URL(request.url).pathname.startsWith('/api/v1/runtime/') && env.ALLOW_LEGACY_RUNTIME !== 'true') {
+        return jsonResponse(request, env, {error: 'Legacy runtime disabled. Use /api/v2/runtime/.'}, 410);
+    }
     const dbError = requireDb(request, env);
     if (dbError) return dbError;
     let userId;
-    if (request.method === 'DELETE') {
+    if (request.method === 'DELETE' || new URL(request.url).pathname === '/api/v2/account/delete') {
         const auth = await requireWebSession(request, env);
         if (auth.error) return auth.error;
         userId = auth.session.user.id;
@@ -943,7 +961,13 @@ async function dispatchRuntimeMutation(request, env) {
     const stub = env.RUNTIME_MUTATIONS.get(env.RUNTIME_MUTATIONS.idFromName(userId));
     // Reauthenticate inside the serialized handler: queued credentials may
     // have been revoked after the outer routing lookup.
-    return stub.fetch(request);
+    const response = await stub.fetch(request);
+    // Wake maintenance only AFTER releasing the user queue: its alarm may
+    // already be awaiting this same user's deletion continuation.
+    if (new URL(request.url).pathname === '/api/v2/account/delete' && response.status === 202) {
+        try { await runDataRetention(env, Date.now(), {deletionRequested: true}); } catch { /* Daily Cron retries a failed wake-up. */ }
+    }
+    return response;
 }
 
 const apiWorker = {

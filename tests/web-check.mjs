@@ -9,6 +9,18 @@ import {safeAvatarUrl, safeScriptBloxUrl} from '../apps/dashboard/assets/js/util
 const base=path.dirname(fileURLToPath(import.meta.url));
 const checks=[];
 async function check(name,fn){await fn();checks.push(name);}
+await check('runtime status text cannot inject markup or class attributes',async()=>{
+ const source=(await fs.readFile(path.join(base,'../apps/dashboard/assets/js/pages/common.js'),'utf8')).replace(/^import .*;\r?\n/gm,'').replace(/^export /gm,'');
+ const context=vm.createContext({});vm.runInContext(source+';this.status=statusHTML',context);
+ const payload='<img src=x onerror="attack()"> & <svg onload=attack()>';
+ const html=context.status('success" onclick="attack()',payload);
+ assert(!/<(?:img|svg)\b/i.test(html));assert(html.includes('&lt;img'));assert(html.includes('&amp;'));assert(!html.includes('class="status success" onclick='));assert(html.includes('class="status idle"'));
+ for(const state of ['connected','disconnected','running','paused','success','warning','error','info','idle'])assert(context.status(state,'Ready').includes(`class="status ${state}"`));
+ const nodes=new Map();const document={querySelector(q){if(!nodes.has(q))nodes.set(q,{value:'',innerHTML:'',hidden:false,addEventListener(){}});return nodes.get(q)},querySelectorAll(){return []}};
+ Object.assign(context,{document,mountDashboardShell(){},setActiveNav(){},runtimeService:{getSnapshot:()=>({modules:[{name:'test',type:'local',status:payload,loaded:'yes'}]}),subscribe(){}}});
+ const modules=(await fs.readFile(path.join(base,'../apps/dashboard/assets/js/pages/modules.js'),'utf8')).replace(/^import .*;\r?\n/gm,'');vm.runInContext(modules,context);
+ assert(!nodes.get('[data-module-body]').innerHTML.includes('<img'));assert(nodes.get('[data-module-body]').innerHTML.includes('&lt;img'));
+});
 await check('launch command rejects credentials, invalid schemes and URL payloads',()=>{
   for(const value of ['', 'not a URL','http://example.org/loader.luau','https://user:secret@example.org/loader.luau','https://example.org/loader.luau?key=secret','https://example.org/loader.luau#secret','https://example.org/script.js'])assert.equal(launchCommand(value),'');
   assert.equal(launchCommand('https://aroyn-staging.pages.dev/scripts/loader.luau'),'loadstring(game:HttpGet("https://aroyn-staging.pages.dev/scripts/loader.luau"))()');

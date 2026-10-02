@@ -57,9 +57,13 @@ export async function recordDeletion(env, userId, requestedAt = Date.now(), now 
   return validateLedgerEvent(await winner.json(), key, now, meta.startedAt);
 }
 
-export async function pruneDeletionLedger(env, {now = Date.now(), cursor = null, limit = 25} = {}) {
+export async function pruneDeletionLedger(env, {now = Date.now(), validationNow = now, cursor = null, limit = 25} = {}) {
   if (!ledgerRequired(env)) return {done: true, cursor: null, removed: 0, visited: 0};
-  const meta = await readLedgerMetadata(env.DELETION_LEDGER, now);
+  // `now` fixes expiry for the whole sweep; validation must also accept valid
+  // deletions recorded while that sweep was running. Future/corrupt events
+  // still fail closed against the current validation clock.
+  if (!validClock(now) || !validClock(validationNow) || validationNow < now) throw new Error('Invalid ledger cleanup clock');
+  const meta = await readLedgerMetadata(env.DELETION_LEDGER, validationNow);
   checkIdentity(env, meta);
   if (!Number.isInteger(limit) || limit < 1 || limit > 25) throw new Error('Invalid ledger page limit');
   const page = await env.DELETION_LEDGER.list({prefix: PREFIX, limit, ...(cursor ? {cursor} : {})});
@@ -68,7 +72,10 @@ export async function pruneDeletionLedger(env, {now = Date.now(), cursor = null,
     const object = await env.DELETION_LEDGER.get(item.key);
     if (!object) continue; // Another bounded sweep already removed it.
     if (object.size > 1024) throw new Error('Invalid deletion record size');
-    const event = validateLedgerEvent(await object.json(), item.key, now, meta.startedAt);
+    const payload = await object.json();
+    // Listing/reading may await a concurrently recorded deletion. Sample the
+    // validation clock after the read without moving the sweep's expiry cutoff.
+    const event = validateLedgerEvent(payload, item.key, Math.max(validationNow, Date.now()), meta.startedAt);
     if (event.requestedAt < now - DELETION_LEDGER_DAYS * DAY) {
       // Records are immutable through this application. Direct admin writes
       // must not race pruning; R2 delete has no ETag precondition.

@@ -14,7 +14,7 @@ These operations are ordered, not a cross-service transaction. An interrupted un
 
 ## Deployment
 
-Add the API's local `RUNTIME_MUTATIONS` binding and SQLite `runtime-mutations-v1` DO migration from `wrangler.example.jsonc`. Apply all four D1 migrations; `0004_auth_exchange_owner.sql` indexes account-scoped exchange-code revocation and the users foreign-key cascade. Keep the existing snapshot/retention namespaces and cross-Worker analytics binding. No live Worker or client protocol changes are required for these mutation routes.
+Add the API's local `RUNTIME_MUTATIONS` binding and SQLite `runtime-mutations-v1` DO migration from `wrangler.example.jsonc`. Apply all five D1 migrations (0001–0005); `0004_auth_exchange_owner.sql` indexes account-scoped exchange-code revocation and the users foreign-key cascade. Keep the existing snapshot/retention namespaces and cross-Worker analytics binding. No live Worker or client protocol changes are required for these mutation routes.
 
 ## Verification
 

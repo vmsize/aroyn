@@ -1,6 +1,10 @@
 # Source package status — 2026-10-02
 
-## Latest update: hosted CI and owner UI checks confirmed
+## Latest update: operational documentation reconciled
+
+On 2026-10-02, setup, testing, recovery/provider and D1-budget instructions were reconciled with the completed journal activation and all five SQL migrations. No runtime code, deployment or cloud data changed. Cloudflare/GitHub authenticated access was restored and checked. A read-only capture around 06:14 UTC reported 2,518 account-wide D1 written rows (126 staging, 2,392 legacy Veyra) and 6,109 read rows during part of the UTC day; the existing account/day/completeness validator accepted both database groups. API settings remain required/restricted with the original ledger identity, live remains restricted, and both report Logpush disabled. No cloud mutation was performed. This does not establish full-day consumption, cleanup completion or all provider logging settings. The previously successful hosted CI remains valid for its recorded source commit. Full-day normal usage, post-activation daily cleanup completion and reachable private contact remain pending.
+
+## Previous update: hosted CI and owner UI checks confirmed
 
 GitHub Actions attempt 3 passed on 2026-10-02 after the external account restriction was resolved. All job steps, including dependency installation and the complete fourteen-suite / 159-group synthetic gate, succeeded on Ubuntu 24.04.5 / Node.js 24.21.0 at source commit 9bed86447ce600b1b3d79c8b891f80f0bb7d748f. See [hosted evidence](docs/hosted-ci-2026-10-02.json). No production cloud fixture or real profile deletion was performed.
 

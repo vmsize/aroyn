@@ -1,6 +1,12 @@
 # Source package status — 2026-10-02
 
-## Latest update: dashboard stability corrections published and deployed
+## Latest update: staging login configuration corrected
+
+The AR-04–AR-06 frontend upload mistakenly replaced cloud endpoint configuration with repository local preview defaults. The owner observed login redirecting to 127.0.0.1. Existing staging API/live/WSS endpoints were restored in Pages deployment e3fc1685. The actual hosted auth service now constructs the cloud login target; OAuth start returns 302 to Discord with the correct staging callback. No backend settings or account data changed. See [incident and verification](docs/login-config-correction-2026-10-02.json).
+
+A new cloud preparation tool requires explicit public HTTPS endpoints and rejects local configuration; four focused regressions and eleven existing web checks passed. The default CI includes these regressions. Full hosted CI for this tooling update and the owner's real Discord retry have not yet been observed. Remaining accessibility, Luau cancellation and release gates remain open.
+
+## Previous update: dashboard stability corrections published and deployed
 
 AR-04–AR-06 are corrected: stale account responses are rejected, initial API failures recover through bounded requests/retries, and route subscriptions are disposed. The full local gate passed 16 suites / 189 groups. See [dashboard correction](docs/dashboard-stability.md). The frontend batch is published in source commit `16cc7c1eee7b65427746c2ab4f21129b2a0d6190` and deployed on restricted staging. Hosted CI passed the same 16 suites / 189 groups; twelve asset byte checks and three health/guest probes passed. See [rollout evidence](docs/dashboard-stability-rollout-2026-10-02.json). Its real-browser owner check is pending. Remaining AR-07–AR-11, full-day usage, the next ordinary daily cleanup and targeted independent review remain open.
 

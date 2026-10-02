@@ -1,0 +1,18 @@
+{
+  "date": "2026-10-02T14:23:30.586Z",
+  "configEndpointsCorrect": true,
+  "actualHostedLoginTargetCorrect": true,
+  "oauthStartStatus": 302,
+  "discordHostCorrect": true,
+  "callbackCorrect": true,
+  "stateValuesExcluded": true,
+  "deploymentShortId": "e3fc1685",
+  "cause": "The AR-04 through AR-06 Pages preparation copied repository local-preview config over staging endpoints. Asset-byte probes did not include functional endpoint configuration.",
+  "remedy": "Restored existing staging API/live/WSS endpoints; cloud preparation tool now requires and validates explicit HTTPS endpoints.",
+  "targetedLocalChecks": {
+    "deploymentConfig": 4,
+    "web": 11
+  },
+  "manualDiscordSignIn": "Pending owner retry",
+  "backendChanged": false
+}

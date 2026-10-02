@@ -49,3 +49,13 @@ Keep the list, Discord client secret and signing secrets in secret bindings. Use
 ## Updating an existing declarative-export deployment
 
 The existing restricted staging now uses the provider declarative `exports` flow for Durable Object classes. Preserve the current namespace IDs and export declarations when updating that deployment; reapplying legacy `migrations` was rejected with provider error 100403. The migration examples above describe initial provisioning and do not instruct resetting an existing namespace. Staging journal activation must not be repeated during an upgrade.
+
+## Prepare a cloud dashboard before upload
+
+Repository `assets/js/core/config.js` contains local preview defaults. Do not upload the source directory directly or copy that file over a configured cloud bundle. Prepare an empty output directory with explicit Worker origins:
+
+```sh
+node tools/prepare-dashboard.mjs --output /absolute/path/aroyn-site --api-base https://your-api.example.com --live-base https://your-live.example.com --loader-url https://your-site.example.com/scripts/loader.luau
+```
+
+Use a platform-appropriate absolute output path on Windows. Add `--restricted-staging` for staging noindex headers. The tool rejects loopback/IP/local and non-HTTPS Worker endpoints, credentials, query strings and fragments, excludes local development files, emits the matching WSS endpoint and does not overwrite a nonempty output. The loader URL is optional; omitting it keeps the copy-script action hidden. After upload, fetch and evaluate the hosted config and verify that the actual auth service login target and Discord callback use the intended cloud API. Asset hash matching and Worker health alone do not establish that login is correctly configured. See [the corrected staging incident](login-config-correction-2026-10-02.json).

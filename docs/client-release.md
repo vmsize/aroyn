@@ -60,3 +60,7 @@ connections. All 30 suites are verified locally and hosted CI passed; static
 deployment bytes/headers were checked. The owner still needs to confirm the full
 4.3.85 fragmentation path in the executor. See [scope](telemetry-recovery.md),
 `release-4.3.85.json`, and `telemetry-rollout-2026-10-03.json`.
+
+## 4.3.86 — paced full-inventory delivery
+
+The owner reported 4.3.85 stale telemetry. Controlled real-game delivery established the synchronous fragment burst as the observed failure path; 150 ms yields restored delivery. 4.3.86 preserves the complete snapshot, fences cancellation between parts and limits fragment cadence. Stable loader, server code and persistence checkpoints are unchanged. See [scope](telemetry-pacing.md) and [measured rollout](telemetry-pacing-rollout-2026-10-03.json).

@@ -1,0 +1,200 @@
+{
+  "at": "2026-10-03T12:45:45.074570+00:00",
+  "commit": "dcb757dbce33fd8b102354aec303fb931f06eb5b",
+  "tree": "16fb16d7ba356d8be5f94b544156e1a93b9660bf",
+  "fileCount": 218,
+  "version": "4.3.86",
+  "pagesDeployment": "1b009364-d5d7-4ebe-a268-414a2a9cf5ac",
+  "pagesEnvironment": "production",
+  "assets": [
+    {
+      "path": "assets/js/components/account.js",
+      "status": 200,
+      "sha256": "213bfffa119dbcad2a91883c77e98cf716a66ed4f69dd04fcd0ceb9e786a0de0",
+      "bytesMatch": true
+    },
+    {
+      "path": "assets/js/services/runtime-service.js",
+      "status": 200,
+      "sha256": "2632e0de7b53f883716aca3f0e9b089a9dd3a8a19b51bc714164d39a41351297",
+      "bytesMatch": true
+    },
+    {
+      "path": "assets/js/services/live-snapshot.js",
+      "status": 200,
+      "sha256": "c295c55f5e4b99b818ef6dcd3fd0a0b69370727afc3b36bee3fb1cd16f3a71aa",
+      "bytesMatch": true
+    },
+    {
+      "path": "assets/js/core/config.js",
+      "status": 200,
+      "sha256": "1fb0f69ce8160c908cbbd6c45e19abf64650587dd8f9b5b65784784f010e490f",
+      "bytesMatch": true
+    },
+    {
+      "path": "releases/4.3.86/greedy-growers.luau",
+      "status": 200,
+      "sha256": "085c1b3a4ed64de5c55d4e71b237852d3a91af597ed88ca32c7d5baf6f9bf874",
+      "bytesMatch": true
+    },
+    {
+      "path": "releases/4.3.85/greedy-growers.luau",
+      "status": 200,
+      "sha256": "43a1d2df77d38c0e5fa4adfecaa22e42ecadca9ba4c94c88060e0f74bc89a645",
+      "bytesMatch": true
+    },
+    {
+      "path": "releases/4.3.84/greedy-growers.luau",
+      "status": 200,
+      "sha256": "b2b4a3e7fbf590520390e14b1bae83529a09fbb9c9a3e82bad5c0208ac2a98b4",
+      "bytesMatch": true
+    },
+    {
+      "path": "releases/4.3.83/greedy-growers.luau",
+      "status": 200,
+      "sha256": "f1d0f21bd4a6d6980f6554b28eb4d4e64aa58ab857a5d9b7d95cad1378bce946",
+      "bytesMatch": true
+    },
+    {
+      "path": "releases/4.3.82/greedy-growers.luau",
+      "status": 200,
+      "sha256": "2b350e1ca9ae1dfd4c27e2ede26b2b5885e043d1f550102f508b2d618bd28c57",
+      "bytesMatch": true
+    },
+    {
+      "path": "releases/4.3.81/greedy-growers.luau",
+      "status": 200,
+      "sha256": "6c65f4c0f03adadfb9fda06d34173cb90b452ed5a58db4eba5f66a6c1cfb77df",
+      "bytesMatch": true
+    },
+    {
+      "path": "releases/4.3.80/greedy-growers.luau",
+      "status": 200,
+      "sha256": "ece5e3a123ee4a9f4024eec909cf0a5fb37fccc773a7eba6bf2f88ab1adb3b8a",
+      "bytesMatch": true
+    },
+    {
+      "path": "scripts/loader.luau",
+      "status": 200,
+      "sha256": "8478d04460ce3eb9354b16290ab13c63b71cbf2c1327b84fbc76cc4d8d43df88",
+      "bytesMatch": true
+    },
+    {
+      "path": "scripts/version.json",
+      "status": 200,
+      "sha256": "164d7a716b9166e28387c458c8f8fe0d0775c246ee4ce5a794577165c3f2692d",
+      "bytesMatch": true
+    }
+  ],
+  "checks": [
+    {
+      "name": "API health",
+      "status": 200,
+      "passed": true
+    },
+    {
+      "name": "live health",
+      "status": 200,
+      "passed": true
+    },
+    {
+      "name": "guest account denied",
+      "status": 401,
+      "passed": true
+    },
+    {
+      "name": "guest owner denied",
+      "status": 401,
+      "passed": true
+    },
+    {
+      "name": "Discord login redirect uses public callback and identify scope",
+      "status": 302,
+      "passed": true
+    }
+  ],
+  "hostedCi": [
+    {
+      "id": 37123754139,
+      "url": "https://github.com/vmsize/aroyn/actions/runs/37123754139",
+      "name": "Synthetic checks",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "dcb757dbce33fd8b102354aec303fb931f06eb5b"
+    }
+  ],
+  "sourceAndZipVerified": true,
+  "workerVersionsUnchanged": true,
+  "generalRegistration": "restricted (API/live settings unchanged)",
+  "scope": "Published static asset byte/header checks, public health, denied guest requests and login redirect. No authenticated user operation, account/key changes, real game, cloud fixtures or PC control.",
+  "operationalGates": "Previously observed ordinary cleanup and full UTC-day D1 gates passed for restricted load; not a public-scale capacity claim",
+  "remaining": [
+    "Owner visual confirmation of status/counters and account switching",
+    "Separate owner approval before general registration"
+  ],
+  "gameSmoke": {
+    "logicalBytes": 179444,
+    "worms": 946,
+    "verificationOnly": true,
+    "frameCount": 6,
+    "completed": true,
+    "observations": [
+      {
+        "attempt": 1,
+        "seconds": 15,
+        "connected": true,
+        "ackAge": 1
+      },
+      {
+        "attempt": 1,
+        "seconds": 30,
+        "connected": true,
+        "ackAge": 5
+      },
+      {
+        "attempt": 1,
+        "seconds": 45,
+        "connected": true,
+        "ackAge": 3
+      },
+      {
+        "attempt": 1,
+        "seconds": 60,
+        "connected": true,
+        "ackAge": 0
+      },
+      {
+        "attempt": 1,
+        "seconds": 75,
+        "connected": true,
+        "ackAge": 3
+      },
+      {
+        "attempt": 1,
+        "seconds": 90,
+        "connected": true,
+        "ackAge": 2
+      },
+      {
+        "attempt": 1,
+        "seconds": 105,
+        "connected": true,
+        "ackAge": 5
+      },
+      {
+        "attempt": 1,
+        "seconds": 120,
+        "connected": true,
+        "ackAge": 2
+      }
+    ],
+    "version": "4.3.86",
+    "ackCount": 126,
+    "attemptsSinceStart": 1,
+    "minimumDelivered": 1,
+    "automationEnabled": false,
+    "passed": true,
+    "durationSeconds": 120,
+    "scope": "Published stable loader in actual executor. Verification mode; farming disabled; no config writes or PC control. Delivery ACK and dashboard recipient count observed; rendered UI requires owner confirmation."
+  }
+}

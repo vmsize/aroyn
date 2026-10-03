@@ -15,5 +15,72 @@
     }
   ],
   "workersUnchanged": true,
-  "gameSmoke": "candidate sender test in progress; final release smoke pending"
+  "gameSmoke": {
+    "logicalBytes": 179444,
+    "worms": 946,
+    "verificationOnly": true,
+    "frameCount": 6,
+    "completed": true,
+    "observations": [
+      {
+        "attempt": 1,
+        "seconds": 15,
+        "connected": true,
+        "ackAge": 1
+      },
+      {
+        "attempt": 1,
+        "seconds": 30,
+        "connected": true,
+        "ackAge": 5
+      },
+      {
+        "attempt": 1,
+        "seconds": 45,
+        "connected": true,
+        "ackAge": 3
+      },
+      {
+        "attempt": 1,
+        "seconds": 60,
+        "connected": true,
+        "ackAge": 0
+      },
+      {
+        "attempt": 1,
+        "seconds": 75,
+        "connected": true,
+        "ackAge": 3
+      },
+      {
+        "attempt": 1,
+        "seconds": 90,
+        "connected": true,
+        "ackAge": 2
+      },
+      {
+        "attempt": 1,
+        "seconds": 105,
+        "connected": true,
+        "ackAge": 5
+      },
+      {
+        "attempt": 1,
+        "seconds": 120,
+        "connected": true,
+        "ackAge": 2
+      }
+    ],
+    "version": "4.3.86",
+    "ackCount": 126,
+    "attemptsSinceStart": 1,
+    "minimumDelivered": 1,
+    "automationEnabled": false,
+    "passed": true,
+    "durationSeconds": 120,
+    "scope": "Published stable loader in actual executor. Verification mode; farming disabled; no config writes or PC control. Delivery ACK and dashboard recipient count observed; rendered UI requires owner confirmation."
+  },
+  "status": "published; restricted staging",
+  "codeCommit": "dcb757dbce33fd8b102354aec303fb931f06eb5b",
+  "pagesDeployment": "1b009364-d5d7-4ebe-a268-414a2a9cf5ac"
 }

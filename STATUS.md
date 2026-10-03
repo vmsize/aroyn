@@ -1,5 +1,23 @@
 # Source package status â€” 2026-10-03
 
+## Current release: 4.3.86 paced telemetry
+
+4.3.85 did not solve the owner's real executor disconnect. Single ~40 KB
+messages worked; the synchronous six-fragment burst did not. Yielding 150 ms
+between the same full-inventory frames restored acknowledgments and delivery.
+4.3.86 adds pacing, cancellation checks and bounded frame cadence; no Worker or
+persistence interval changed. The versionless loader and older immutable
+releases remain unchanged. Thirty local suites and hosted CI passed; restricted
+Pages assets matched the published source.
+
+The published loader was exercised in the actual executor in verification mode
+(farming disabled; saved settings not written). See the measured duration,
+acknowledgments and reconnect counts in [rollout](docs/telemetry-pacing-rollout-2026-10-03.json)
+and [scope](docs/telemetry-pacing.md). Owner visual confirmation of counters and
+account switching remains. Earlier pending claims are historical. General
+registration is restricted.
+
+
 ## Current release: 4.3.85 telemetry recovery
 
 Published to restricted staging after 30 verified local suites and hosted CI.

@@ -1,4 +1,4 @@
-# Independent recheck corrections — 2026-10-03
+# Independent recheck corrections â€” 2026-10-03
 
 The independent review confirmed two P2 residual findings and one P3 secret-DOM finding on the 4.3.83 baseline. This correction addresses all three. No server, billing, access-list or account data changes are included.
 
@@ -16,7 +16,7 @@ Guest transitions and changes of user/session clear the revealed key, reset repl
 
 ## Verification and publication
 
-The isolated full gate passed 28 suites. Three new suites exercised 57 focused scenarios against actual auth/account modules and actual Luau prompt/token functions. The manifest notice text was then corrected and the loader/update/GUI suite rerun. Full outer and embedded Luau chunks compile. Immutable 4.3.80–4.3.83 clients and the stable loader remain byte-identical. See [local evidence](local-independent-recheck-fixes-2026-10-03.json) and [4.3.84 bytes](release-4.3.84.json). Restricted staging publication is pending until its rollout record is present.
+The isolated full gate passed 28 suites. Three new suites exercised 57 focused scenarios against actual auth/account modules and actual Luau prompt/token functions. The manifest notice text was then corrected and the loader/update/GUI suite rerun. Full outer and embedded Luau chunks compile. Immutable 4.3.80â€“4.3.83 clients and the stable loader remain byte-identical. See [local evidence](local-independent-recheck-fixes-2026-10-03.json) and [4.3.84 bytes](release-4.3.84.json). Published on restricted staging: code `3b58d21ffadd4c070737a545babfd256b2861a89` passed hosted CI (28 suites); Pages `a56c1b90-03ea-4075-8458-372a1b8081d2` passed ten asset/header checks and five service/login/guest probes. See [rollout evidence](independent-recheck-rollout-2026-10-03.json).
 
 The ordinary daily maintenance cycle and the full UTC-day D1 usage gate were observed on 2026-10-03; see [operational gate evidence](operational-gates-2026-10-03.json). Their limits do not establish public-scale capacity. The reviewer did not establish new P0/P1 findings in the covered scope. A broad audit of every possible executor or all product behavior is not claimed.
 

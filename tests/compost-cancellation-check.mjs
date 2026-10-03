@@ -4,7 +4,7 @@ import os from 'node:os';
 import crypto from 'node:crypto';
 import {spawnSync} from 'node:child_process';
 import {luauTestRuntime} from '../tools/luau-test-runtime.mjs';
-const sourcePath=new URL('../apps/dashboard/releases/4.3.85/greedy-growers.luau',import.meta.url);
+const sourcePath=new URL('../apps/dashboard/releases/4.3.86/greedy-growers.luau',import.meta.url);
 const bytes=await fs.readFile(sourcePath),source=bytes.toString('utf8').replaceAll('\r\n','\n');
 function between(a,b){const start=source.indexOf(a);const end=source.indexOf(b,start);if(start<0||end<0)throw new Error('Missing extraction boundary');return source.slice(start,end);}
 // Extract the setter through its next function declaration; no rewritten product function.

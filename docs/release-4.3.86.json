@@ -1,0 +1,19 @@
+{
+  "version": "4.3.86",
+  "files": [
+    {
+      "path": "apps/dashboard/releases/4.3.86/greedy-growers.luau",
+      "sha256": "085c1b3a4ed64de5c55d4e71b237852d3a91af597ed88ca32c7d5baf6f9bf874"
+    },
+    {
+      "path": "apps/dashboard/scripts/version.json",
+      "sha256": "164d7a716b9166e28387c458c8f8fe0d0775c246ee4ce5a794577165c3f2692d"
+    },
+    {
+      "path": "apps/dashboard/scripts/loader.luau",
+      "sha256": "8478d04460ce3eb9354b16290ab13c63b71cbf2c1327b84fbc76cc4d8d43df88"
+    }
+  ],
+  "workersUnchanged": true,
+  "gameSmoke": "candidate sender test in progress; final release smoke pending"
+}

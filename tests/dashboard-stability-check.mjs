@@ -16,7 +16,7 @@ function fixture(fetcher = async () => response({ accounts })) {
   const auth = { status: 'authenticated', token: 'synthetic-session', user: { id: 'fixture-user' } };
   const sockets = [];
   class Socket { static OPEN = 1; static CONNECTING = 0; constructor(url) { this.url = url; this.readyState = 0; sockets.push(this); } close() { this.readyState = 3; } }
-  const context = vm.createContext({ structuredClone, AbortController, URL, console, performance, WebSocket: Socket,
+  const context = vm.createContext({ structuredClone, AbortController, URL, console, performance, WebSocket: Socket, LiveSnapshotAssembler,
     Date: class extends Date { static now() { return now; } },
     setTimeout(fn, delay) { const id = ++next; timers.set(id, { fn, delay }); return id; }, clearTimeout(id) { timers.delete(id); }, queueMicrotask() {},
     mockRuntime: { config: {}, activity: [], logs: [], modules: [], session: {}, system: {}, connection: {} },
@@ -149,3 +149,4 @@ await check('repeated actual modules-page mounts leave only the current table su
 });
 await fs.writeFile(new URL('dashboard-stability-results.json', import.meta.url), JSON.stringify({ date: '2026-10-02', passed: checks.length, checks, scope: 'Actual runtime source in VM with deferred fetch/body and controlled timers; real page module and lifecycle; no browser or cloud writes.' }, null, 2) + '\n');
 console.log(JSON.stringify({ passed: checks.length, checks }));
+import {LiveSnapshotAssembler} from '../apps/dashboard/assets/js/services/live-snapshot.js';

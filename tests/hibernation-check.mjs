@@ -3,6 +3,7 @@ import {createHash,randomBytes} from 'node:crypto';
 import {writeFile} from 'node:fs/promises';
 import {createRequire} from 'node:module';
 import {createRuntime} from './runtime.mjs';
+import {LiveSnapshotAssembler} from '../apps/dashboard/assets/js/services/live-snapshot.js';
 const runtime=await createRuntime({mock:true});
 const WebSocket=createRequire(new URL('../package.json',import.meta.url))('ws');
 const direct=await runtime.mf.ready; // The harness's first (public) Worker is live.
@@ -33,6 +34,27 @@ async function push(f,cash){const before=f.runtime.messages.filter(m=>m.type==='
 try{
  const a=await fixture(1),b=await fixture(2);
  await push(a,111);await push(b,222);
+ const largeBody=JSON.stringify({...a.snapshot,details:{compost:{seedsFed:12},transportFixture:'x'.repeat(180000)}});
+ const largeAckCount=a.runtime.messages.filter(m=>m.type==='relay_ack').length;
+ a.runtime.ws.send(largeBody);
+ await until(()=>a.runtime.messages.filter(m=>m.type==='relay_ack').length>largeAckCount,'large snapshot acknowledgment');
+ await until(()=>a.viewer.messages.some(m=>m.details?.compost?.seedsFed===12),'large snapshot relay');
+ assert.equal(a.runtime.ws.readyState,1);pass('180 KB JSON snapshot relays with counters and acknowledgment');
+ const checkpoints=await runtime.db.prepare('SELECT o.last_seen_at AS owner_at,p.last_seen_at AS presence_at FROM runtime_session_owners o JOIN runtime_presence p USING(session_id) WHERE o.session_id=?1').bind(a.snapshot.session.id).first();
+ const beforeFragments=a.viewer.messages.length,chunks=[];
+ for(let i=0;i<largeBody.length;i+=32768)chunks.push(largeBody.slice(i,i+32768));
+ for(let i=0;i<chunks.length;i++){
+  if(i===2)await evict(a);
+  const beforeAck=a.runtime.messages.filter(m=>m.type==='relay_ack').length;
+  a.runtime.ws.send(JSON.stringify({...a.snapshot,transport:{encoding:'json-fragments-v1',id:'native-fragment-transfer-001',index:i+1,count:chunks.length,bytes:Buffer.byteLength(largeBody),data:chunks[i]}}));
+  await until(()=>a.runtime.messages.filter(m=>m.type==='relay_ack').length>beforeAck,'fragment acknowledgment');
+ }
+ await until(()=>a.viewer.messages.slice(beforeFragments).filter(m=>m.transport).length===chunks.length,'all fragment relays');
+ const assembler=new LiveSnapshotAssembler();let assembled;
+ for(const m of a.viewer.messages.slice(beforeFragments))assembled=assembler.accept(m,a.robloxId)||assembled;
+ assert.deepEqual(assembled,JSON.parse(largeBody));pass('small frames preserve the full snapshot through actual relay and mid-transfer hibernation');
+ assert.deepEqual(await runtime.db.prepare('SELECT o.last_seen_at AS owner_at,p.last_seen_at AS presence_at FROM runtime_session_owners o JOIN runtime_presence p USING(session_id) WHERE o.session_id=?1').bind(a.snapshot.session.id).first(),checkpoints);
+ pass('fragment burst preserves coarse ownership and presence timestamp checkpoints');
  await evict(a);await evict(b);
  assert(sockets.every(s=>s.ws.readyState===1));pass('forced hibernation preserves four accepted sockets');
  const before=a.viewer.messages.length;await push(a,333);

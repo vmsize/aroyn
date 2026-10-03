@@ -2,6 +2,7 @@ import { mockRuntime } from '../data/mock-runtime.js';
 import { storage } from '../core/storage.js';
 import { authService } from './auth-service.js';
 import { API_BASE, LIVE_BASE, LIVE_WS_BASE } from '../core/config.js';
+import { LiveSnapshotAssembler } from './live-snapshot.js';
 
 const API_DEFAULT = API_BASE;
 const LIVE_DEFAULT = LIVE_BASE;
@@ -60,6 +61,8 @@ class AroynRuntimeService {
     this.wsReconnectAttempt = 0;
     this.wsLastMessageAt = 0;
     this.wsLastSnapshotAt = 0;
+    this.wsConnectedAt = 0;
+    this.liveSnapshotRevision = 0;
 
     // Initial dashboard hydration gate. The UI can wait for the first
     // authenticated account lookup + runtime snapshot instead of briefly
@@ -311,6 +314,12 @@ class AroynRuntimeService {
       }
 
       if (!current()) return;
+      // An OPEN socket can silently stop delivering. Refresh it after a bounded
+      // quiet period; persisted HTTP snapshots are intentionally less frequent.
+      if (this.isLiveSocketOpenForSelected() &&
+          Date.now() - (this.wsLastSnapshotAt || this.wsConnectedAt) >= 30000) {
+        this.disconnectLive(false);
+      }
       if (!this.isLiveSocketOpenForSelected()) this.connectLive(gen);
       if (this.state.bridge.accountsLoaded && !this.isLiveHealthy()) await this.pollOnce(gen);
 
@@ -341,6 +350,7 @@ class AroynRuntimeService {
     this.wsAccountId = null;
     this.wsLastMessageAt = 0;
     this.wsLastSnapshotAt = 0;
+    this.wsConnectedAt = 0;
 
     if (socket) {
       try {
@@ -404,12 +414,14 @@ class AroynRuntimeService {
       if (!tokenResponse.ok || !tokenBody.token) throw new Error(tokenBody.error || `Live token API returned ${tokenResponse.status}`);
 
       const socket = new WebSocket(`${LIVE_WS_DEFAULT}?token=${encodeURIComponent(tokenBody.token)}`);
+      const assembler = new LiveSnapshotAssembler();
       this.ws = socket;
       this.wsAccountId = selected;
 
       socket.onopen = () => {
         if (socket !== this.ws || gen !== this.generation) return;
         this.wsReconnectAttempt = 0;
+        this.wsConnectedAt = Date.now();
         this.wsLastMessageAt = Date.now();
         this.state.bridge = { ...this.state.bridge, liveTransport: 'connected', error: null };
         this.emit();
@@ -429,10 +441,11 @@ class AroynRuntimeService {
           return;
         }
 
-        if (message?.type !== 'snapshot') return;
-        if (String(message?.player?.userId || '') !== selected) return;
+        message = assembler.accept(message, selected, Date.now());
+        if (!message) return;
 
         this.wsLastSnapshotAt = Date.now();
+        this.liveSnapshotRevision += 1;
         this.applyEnvelope({
           online: true,
           snapshot: message,
@@ -453,6 +466,7 @@ class AroynRuntimeService {
         this.wsAccountId = null;
         this.wsLastMessageAt = 0;
         this.wsLastSnapshotAt = 0;
+        this.wsConnectedAt = 0;
         this.state.bridge = { ...this.state.bridge, liveTransport: 'reconnecting' };
         this.emit();
         this.scheduleLiveReconnect(gen);
@@ -485,7 +499,10 @@ class AroynRuntimeService {
       if (!this.requestIsCurrent(ticket)) return false;
       if (!response.ok) throw new Error(body.error || `Accounts API returned ${response.status}`);
 
-      const accounts = Array.isArray(body.accounts) ? body.accounts : [];
+      const accounts = (Array.isArray(body.accounts) ? body.accounts : []).map(account =>
+        String(account.userId) === String(this.state.bridge.selectedRobloxUserId || '') && this.isLiveHealthy()
+          ? { ...account, online: true } : account
+      );
       const previous = String(this.state.bridge.selectedRobloxUserId || '');
       let selected = previous && accounts.some(account => String(account.userId) === previous) ? previous : null;
       if (!selected) {
@@ -601,6 +618,7 @@ class AroynRuntimeService {
     }
 
     const ticket = this.beginRequest('snapshot', gen, auth, selected);
+    ticket.liveRevision = this.liveSnapshotRevision;
     const started = performance.now();
     try {
       const endpoint = new URL(`${this.apiBase}/api/v2/runtime/snapshot`);
@@ -611,6 +629,9 @@ class AroynRuntimeService {
       });
 
       if (!this.requestIsCurrent(ticket)) return false;
+      // A live snapshot received during the fetch is newer than its persisted
+      // fallback. Never let that delayed body replace counters or online state.
+      if (ticket.liveRevision !== this.liveSnapshotRevision || (this.isLiveHealthy() && this.state.live)) return true;
       if (!response.ok) throw new Error(body.error || `API returned ${response.status}`);
       if (body.account && String(body.account.userId) !== selected) throw new Error('Runtime account response did not match the selected account.');
       if (body.snapshot?.player?.userId != null && String(body.snapshot.player.userId) !== selected) throw new Error('Runtime snapshot did not match the selected account.');
@@ -618,6 +639,7 @@ class AroynRuntimeService {
       return true;
     } catch (err) {
       if (!this.requestIsCurrent(ticket)) return false;
+      if (ticket.liveRevision !== this.liveSnapshotRevision || (this.isLiveHealthy() && this.state.live)) return true;
       const message = err instanceof Error ? err.message : String(err);
       this.state.bridge = { ...this.state.bridge, error: message };
       this.state.connection = this.state.live
@@ -637,7 +659,7 @@ class AroynRuntimeService {
 
     if (account) {
       const accounts = (this.state.bridge.accounts || []).map(item =>
-        String(item.userId) === String(account.userId) ? { ...item, ...account, online: online || item.online } : item
+        String(item.userId) === String(account.userId) ? { ...item, ...account, online } : item
       );
       this.state.bridge = { ...this.state.bridge, accounts, selectedRobloxUserId: String(account.userId) };
     }

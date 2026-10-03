@@ -7,7 +7,7 @@ import {spawnSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 import {luauTestRuntime} from '../tools/luau-test-runtime.mjs';
 const root=fileURLToPath(new URL('../',import.meta.url));
-const candidate=path.join(root,'apps/dashboard/releases/4.3.84/greedy-growers.luau');
+const candidate=path.join(root,'apps/dashboard/releases/4.3.85/greedy-growers.luau');
 const source=(await fs.readFile(candidate,'utf8')).replaceAll('\r\n','\n');
 const inner=source.split('local __fa_source=[===========[',2)[1]?.split(']===========]',1)[0];assert.ok(inner);
 const runtime=await luauTestRuntime();const temp=await fs.mkdtemp(path.join(os.tmpdir(),'aroyn-market-'));

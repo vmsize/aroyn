@@ -1,6 +1,6 @@
 {
   "schema": "aroyn-release-v1",
-  "version": "4.3.84",
-  "message": "Compost cancellation and dashboard session fixes. Run your saved loader again to update.",
+  "version": "4.3.85",
+  "message": "Large inventory telemetry and automatic dashboard recovery fixes. Run your saved loader again to update.",
   "gameId": 10440833423
 }

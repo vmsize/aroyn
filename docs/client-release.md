@@ -1,4 +1,4 @@
-# Aroyn Hub 4.3.84
+# Aroyn Hub 4.3.86
 
 The readable client and stable loader are included under `apps/dashboard`. Original code uses the repository's MIT license; embedded brand assets have separate terms.
 
@@ -10,7 +10,7 @@ loadstring(game:HttpGet("https://aroyn-staging.pages.dev/scripts/loader.luau"))(
 
 This downloads executable Luau. Read the source and use a compatible environment you already trust. This document does not distribute or recommend an executor. The loader supports Greedy Growers (GameId `10440833423`), checks the downloaded size and rejects HTML fallback responses before compiling. Other games return a warning without downloading the client. It reports download, compilation and startup failures.
 
-The saved launch command has no version. The stable loader reads `/scripts/version.json` without using account credentials, validates the version and downloads the corresponding immutable `/releases/<version>/greedy-growers.luau`. Updating the manifest selects a new release without changing the user command or loader. Source paths remain immutable; publish changed client bytes under a new version. `docs/release-4.3.84.json` records the current release hashes. HTTPS provides transport authentication; the loader does not independently verify that SHA-256 hash in the game environment.
+The saved launch command has no version. The stable loader reads `/scripts/version.json` without using account credentials, validates the version and downloads the corresponding immutable `/releases/<version>/greedy-growers.luau`. Updating the manifest selects a new release without changing the user command or loader. Source paths remain immutable; publish changed client bytes under a new version. `docs/release-4.3.86.json` records the current release hashes. HTTPS provides transport authentication; the loader does not independently verify that SHA-256 hash in the game environment.
 
 ## Settings migration
 
@@ -19,7 +19,7 @@ The saved launch command has no version. The stable loader reads `/scripts/versi
 - Existing key format and database/transport identifiers remain compatible. The free Worker hostname still contains the Cloudflare account name `veyra-hub`; changing the product name does not rename an account hostname.
 - Re-execution unloads the preceding Aroyn/legacy instance, disconnects transport and clears connections before replacing it. Legacy singleton aliases permit an older client to unload the new one as well.
 
-The release uses the restricted Aroyn staging API/live endpoints. Account and telemetry access remain limited to invited Discord accounts. Update checks are restored. After startup, and then every 30 minutes, the client checks the public static manifest and shows the original GUI header notice when a newer version is available. The check executes no downloaded code and writes no D1 rows. To update, rerun the same saved loader command; the existing singleton is unloaded before the new instance starts. An already running script is not forcibly replaced during a game action.
+Public beta opened on 2026-10-03 using the same Aroyn API/live endpoints; their staging names remain for URL compatibility. Discord sign-in is open, while account and telemetry data still require the user's own authorization. Update checks are restored. After startup, and then every 30 minutes, the client checks the public static manifest and shows the original GUI header notice when a newer version is available. The check executes no downloaded code and writes no D1 rows. To update, rerun the same saved loader command; the existing singleton is unloaded before the new instance starts. An already running script is not forcibly replaced during a game action. See [public beta rollout](public-beta-launch.md).
 
 ## Current update and cancellation verification
 

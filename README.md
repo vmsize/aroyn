@@ -38,13 +38,13 @@ The site is a static HTML/CSS/JavaScript deployment package; it does not include
 
 Local security, integration and data lifecycle checks passed on isolated synthetic data. A separate restricted HTTPS/WSS staging deployment was tested with its owner: Discord sign-in, live updates, export/deletion, reconnection and key revocation. An isolated cloud Cron test passed 17 retention/concurrency checks using a fixture clock. The profile menu provides **Account data** for export and deletion; retention is 30 days for history and 7 days for snapshots without updates. See [account data](docs/account-data.md) for setup, scope and concurrency limits.
 
-This is an initial source publication. General registration is still restricted. Larger-scale lifecycle testing and final provider/privacy review remain before wider service access. See [release status](STATUS.md). The [usage evidence](docs/usage.md) contains aggregate figures and their definitions.
+The maintainer opened public beta registration on 2026-10-03. Discord sign-in no longer requires a test invitation; account data and owner analytics remain private. This is not a guarantee of public-scale capacity or legal compliance. See [public beta rollout](docs/public-beta-launch.md), [release status](STATUS.md) and [usage evidence](docs/usage.md).
 
-## Current restricted test and client
+## Current public beta and client
 
 - [Website](https://aroyn-staging.pages.dev/) · [Service status](https://aroyn-staging.pages.dev/status/)
 - [Owner analytics](https://aroyn-staging.pages.dev/admin/): private data requires the configured owner account; a public HTML route grants no data access.
-- The homepage copies the published launch command. It does not execute code in the browser. The script can run independently; dashboard data access remains restricted to invited accounts.
+- The homepage copies the published launch command. It does not execute code in the browser. The script can run independently; dashboard access requires Discord sign-in and shows only the user's own linked runtime data.
 
 See [client release](docs/client-release.md) for saved-setting migration, compatible endpoints, hashes and test scope. No custom domain is required. For a fork, update the loader base and client endpoints before advertising your own launch command.
 

@@ -1,5 +1,24 @@
 # Source package status â€” 2026-10-03
 
+## Public beta opened — 2026-10-03
+
+The owner explicitly approved opening general registration. STAGING_ACCESS was
+removed from both existing API/live services; every other binding and existing
+Durable Object namespace identity was preserved. Deletion ledger remains required,
+the daily cleanup Cron is unchanged, and the allowlist secret is retained for
+rollback. Client 4.3.86 and the stable loader are unchanged. The public site serves
+beta notices, and the old Veyra site now serves a migration page on its home,
+dashboard and owner routes. Twenty-five published asset, service, OAuth and
+unauthenticated-private-endpoint checks passed. A first real Discord sign-in
+outside the previous allowlist awaits owner confirmation; public-load quota
+observations are separate from the completed restricted-load gate.
+
+The owner will publish/update ScriptBlox after launch. The legacy loader/API/live
+service remain unchanged until that listing is ready. See
+[rollout and limits](docs/public-beta-launch.md). Older restricted/pending statements
+below are historical; the owner has confirmed telemetry, account switching and
+Auto Compost cancellation for 4.3.86.
+
 ## Current release: 4.3.86 paced telemetry
 
 4.3.85 did not solve the owner's real executor disconnect. Single ~40 KB

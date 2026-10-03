@@ -1,4 +1,4 @@
-# Aroyn Hub 4.3.83
+# Aroyn Hub 4.3.84
 
 The readable client and stable loader are included under `apps/dashboard`. Original code uses the repository's MIT license; embedded brand assets have separate terms.
 
@@ -10,7 +10,7 @@ loadstring(game:HttpGet("https://aroyn-staging.pages.dev/scripts/loader.luau"))(
 
 This downloads executable Luau. Read the source and use a compatible environment you already trust. This document does not distribute or recommend an executor. The loader supports Greedy Growers (GameId `10440833423`), checks the downloaded size and rejects HTML fallback responses before compiling. Other games return a warning without downloading the client. It reports download, compilation and startup failures.
 
-The saved launch command has no version. The stable loader reads `/scripts/version.json` without using account credentials, validates the version and downloads the corresponding immutable `/releases/<version>/greedy-growers.luau`. Updating the manifest selects a new release without changing the user command or loader. Source paths remain immutable; publish changed client bytes under a new version. `docs/release-4.3.83.json` records candidate hashes. HTTPS provides transport authentication; the loader does not independently verify that SHA-256 hash in the game environment.
+The saved launch command has no version. The stable loader reads `/scripts/version.json` without using account credentials, validates the version and downloads the corresponding immutable `/releases/<version>/greedy-growers.luau`. Updating the manifest selects a new release without changing the user command or loader. Source paths remain immutable; publish changed client bytes under a new version. `docs/release-4.3.84.json` records the current candidate hashes. HTTPS provides transport authentication; the loader does not independently verify that SHA-256 hash in the game environment.
 
 ## Settings migration
 
@@ -46,3 +46,7 @@ Prepare the new client with its matching UpdateVersion, keep earlier release fil
 Compost, Pet Drops and Leaves bind yielding work to the feature enable cycle and client generation. Disable, off/on and Stop discard old continuations, retries and confirmations. Teleport cleanup is idempotent and cannot restore an old position over a newer task. A cancelled claim is released without clearing a newer claim. The shared automation watchdog cancels stale ownership before handing it to another worker. An already sent game request cannot be recalled.
 
 This version is published on restricted staging: code commit `7dbff7b6122f33814cc057e290389bb7ecc2f6e8` passed hosted CI (25 suites); Pages `2c234f16-c1b1-4ee9-a178-85c43f5597f0` serves the verified assets. Nine asset byte/header checks and five service/login/guest checks passed. See [rollout evidence](client-auth-rollout-2026-10-03.json). The stable launch command and GUI update check remain unchanged. No real game execution of 4.3.83 has been performed.
+
+## 4.3.84 prompt cancellation and session cleanup
+
+The current local candidate closes three residual independent-review findings: cancelled Compost fallbacks after a prompt error, cross-tab session replacement/tokenless exchange fencing, and hidden revealed-key DOM cleanup. All 28 suites passed, including 57 new focused scenarios. The stable loader and GUI update checks are preserved; immutable earlier versions remain unchanged. See [corrections and owner check](independent-recheck-fixes.md). Publication and owner game checks are pending for 4.3.84. The earlier 4.3.83 publication evidence above is historical.

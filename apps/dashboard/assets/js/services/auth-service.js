@@ -13,12 +13,21 @@ class AroynAuthService{
     this.initPromise=null;
     this.generation=0;
     window.addEventListener('storage',event=>{
-      if((event.key==='aroyn.auth.session'||event.key==='veyra.auth.session'||event.key===null)&&this.token&&(event.newValue===null||event.newValue==='')){
-        this.generation+=1;
-        storage.setRaw('auth.session','');
-        this.token='';this.user=null;this.status='guest';this.emit();
-        window.dispatchEvent(new CustomEvent('aroyn:auth-logout'));
-      }
+      if(event.key!=='aroyn.auth.session'&&event.key!=='veyra.auth.session'&&event.key!==null)return;
+      if(event.storageArea&&event.storageArea!==localStorage)return;
+      // Storage events can queue behind a newer write. Never replay an obsolete
+      // event over the session now stored by another tab.
+      if(event.key&&typeof localStorage.getItem==='function'&&localStorage.getItem(event.key)!==event.newValue)return;
+      const next=event.key===null?'':String(event.newValue||'');
+      if(next===this.token&&(next||this.status!=='loading'))return;
+      this.generation+=1;
+      // Older tabs write only the legacy key. Mirror it only while the current
+      // key still contains the replaced value, preserving any newer session.
+      if(event.key==='veyra.auth.session'&&typeof localStorage.getItem==='function'&&localStorage.getItem('aroyn.auth.session')===event.oldValue)storage.setRaw('auth.session',next);
+      this.initPromise=null;
+      this.token='';this.user=null;this.status='guest';this.emit();
+      // The shell reloads from shared storage; do not erase a replacement token.
+      window.dispatchEvent(new CustomEvent('aroyn:auth-logout'));
     });
   }
   subscribe(fn){this.listeners.add(fn);return()=>this.listeners.delete(fn)}

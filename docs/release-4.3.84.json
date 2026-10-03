@@ -1,0 +1,25 @@
+{
+  "version": "4.3.84",
+  "date": "2026-10-03",
+  "status": "locally verified; restricted staging publication pending",
+  "stableLaunchUrl": "https://aroyn-staging.pages.dev/scripts/loader.luau",
+  "updateManifestUrl": "https://aroyn-staging.pages.dev/scripts/version.json",
+  "gameCheck": "Owner checks of prior releases do not establish executor behavior of 4.3.84; owner check pending.",
+  "files": [
+    {
+      "path": "apps/dashboard/releases/4.3.84/greedy-growers.luau",
+      "bytes": 584306,
+      "sha256": "b2b4a3e7fbf590520390e14b1bae83529a09fbb9c9a3e82bad5c0208ac2a98b4"
+    },
+    {
+      "path": "apps/dashboard/scripts/loader.luau",
+      "bytes": 2040,
+      "sha256": "8478d04460ce3eb9354b16290ab13c63b71cbf2c1327b84fbc76cc4d8d43df88"
+    },
+    {
+      "path": "apps/dashboard/scripts/version.json",
+      "bytes": 188,
+      "sha256": "c543d80b37f5413083516e1cb7f793c4c690bcc4e4f27eb74d44cb4405a55d6f"
+    }
+  ]
+}

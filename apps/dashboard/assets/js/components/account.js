@@ -19,7 +19,7 @@ export function mountAccount(){
   let panel=document.querySelector('.account-panel');
   if(!panel){panel=document.createElement('section');panel.className='account-panel';panel.dataset.open='false';panel.setAttribute('aria-label','Aroyn account');document.body.append(panel)}
 
-  let lastKey='';let confirmReplace=false;
+  let lastKey='';let confirmReplace=false;let renderedUserId=null;let renderedToken='';
 
   const disclosure = mountDisclosure({ trigger, panel, id: 'aroyn-account-panel' });
   const close=()=>{disclosure.close();confirmReplace=false};
@@ -90,7 +90,14 @@ export function mountAccount(){
     }catch(err){if(err?.code==='AUTH_CHANGED')return;toast('Dashboard key error',err instanceof Error?err.message:String(err),'danger');renderPanel(authService.getSnapshot())}
   }
 
-  const sync=snap=>{if(snap.status==='guest'){lastKey='';confirmReplace=false;close()}renderTrigger(snap);if(panel.dataset.open==='true')renderPanel(snap)};
+  const sync=snap=>{
+    const identityChanged=(snap.user?.id||null)!==renderedUserId||(snap.token||'')!==renderedToken;
+    renderedUserId=snap.user?.id||null;renderedToken=snap.token||'';
+    const clear=snap.status==='guest'||identityChanged;
+    if(clear){lastKey='';confirmReplace=false;close()}
+    renderTrigger(snap);
+    if(clear||panel.dataset.open==='true')renderPanel(snap);
+  };
   sync(authService.getSnapshot());authService.subscribe(sync);authService.init();
   return{trigger,panel};
 }

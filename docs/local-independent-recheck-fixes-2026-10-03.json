@@ -1,0 +1,202 @@
+{
+  "at": "2026-10-03T09:18:53.903572+00:00",
+  "fullGate": {
+    "at": "2026-10-03T09:14:09.377148+00:00",
+    "exitCode": 0,
+    "suiteCount": 28,
+    "suites": [
+      "client-updates-check",
+      "market-cancellation-check",
+      "compost-cancellation-check",
+      "compost-prompt-cancellation-check",
+      "neighbor-cancellation-check",
+      "auth-ui-race-check",
+      "auth-storage-check",
+      "account-key-cleanup-check",
+      "web-check",
+      "accessibility-ui-check",
+      "deployment-config-check",
+      "dashboard-stability-check",
+      "check",
+      "security-check",
+      "data-check",
+      "snapshot-race-check",
+      "access-check",
+      "hibernation-check",
+      "retention-check",
+      "recovery-check",
+      "mutation-race-check",
+      "deletion-ledger-check",
+      "ledger-cutover-check",
+      "write-budget-check",
+      "usage-report-check",
+      "p1-regression-check",
+      "auth-revocation-check",
+      "analytics-deletion-check"
+    ],
+    "isolated": true
+  },
+  "finalUpdateNoticeCheck": {
+    "passed": true,
+    "scope": "Manifest notice text only; actual loader/update/GUI functions rerun after full gate."
+  },
+  "testedFiles": [
+    {
+      "path": "apps/dashboard/assets/js/services/auth-service.js",
+      "sha256": "8fee93444ecae3e97ca1028333c512beb9e3d468ab68e0698f7e13dd4b2d552f"
+    },
+    {
+      "path": "apps/dashboard/assets/js/components/account.js",
+      "sha256": "213bfffa119dbcad2a91883c77e98cf716a66ed4f69dd04fcd0ceb9e786a0de0"
+    },
+    {
+      "path": "apps/dashboard/scripts/version.json",
+      "sha256": "c543d80b37f5413083516e1cb7f793c4c690bcc4e4f27eb74d44cb4405a55d6f"
+    },
+    {
+      "path": "apps/dashboard/releases/4.3.84/greedy-growers.luau",
+      "sha256": "b2b4a3e7fbf590520390e14b1bae83529a09fbb9c9a3e82bad5c0208ac2a98b4"
+    },
+    {
+      "path": "tests/run.mjs",
+      "sha256": "26abc2366a9eb4dfcf5db1a26ce481cf48d4253c8722676892e3f35d49ed1670"
+    },
+    {
+      "path": "tests/auth-storage-check.mjs",
+      "sha256": "abaa1b22bd6261e2b4c7075c33e787514ed8201e4dfe9fe2a2810215db422b06"
+    },
+    {
+      "path": "tests/account-key-cleanup-check.mjs",
+      "sha256": "099647045d554abeff80f7144d16bb6b22beee44be94892d93ec27763a693b88"
+    },
+    {
+      "path": "tests/compost-prompt-cancellation-check.mjs",
+      "sha256": "4aa0e93324e649f249790e9135be2b2374da7556a65d55686fd98c2862ddf39f"
+    },
+    {
+      "path": "tests/compost-cancellation-check.mjs",
+      "sha256": "2e3e0f4a5b6792298bfe716e217315a29859d5713e72981e51ec705b322b41cf"
+    },
+    {
+      "path": "tests/neighbor-cancellation-check.mjs",
+      "sha256": "e74d7a20a1f81978fc0dcee7a84de58cc2317d81c982db63f205f4b542e26f73"
+    },
+    {
+      "path": "tests/market-cancellation-check.mjs",
+      "sha256": "41cf33e86c6aa4f94a4a6b27649359c370d0832c2320a8d238b7a9839268f6fc"
+    },
+    {
+      "path": "tests/client-updates-check.mjs",
+      "sha256": "db60682f3a4061b4ead44dea642904e5d29040dbf5c46bf1536b6a84c49e63bc"
+    }
+  ],
+  "newFocusedChecks": {
+    "auth-storage": {
+      "passed": 24,
+      "checks": [
+        "aroyn.auth.session: init rejects late response after replacement",
+        "aroyn.auth.session: init rejects late response after logout",
+        "aroyn.auth.session: refresh rejects late response after replacement",
+        "aroyn.auth.session: refresh rejects late response after logout",
+        "aroyn.auth.session: exchange rejects late response after replacement",
+        "aroyn.auth.session: exchange rejects late response after logout",
+        "aroyn.auth.session: key rejects late response after replacement",
+        "aroyn.auth.session: key rejects late response after logout",
+        "veyra.auth.session: init rejects late response after replacement",
+        "veyra.auth.session: init rejects late response after logout",
+        "veyra.auth.session: refresh rejects late response after replacement",
+        "veyra.auth.session: refresh rejects late response after logout",
+        "veyra.auth.session: exchange rejects late response after replacement",
+        "veyra.auth.session: exchange rejects late response after logout",
+        "veyra.auth.session: key rejects late response after replacement",
+        "veyra.auth.session: key rejects late response after logout",
+        "aroyn.auth.session: same nonempty token preserves an ordinary refresh",
+        "veyra.auth.session: same nonempty token preserves an ordinary refresh",
+        "storage.clear invalidates tokenless exchange",
+        "null removal invalidates tokenless exchange",
+        "legacy update preserves a newer canonical session",
+        "obsolete queued storage event cannot erase a later session",
+        "sessionStorage and unrelated keys do not invalidate local auth",
+        "cleared then reused token cannot revive an old refresh"
+      ],
+      "scope": "Actual auth and storage modules in VM; synthetic browser-like storage events and deferred JSON. No real sessions or network."
+    },
+    "account-key-cleanup": {
+      "passed": 7,
+      "checks": [
+        "local logout",
+        "cross-tab logout",
+        "local account clear",
+        "new user",
+        "same user new session",
+        "closed panel logout",
+        "ordinary same-identity refresh keeps the freshly generated key available"
+      ],
+      "scope": "Actual account/disclosure modules in LinkeDOM; synthetic identities and key, without browser or API."
+    },
+    "compost-prompt-cancellation": {
+      "passed": 26,
+      "checks": [
+        "first-error disable starts no new interaction",
+        "first-error off-on starts no new interaction",
+        "first-error stop starts no new interaction",
+        "second-error disable starts no new interaction",
+        "second-error off-on starts no new interaction",
+        "second-error stop starts no new interaction",
+        "first-success disable starts no new interaction",
+        "first-success off-on starts no new interaction",
+        "first-success stop starts no new interaction",
+        "hold-only disable releases hold without another attempt",
+        "hold-only off-on releases hold without another attempt",
+        "hold-only stop releases hold without another attempt",
+        "hold-error disable releases hold without another attempt",
+        "hold-error off-on releases hold without another attempt",
+        "hold-error stop releases hold without another attempt",
+        "wait-error disable releases hold without another attempt",
+        "wait-error off-on releases hold without another attempt",
+        "wait-error stop releases hold without another attempt",
+        "key-error disable releases accepted keypress",
+        "key-error off-on releases accepted keypress",
+        "key-error stop releases accepted keypress",
+        "first-success ordinary interaction succeeds",
+        "second-error ordinary interaction succeeds",
+        "hold-only ordinary interaction succeeds",
+        "hold-error ordinary interaction succeeds",
+        "already cancelled token sends nothing"
+      ],
+      "client": "4.3.84",
+      "luauVersion": "0.740",
+      "scope": "Actual triggerCompostPrompt and token predicates; synthetic yielding/error prompt/hold/key operations. No executor or game execution."
+    }
+  },
+  "release": {
+    "version": "4.3.84",
+    "date": "2026-10-03",
+    "status": "locally verified; restricted staging publication pending",
+    "stableLaunchUrl": "https://aroyn-staging.pages.dev/scripts/loader.luau",
+    "updateManifestUrl": "https://aroyn-staging.pages.dev/scripts/version.json",
+    "gameCheck": "Owner checks of prior releases do not establish executor behavior of 4.3.84; owner check pending.",
+    "files": [
+      {
+        "path": "apps/dashboard/releases/4.3.84/greedy-growers.luau",
+        "bytes": 584306,
+        "sha256": "b2b4a3e7fbf590520390e14b1bae83529a09fbb9c9a3e82bad5c0208ac2a98b4"
+      },
+      {
+        "path": "apps/dashboard/scripts/loader.luau",
+        "bytes": 2040,
+        "sha256": "8478d04460ce3eb9354b16290ab13c63b71cbf2c1327b84fbc76cc4d8d43df88"
+      },
+      {
+        "path": "apps/dashboard/scripts/version.json",
+        "bytes": 188,
+        "sha256": "c543d80b37f5413083516e1cb7f793c4c690bcc4e4f27eb74d44cb4405a55d6f"
+      }
+    ]
+  },
+  "limitations": [
+    "Synthetic browser storage/DOM and game/executor operations; no real browser or game controlled.",
+    "Runtime-dependent yielding/error cases need owner smoke testing.",
+    "No Workers, D1 migrations, account/key operations or registration settings changed."
+  ]
+}

@@ -3,7 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import {spawnSync} from 'node:child_process';
 import {luauTestRuntime} from '../tools/luau-test-runtime.mjs';
-const src=(await fs.readFile(new URL('../apps/dashboard/releases/4.3.83/greedy-growers.luau',import.meta.url),'utf8')).replaceAll('\r\n','\n');
+const src=(await fs.readFile(new URL('../apps/dashboard/releases/4.3.84/greedy-growers.luau',import.meta.url),'utf8')).replaceAll('\r\n','\n');
 const cut=(a,b)=>{const i=src.indexOf(a),j=src.indexOf(b,i+1);if(i<0||j<0)throw Error('Extraction failed');return src.slice(i,j)};
 const functions=cut('function FarmRuntime.featureOperationToken(', 'function FarmRuntime.beginCompostTeleport(')+cut('function FarmRuntime.schedulePetSeedWorker()','function FarmRuntime.isLeafPile(')+cut('function FarmRuntime.scheduleLeafWorker()','function FarmRuntime.clearOwnPlotConnections()')+cut('function FarmRuntime.invalidatePetSeedQueue()','function FarmRuntime.petSeedEligibility(')+cut('function FarmRuntime.invalidateLeafQueue()','function FarmRuntime.leafEligibility(');
 const harness=String.raw`

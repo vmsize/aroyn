@@ -1,0 +1,44 @@
+{
+  "collectedAt": "2026-10-03T06:24:30Z",
+  "source": "Cloudflare GraphQL d1AnalyticsAdaptiveGroups",
+  "closedUtcDay": "2026-10-02",
+  "rowsWritten": 7749,
+  "rowsRead": 117635,
+  "stagingRowsWritten": 209,
+  "stagingRowsRead": 31208,
+  "writeLimitPercent": 7.749,
+  "readLimitPercent": 2.3527,
+  "gate": "passed-for-observed-restricted-test-load",
+  "limits": {
+    "rowsWrittenPerUtcDay": 100000,
+    "rowsReadPerUtcDay": 5000000,
+    "source": "https://developers.cloudflare.com/d1/platform/pricing/"
+  },
+  "limitations": [
+    "Provider analytics can lag.",
+    "Current day 2026-10-03 is partial.",
+    "This does not prove public-scale capacity or enforce a global spending cap."
+  ],
+  "ordinaryScheduledMaintenance": {
+    "collectedAt": "2026-10-03T06:24:04.460Z",
+    "startedUtc": "2026-10-03T03:17:45.780Z",
+    "completedUtc": "2026-10-03T03:20:07.632Z",
+    "scheduledCycleGate": "passed",
+    "evidenceScope": "Persisted native runner completion after the expected ordinary Cron. No start/pause/resume/initialize call was made during this check.",
+    "temporaryInspectorRemovalConfirmed": true
+  },
+  "maintenanceOutcome": {
+    "active": false,
+    "completedAt": 1790997607632,
+    "now": 1790997465780,
+    "steps": 14,
+    "snapshotsRemoved": 0,
+    "objectsVisited": 2,
+    "rowsRemoved": 6,
+    "pendingDeletions": 0,
+    "ledgerRemoved": 0,
+    "followupRequested": false,
+    "failures": 0,
+    "paused": false
+  }
+}

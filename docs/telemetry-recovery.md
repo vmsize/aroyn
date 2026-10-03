@@ -1,6 +1,6 @@
 # Large-inventory telemetry and dashboard recovery
 
-The 4.3.85 candidate keeps the complete JSON snapshot and sends large snapshots
+Published 4.3.85 keeps the complete JSON snapshot and sends large snapshots
 as bounded `snapshot` envelopes with `transport.encoding=json-fragments-v1`.
 Each envelope retains the authenticated player/session/product metadata used by
 the existing relay. The dashboard assembles up to 16 parts, at most 256 KiB,

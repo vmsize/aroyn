@@ -50,3 +50,13 @@ This version is published on restricted staging: code commit `7dbff7b6122f33814c
 ## 4.3.84 prompt cancellation and session cleanup
 
 The current published release closes three residual independent-review findings: cancelled Compost fallbacks after a prompt error, cross-tab session replacement/tokenless exchange fencing, and hidden revealed-key DOM cleanup. All 28 suites passed, including 57 new focused scenarios. The stable loader and GUI update checks are preserved; immutable earlier versions remain unchanged. See [corrections and owner check](independent-recheck-fixes.md). Code `3b58d21ffadd4c070737a545babfd256b2861a89` passed hosted CI (28 suites); Pages `a56c1b90-03ea-4075-8458-372a1b8081d2` passed ten asset/header checks and five service/login/guest probes. See [rollout evidence](independent-recheck-rollout-2026-10-03.json). Owner game checks are pending for 4.3.84. The earlier 4.3.83 publication evidence above is historical.
+
+## 4.3.85 large inventory and dashboard recovery
+
+Current immutable release: `4.3.85`. The saved loader is unchanged. Large JSON
+snapshots use bounded frames without dropping inventory rows or session counters.
+The dashboard reconstructs only complete, matching snapshots and recovers stalled
+connections. All 30 suites are verified locally and hosted CI passed; static
+deployment bytes/headers were checked. The owner still needs to confirm the full
+4.3.85 fragmentation path in the executor. See [scope](telemetry-recovery.md),
+`release-4.3.85.json`, and `telemetry-rollout-2026-10-03.json`.

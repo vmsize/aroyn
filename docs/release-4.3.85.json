@@ -1,7 +1,7 @@
 {
   "version": "4.3.85",
   "date": "2026-10-03",
-  "status": "candidate; restricted publication pending",
+  "status": "published on restricted staging; owner full-fragmentation smoke pending",
   "stableLaunchUrl": "https://aroyn-staging.pages.dev/scripts/loader.luau",
   "updateManifestUrl": "https://aroyn-staging.pages.dev/scripts/version.json",
   "gameCheck": "Owner smoke of full fragmentation pending. Authorized compact-send diagnostic succeeded and was restored.",
@@ -20,6 +20,18 @@
       "path": "apps/dashboard/scripts/version.json",
       "bytes": 210,
       "sha256": "9f19cf85094d24f1cbf6e29a1ae60c790fd61700b4433937e16bb4c3a6a09174"
+    }
+  ],
+  "pagesDeployment": "6981757d-0d2c-4af9-8c2b-7d5b61e4f13b",
+  "testedCodeCommit": "c1acdfb0bfe8f0b80fbb6e4cf0b9057f09053cbf",
+  "hostedCi": [
+    {
+      "id": 37120779831,
+      "url": "https://github.com/vmsize/aroyn/actions/runs/37120779831",
+      "name": "Synthetic checks",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "c1acdfb0bfe8f0b80fbb6e4cf0b9057f09053cbf"
     }
   ]
 }

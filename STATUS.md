@@ -1,5 +1,21 @@
 # Source package status â€” 2026-10-03
 
+## Current release: 4.3.85 telemetry recovery
+
+Published to restricted staging after 30 verified local suites and hosted CI.
+Large inventory snapshots are preserved as bounded frames and assembled before
+dashboard application. Delayed HTTP replies cannot overwrite fresh telemetry;
+stalled open sockets reconnect automatically. Native relay/hibernation tests
+preserve coarse ownership/presence checkpoints. Workers and persistence
+intervals were not changed. See [telemetry scope](docs/telemetry-recovery.md) and
+[rollout](docs/telemetry-rollout-2026-10-03.json).
+
+The owner confirmed 4.3.84 cross-tab logout. Compost's script-driven count grows;
+the remaining report was telemetry delivery with a large inventory. An authorized
+20-second compact-send trial received relay acknowledgments and restored the
+original function. Full 4.3.85 executor/website smoke remains pending. Earlier
+release headings below are historical. General registration is still restricted.
+
 ## Current published correction: independent recheck findings
 
 IR-01/IR-02 (P2) and IR-03 (P3) are corrected and published on restricted staging. Client 4.3.84 prevents cancelled prompt-error continuations from beginning a new Compost fallback, while accepted holds/key presses still receive cleanup. Cross-tab session changes invalidate late auth work, including tokenless exchange; hidden account panels discard revealed keys on guest or identity/session changes. The isolated gate passed 28 suites and 57 new focused scenarios; the final manifest notice passed an additional loader/update check. Earlier immutable clients and the versionless loader remain unchanged. See [scope and owner checks](docs/independent-recheck-fixes.md) and [local evidence](docs/local-independent-recheck-fixes-2026-10-03.json). Code `3b58d21ffadd4c070737a545babfd256b2861a89` passed hosted CI (28 suites); Pages `a56c1b90-03ea-4075-8458-372a1b8081d2` passed ten asset/header checks and five service/login/guest probes. See [rollout](docs/independent-recheck-rollout-2026-10-03.json). Owner two-tab and game smoke checks remain pending for 4.3.84. General registration remains restricted.

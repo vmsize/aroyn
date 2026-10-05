@@ -1,5 +1,5 @@
 {
-  "version": "4.3.88",
+  "version": "4.3.89",
   "passed": 14,
   "checks": [
     "unlinked first send uses acknowledged WebSocket without HTTPS or URL credentials",

@@ -66,7 +66,7 @@ const ANALYTICS_SESSION_CHECKPOINT_MS = 15 * 60 * 1000;
 // cached for minutes, not seconds, and overlay live/recent data separately.
 // This keeps the dashboard responsive while avoiding repeated full-table scans.
 const OWNER_ANALYTICS_CACHE_MS = 30 * 60 * 1000;
-const OWNER_ANALYTICS_CACHE_VERSION = 2;
+const OWNER_ANALYTICS_CACHE_VERSION = 3;
 const OWNER_ANALYTICS_REALTIME_CACHE_MS = 10 * 1000;
 const OWNER_USER_DIRECTORY_CACHE_MS = 30 * 60 * 1000;
 
@@ -310,6 +310,8 @@ async function ensureAnalyticsSchema(env) {
         place_id TEXT,
         game_slug TEXT,
         device TEXT,
+        executor_name TEXT,
+        executor_version TEXT,
         started_at INTEGER NOT NULL,
         last_seen_at INTEGER NOT NULL,
         dashboard_linked INTEGER NOT NULL DEFAULT 0
@@ -763,6 +765,13 @@ function cleanAnalyticsText(value, maxLength = 64) {
   return text ? text.slice(0, maxLength) : null;
 }
 
+// Optional client-reported diagnostics, never an identity or authorization proof.
+function cleanExecutorText(value, maxLength = 64) {
+  if (typeof value !== "string") return null;
+  const text = value.slice(0, 256).replace(/[^\x20-\x7e]/g, " ").replace(/\s+/g, " ").trim();
+  return !text || /^(unknown|nil|null|undefined)$/i.test(text) ? null : text.slice(0, maxLength);
+}
+
 async function upsertAnalyticsSession(
   env,
   {
@@ -775,6 +784,8 @@ async function upsertAnalyticsSession(
     placeId = null,
     gameSlug = null,
     device = null,
+    executorName = null,
+    executorVersion = null,
   },
 ) {
   await ensureAnalyticsSchema(env);
@@ -790,6 +801,8 @@ async function upsertAnalyticsSession(
     placeId: cleanAnalyticsText(placeId, 32),
     gameSlug: cleanAnalyticsText(gameSlug, 64),
     device: cleanAnalyticsText(device, 24),
+    executorName: cleanExecutorText(executorName),
+    executorVersion: cleanExecutorText(executorName) ? cleanExecutorText(executorVersion, 32) : null,
     dashboardLinked: dashboardLinked ? 1 : 0,
   };
 
@@ -810,8 +823,10 @@ async function upsertAnalyticsSession(
         device,
         started_at,
         last_seen_at,
-        dashboard_linked
-      ) SELECT ?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?8, ?9
+        dashboard_linked,
+        executor_name,
+        executor_version
+      ) SELECT ?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?8, ?9, ?12, ?13
       WHERE ?9 = 0 OR EXISTS (
         SELECT 1 FROM runtime_session_owners o JOIN users u ON u.id=o.veyra_user_id
         WHERE o.session_id=?1 AND o.roblox_user_id=?2 AND u.id=?11
@@ -852,6 +867,14 @@ async function upsertAnalyticsSession(
             excluded.device,
             analytics_sessions.device
           ),
+
+        executor_name = COALESCE(excluded.executor_name, analytics_sessions.executor_name),
+        executor_version = CASE
+          WHEN excluded.executor_name IS NULL THEN analytics_sessions.executor_version
+          WHEN excluded.executor_name = analytics_sessions.executor_name
+            THEN COALESCE(excluded.executor_version, analytics_sessions.executor_version)
+          ELSE excluded.executor_version
+        END,
 
         last_seen_at =
           excluded.last_seen_at,
@@ -895,6 +918,9 @@ async function upsertAnalyticsSession(
           AND analytics_sessions.dashboard_linked <> 1
         )
 
+        OR (excluded.executor_name IS NOT NULL AND COALESCE(analytics_sessions.executor_name, '') <> excluded.executor_name)
+        OR (excluded.executor_name IS NOT NULL AND excluded.executor_version IS NOT NULL
+          AND COALESCE(analytics_sessions.executor_version, '') <> excluded.executor_version)
         OR analytics_sessions.last_seen_at <= ?10
         )
     `,
@@ -911,6 +937,8 @@ async function upsertAnalyticsSession(
       normalized.dashboardLinked,
       checkpointBefore,
       userId,
+      normalized.executorName,
+      normalized.executorVersion,
     )
     .run();
 
@@ -1200,7 +1228,11 @@ async function getCachedOwnerUserDirectory(env) {
           WHERE latest.roblox_user_id = s.roblox_user_id
           ORDER BY latest.started_at DESC
           LIMIT 1
-        ), 'unknown') AS device
+        ), 'unknown') AS device,
+        (SELECT latest.executor_name FROM analytics_sessions latest
+          WHERE latest.roblox_user_id = s.roblox_user_id ORDER BY latest.started_at DESC LIMIT 1) AS executor_name,
+        (SELECT latest.executor_version FROM analytics_sessions latest
+          WHERE latest.roblox_user_id = s.roblox_user_id ORDER BY latest.started_at DESC LIMIT 1) AS executor_version
       FROM analytics_sessions s
       GROUP BY s.roblox_user_id
       ORDER BY first_seen_at ASC, s.roblox_user_id ASC
@@ -1230,6 +1262,8 @@ async function getCachedOwnerUserDirectory(env) {
         online: false,
         dashboardLinked: Number(row.dashboard_linked || 0) === 1,
         device: String(row.device || "unknown").toLowerCase(),
+        executorName: cleanExecutorText(row.executor_name),
+        executorVersion: cleanExecutorText(row.executor_version, 32),
       };
     })
     .filter((row) => Boolean(row.userId));
@@ -1427,6 +1461,13 @@ async function getOwnerAnalytics(env, rangeValue, timezoneOffsetMinutes = 0) {
     .bind(start)
     .all();
 
+  const executorResult = await env.DB.prepare(`
+    SELECT COALESCE(NULLIF(executor_name, ''), 'Unknown') AS label,
+      COUNT(*) AS launches, COUNT(DISTINCT roblox_user_id) AS users
+    FROM analytics_sessions WHERE started_at >= ?1
+    GROUP BY label ORDER BY launches DESC LIMIT 10
+  `).bind(start).all();
+
   const deviceResult = await env.DB.prepare(
     `
     SELECT
@@ -1566,6 +1607,9 @@ async function getOwnerAnalytics(env, rangeValue, timezoneOffsetMinutes = 0) {
       launches: Number(row.launches || 0),
       users: Number(row.users || 0),
     })),
+    executors: resultRows(executorResult).map((row) => ({
+      label: String(row.label || "Unknown"), launches: Number(row.launches || 0), users: Number(row.users || 0),
+    })),
     devices: resultRows(deviceResult).map((row) => ({
       label: String(row.label || "unknown"),
       launches: Number(row.launches || 0),
@@ -1597,6 +1641,8 @@ async function overlayOwnerRealtimeAnalytics(env, baseAnalytics) {
           place_id,
           game_slug,
           device,
+          executor_name,
+          executor_version,
           started_at,
           last_seen_at,
           dashboard_linked
@@ -1618,7 +1664,9 @@ async function overlayOwnerRealtimeAnalytics(env, baseAnalytics) {
           a.game_id,
           a.place_id,
           a.game_slug,
-          a.device
+          a.device,
+          a.executor_name,
+          a.executor_version
         FROM runtime_presence p
         LEFT JOIN analytics_sessions a
           ON a.session_id = p.session_id
@@ -1703,6 +1751,8 @@ async function overlayOwnerRealtimeAnalytics(env, baseAnalytics) {
       placeId: row.place_id == null ? null : String(row.place_id),
       gameSlug: row.game_slug == null ? null : String(row.game_slug),
       device: row.device == null ? null : String(row.device),
+      executorName: cleanExecutorText(row.executor_name),
+      executorVersion: cleanExecutorText(row.executor_version, 32),
       startedAt: Number(row.started_at || 0),
       lastSeenAt: Number(row.last_seen_at || 0),
       dashboardLinked: Number(row.dashboard_linked || 0) === 1,
@@ -1725,6 +1775,8 @@ async function overlayOwnerRealtimeAnalytics(env, baseAnalytics) {
       placeId: row.place_id == null ? null : String(row.place_id),
       gameSlug: row.game_slug == null ? null : String(row.game_slug),
       device: row.device == null ? null : String(row.device),
+      executorName: cleanExecutorText(row.executor_name),
+      executorVersion: cleanExecutorText(row.executor_version, 32),
       startedAt: Number(row.started_at || 0),
       lastSeenAt: Number(row.last_seen_at || 0),
       dashboardLinked: Number(row.dashboard_linked || 0) === 1,
@@ -2802,6 +2854,8 @@ async function handleRuntimePresence(request, env, {rateLimit = true, proofStore
       const placeId = cleanAnalyticsText(body?.placeId, 32);
       const gameSlug = cleanAnalyticsText(body?.gameSlug, 64);
       const device = cleanAnalyticsText(body?.device, 24);
+      const executorName = cleanExecutorText(body?.executorName);
+      const executorVersion = cleanExecutorText(body?.executorVersion, 32);
 
       if (!PRESENCE_SESSION_RE.test(sessionId)) {
         return json(
@@ -2925,6 +2979,8 @@ async function handleRuntimePresence(request, env, {rateLimit = true, proofStore
           placeId,
           gameSlug,
           device,
+          executorName,
+          executorVersion,
         });
 
         const stateChanged =
@@ -3529,6 +3585,8 @@ export class VeyraLiveSession {
                 dashboardLinked: true,
                 userId: attachment.userId,
                 version: snapshotVersion,
+                executorName: parsed?.executor?.name,
+                executorVersion: parsed?.executor?.version,
               });
               const stats = await recordAnalyticsSnapshot(this.env);
 

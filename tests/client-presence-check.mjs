@@ -8,7 +8,7 @@ import {luauTestRuntime} from '../tools/luau-test-runtime.mjs';
 const manifest=JSON.parse(await fs.readFile(new URL('../apps/dashboard/scripts/version.json',import.meta.url),'utf8'));
 const source=(await fs.readFile(new URL(`../apps/dashboard/releases/${manifest.version}/greedy-growers.luau`,import.meta.url),'utf8')).replaceAll('\r\n','\n');
 function section(first,last){const a=source.indexOf(first),b=source.indexOf(last,a);assert(a>=0&&b>a);return source.slice(a,b);}
-const functions=section('function AroynWeb.PresencePayload()','function AroynWeb.VerifyKey(')+
+const functions=section('function AroynWeb.CleanExecutorText(','function AroynWeb.VerifyKey(')+
  section('function AroynWeb.DisconnectPresence()','function AroynWeb.Stop(')+
  section('function AroynWeb.Start()','function AroynWeb.LinkKey(')+
  section('function AroynWeb.Unlink()','function AroynWeb.CopyKey(');
@@ -16,6 +16,7 @@ const prelude=String.raw`
 local AroynWeb={}
 local state={running=true,generation=1}
 local env={}
+local identifyexecutor=function()return 'Potassium','fixture-version' end
 local LocalPlayer={UserId=900002}
 local game={GameId=10440833423,PlaceId=74102906764176}
 local verificationOnly=true
@@ -50,6 +51,7 @@ local function reset(key)
  AroynWeb.PushOnce=function() end;AroynWeb.Stop=function() AroynWeb.thread=nil end
 end
 reset(nil);assert(AroynWeb.PresenceHttpOnce());assert(#requests==1 and requests[1].Headers.Authorization==nil)
+assert(requests[1].Body.executorName=='Potassium' and requests[1].Body.executorVersion=='fixture-version')
 assert(requests[1].Body.robloxUserId=='900002' and requests[1].Body.gameSlug=='greedy-growers')
 assert(AroynWeb.presenceToken=='signed-fixture' and not AroynWeb.presenceDashboardLinked)
 pass('unlinked runtime sends only basic presence without dashboard authorization')

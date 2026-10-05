@@ -53,7 +53,7 @@ try{
   if(name==='bind')return (...values)=>wrap(target.bind(...values),sql,values);
   if(name==='run')return async()=>{
    if(failInvalidation&&sql==='DELETE FROM owner_analytics_cache'){failInvalidation=false;throw new Error('Synthetic cache outage');}
-   if(writeArmed&&sql.includes('INSERT INTO owner_analytics_cache')&&args[0]==='v2:24h:0'){writeArmed=false;enterWrite();await writeGate;}
+   if(writeArmed&&sql.includes('INSERT INTO owner_analytics_cache')&&args[0]==='v3:24h:0'){writeArmed=false;enterWrite();await writeGate;}
    return target.run();
   };
   const value=Reflect.get(target,name);return typeof value==='function'?value.bind(target):value;

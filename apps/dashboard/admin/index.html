@@ -141,6 +141,7 @@
         </div>
       </section>
 
+      <p class="owner-panel-sub">Executor names and versions are reported by the client and are not verified. Older or unsupported clients show Unknown.</p>
       <section class="owner-breakdown-grid">
         <article class="panel">
           <div class="panel-header"><span class="panel-title">Versions</span></div>
@@ -157,6 +158,10 @@
         <article class="panel">
           <div class="panel-header"><span class="panel-title">Devices</span></div>
           <div class="panel-body owner-breakdown" id="ownerDevices"></div>
+        </article>
+        <article class="panel">
+          <div class="panel-header"><span class="panel-title">Executors</span></div>
+          <div class="panel-body owner-breakdown" id="ownerExecutors"></div>
         </article>
       </section>
 
@@ -185,7 +190,7 @@
         </div>
         <div tabindex="0" role="region" aria-label="Analytics table; scroll to see additional columns" class="owner-table-wrap owner-users-wrap owner-scroll-list owner-scroll-list-users">
           <table class="owner-table owner-users-table">
-            <thead><tr><th scope="col">Player</th><th scope="col">User ID</th><th scope="col">Device</th><th scope="col">Dashboard</th><th scope="col">First recorded</th></tr></thead>
+            <thead><tr><th scope="col">Player</th><th scope="col">User ID</th><th scope="col">Device</th><th scope="col">Executor</th><th scope="col">Dashboard</th><th scope="col">First recorded</th></tr></thead>
             <tbody id="ownerAllUsers"></tbody>
           </table>
         </div>
@@ -198,7 +203,7 @@
         </div>
         <div tabindex="0" role="region" aria-label="Analytics table; scroll to see additional columns" class="owner-table-wrap owner-scroll-list owner-scroll-list-compact">
           <table class="owner-table">
-            <thead><tr><th scope="col">Roblox user</th><th scope="col">Game</th><th scope="col">Device</th><th scope="col">Version</th><th scope="col">Dashboard</th><th scope="col">Started</th><th scope="col">Last seen</th></tr></thead>
+            <thead><tr><th scope="col">Roblox user</th><th scope="col">Game</th><th scope="col">Device</th><th scope="col">Version</th><th scope="col">Executor</th><th scope="col">Dashboard</th><th scope="col">Started</th><th scope="col">Last seen</th></tr></thead>
             <tbody id="ownerOnlineRows"></tbody>
           </table>
         </div>
@@ -210,7 +215,7 @@
         </div>
         <div tabindex="0" role="region" aria-label="Analytics table; scroll to see additional columns" class="owner-table-wrap owner-scroll-list owner-scroll-list-compact">
           <table class="owner-table">
-            <thead><tr><th scope="col">Roblox user</th><th scope="col">Game</th><th scope="col">Device</th><th scope="col">Version</th><th scope="col">Dashboard</th><th scope="col">Started</th><th scope="col">Duration seen</th></tr></thead>
+            <thead><tr><th scope="col">Roblox user</th><th scope="col">Game</th><th scope="col">Device</th><th scope="col">Version</th><th scope="col">Executor</th><th scope="col">Dashboard</th><th scope="col">Started</th><th scope="col">Duration seen</th></tr></thead>
             <tbody id="ownerRecentRows"></tbody>
           </table>
         </div>

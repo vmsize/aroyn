@@ -1,6 +1,6 @@
 {
   "schema": "aroyn-release-v1",
-  "version": "4.3.88",
-  "message": "Online presence now prefers WebSocket with automatic HTTPS fallback. Run your saved loader again to update.",
+  "version": "4.3.89",
+  "message": "Executor diagnostics are now shown in the private owner dashboard. Run your saved loader again to update.",
   "gameId": 10440833423
 }

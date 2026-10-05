@@ -8,7 +8,7 @@ const els={
   gate:$('#ownerGate'),gateText:$('#ownerGateText'),login:$('#ownerLogin'),app:$('#ownerApp'),refresh:$('#ownerRefresh'),
   range:$('#ownerRange'),updated:$('#ownerUpdated'),liveSummary:$('#ownerLiveSummary'),metrics:$('#ownerMetrics'),
   concurrent:$('#ownerConcurrentChart'),launches:$('#ownerLaunchChart'),hourly:$('#ownerHourlyChart'),timezone:$('#ownerTimezone'),
-  versions:$('#ownerVersions'),games:$('#ownerGames'),places:$('#ownerPlaces'),devices:$('#ownerDevices'),
+  versions:$('#ownerVersions'),games:$('#ownerGames'),places:$('#ownerPlaces'),devices:$('#ownerDevices'),executors:$('#ownerExecutors'),
   activityWindows:$('#ownerActivityWindows'),peakRecords:$('#ownerPeakRecords'),milestones:$('#ownerMilestones'),
   scriptBloxPanel:$('#ownerScriptBloxPanel'),scriptBloxState:$('#ownerScriptBloxState'),scriptBloxMetrics:$('#ownerScriptBloxMetrics'),scriptBloxMeta:$('#ownerScriptBloxMeta'),scriptBloxUpdated:$('#ownerScriptBloxUpdated'),scriptBloxSubtitle:$('#ownerScriptBloxSubtitle'),scriptBloxOpen:$('#ownerScriptBloxOpen'),
   onlineRows:$('#ownerOnlineRows'),recentRows:$('#ownerRecentRows'),allUsers:$('#ownerAllUsers'),allUsersEmpty:$('#ownerAllUsersEmpty'),allUsersCount:$('#ownerAllUsersCount'),onlineCount:$('#ownerOnlineCount'),
@@ -36,6 +36,9 @@ const duration=ms=>{ms=Math.max(0,Number(ms)||0);if(ms<60000)return `${Math.roun
 const dateTime=ms=>ms?new Date(Number(ms)).toLocaleString(undefined,{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
 const timeAgo=ms=>{const d=Date.now()-Number(ms||0);if(!ms)return'—';if(d<60000)return`${Math.max(0,Math.round(d/1000))}s ago`;if(d<3600000)return`${Math.round(d/60000)}m ago`;if(d<86400000)return`${Math.round(d/3600000)}h ago`;return`${Math.round(d/86400000)}d ago`};
 const gameName=row=>row?.gameSlug?String(row.gameSlug).replace(/-/g,' '):(row?.gameId?`Game ${row.gameId}`:'Unknown');
+
+const executorLabel=row=>row?.executorName&&String(row.executorName).toLowerCase()!=='unknown'
+  ? `${row.executorName}${row.executorVersion?' · '+row.executorVersion:''}`:'Unknown';
 
 function showGate(message,{login=false,error=false}={}){
   clearTimeout(refreshTimer);
@@ -356,7 +359,7 @@ function sessionRow(row,online=false){
       <span class="owner-player-handle">${esc(handle)}</span>
     </span>
   </a>`:'<span class="owner-user-id">—</span>';
-  return `<tr><td>${identity}</td><td>${esc(gameName(row))}</td><td>${esc(row.device||'unknown')}</td><td>${esc(row.version||'unknown')}</td><td><span class="owner-pill ${row.dashboardLinked?'yes':'no'}">${row.dashboardLinked?'Linked':'No'}</span></td><td>${esc(dateTime(row.startedAt))}</td><td>${esc(online?timeAgo(row.lastSeenAt):duration(seen))}</td></tr>`;
+  return `<tr><td>${identity}</td><td>${esc(gameName(row))}</td><td>${esc(row.device||'unknown')}</td><td>${esc(row.version||'unknown')}</td><td>${esc(executorLabel(row))}</td><td><span class="owner-pill ${row.dashboardLinked?'yes':'no'}">${row.dashboardLinked?'Linked':'No'}</span></td><td>${esc(dateTime(row.startedAt))}</td><td>${esc(online?timeAgo(row.lastSeenAt):duration(seen))}</td></tr>`;
 }
 function renderTables(a){
   const online=a.onlineSessions||[],recent=a.recent||[],allUsers=a.allUsers||[];
@@ -370,8 +373,8 @@ function renderTables(a){
   );
 
   els.onlineCount.textContent=`${online.length} active ${online.length===1?'session':'sessions'}`;
-  els.onlineRows.innerHTML=online.length?online.map(r=>sessionRow(r,true)).join(''):'<tr><td colspan="7" class="muted">No active sessions.</td></tr>';
-  els.recentRows.innerHTML=recent.length?recent.map(r=>sessionRow(r,false)).join(''):'<tr><td colspan="7" class="muted">No launch history yet.</td></tr>';
+  els.onlineRows.innerHTML=online.length?online.map(r=>sessionRow(r,true)).join(''):'<tr><td colspan="8" class="muted">No active sessions.</td></tr>';
+  els.recentRows.innerHTML=recent.length?recent.map(r=>sessionRow(r,false)).join(''):'<tr><td colspan="8" class="muted">No launch history yet.</td></tr>';
 
   if(allUsers.length){
     els.allUsersCount.textContent=filtersActive
@@ -402,6 +405,7 @@ function renderTables(a){
       </td>
       <td><a class="owner-user-link owner-user-id" href="${esc(profile)}" target="_blank" rel="noopener noreferrer">${esc(id)}</a></td>
       <td><span class="owner-device-pill">${esc(device)}</span></td>
+      <td>${esc(executorLabel(row))}</td>
       <td><span class="owner-pill ${row.dashboardLinked?'yes':'no'}">${row.dashboardLinked?'Linked':'No'}</span></td>
       <td>${esc(dateTime(row.firstSeenAt))}</td>
     </tr>`;
@@ -413,7 +417,7 @@ function renderTables(a){
   }
 }
 function render(a){
-  renderMetrics(a);renderLineChart(els.concurrent,a.timeline||[]);renderLaunchChart(els.launches,a.timeline||[]);renderHourly(a.hourly||[]);renderActivityWindows(a);renderPeakRecords(a);renderMilestones(a);renderScriptBlox(a);renderBreakdown(els.versions,a.versions);renderBreakdown(els.games,a.games);renderBreakdown(els.places,a.places);renderBreakdown(els.devices,a.devices);renderTables(a);
+  renderMetrics(a);renderLineChart(els.concurrent,a.timeline||[]);renderLaunchChart(els.launches,a.timeline||[]);renderHourly(a.hourly||[]);renderActivityWindows(a);renderPeakRecords(a);renderMilestones(a);renderScriptBlox(a);renderBreakdown(els.versions,a.versions);renderBreakdown(els.games,a.games);renderBreakdown(els.places,a.places);renderBreakdown(els.devices,a.devices);renderBreakdown(els.executors,a.executors);renderTables(a);
   const o=a.online||{};els.liveSummary.textContent=`${num(o.scriptSessions)} sessions · ${num(o.scriptUsers)} unique users · ${num(o.dashboardUsers)} dashboard linked`;els.updated.textContent=`Updated ${new Date(a.generatedAt||Date.now()).toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit',second:'2-digit'})}`;
 }
 

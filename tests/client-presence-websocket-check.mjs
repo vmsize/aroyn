@@ -7,10 +7,11 @@ import {luauTestRuntime} from '../tools/luau-test-runtime.mjs';
 const manifest=JSON.parse(await fs.readFile(new URL('../apps/dashboard/scripts/version.json',import.meta.url),'utf8'));
 const source=(await fs.readFile(new URL(`../apps/dashboard/releases/${manifest.version}/greedy-growers.luau`,import.meta.url),'utf8')).replaceAll('\r\n','\n');
 function section(a,b){const x=source.indexOf(a),y=source.indexOf(b,x);assert(x>=0&&y>x);return source.slice(x,y);}
-const functions=section('function AroynWeb.PresencePayload()','function AroynWeb.VerifyKey(')+section('function AroynWeb.DisconnectPresence()','function AroynWeb.Stop(');
+const functions=section('function AroynWeb.CleanExecutorText(','function AroynWeb.VerifyKey(')+section('function AroynWeb.DisconnectPresence()','function AroynWeb.Stop(');
 const script=String.raw`
 local AroynWeb,env={},{}
 local state={running=true,generation=1}
+local identifyexecutor=function()return 'Potassium','fixture-version' end
 local LocalPlayer={UserId=900002}
 local game={GameId=10440833423,PlaceId=74102906764176}
 local clock=10
@@ -69,6 +70,7 @@ local function reset(key)
  end
 end
 reset(nil);assert(AroynWeb.PresenceOnce());assert(#requests==0 and #sockets==1)
+assert(sockets[1].sent[1].executorName=='Potassium' and sockets[1].sent[1].executorVersion=='fixture-version')
 assert(AroynWeb.presenceToken=='ws-token' and AroynWeb.presenceTransport=='websocket')
 assert(sockets[1].sent[1].dashboardKey==nil and not sockets[1].url:find('token',1,true))
 pass('unlinked first send uses acknowledged WebSocket without HTTPS or URL credentials')
@@ -76,6 +78,7 @@ clock+=5;assert(AroynWeb.PresenceOnce());assert(#requests==0 and #sockets[1].sen
 clock+=300;assert(AroynWeb.PresenceOnce());assert(#sockets[1].sent==2 and sockets[1].sent[2].presenceToken=='ws-token')
 pass('healthy socket uses sparse signed heartbeats rather than HTTP polling')
 reset(nil);mode='unsupported';assert(AroynWeb.PresenceOnce());assert(#requests==1 and #sockets==0)
+assert(requests[1].Body.executorName=='Potassium' and requests[1].Body.executorVersion=='fixture-version')
 clock+=5;assert(AroynWeb.PresenceOnce());assert(#requests==1)
 clock+=300;assert(AroynWeb.PresenceOnce());assert(#requests==2 and requests[2].Headers['X-Presence-Token']=='http-token')
 pass('executor without WebSocket uses signed HTTPS at the normal cadence')

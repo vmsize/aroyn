@@ -164,3 +164,6 @@
 .owner-header-actions{flex-wrap:wrap}.owner-header-actions .btn{min-height:44px}
 .owner-live-strip:has(+.owner-metric-grid:empty) .owner-live-dot{opacity:.5}
 @media(max-width:520px){.owner-header{align-items:center;gap:12px;height:auto;min-height:60px;padding-block:10px}.owner-header-actions{gap:6px;justify-content:flex-end}.owner-header-actions .btn{font-size:12px;padding-inline:10px}}
+
+.owner-users-table{min-width:940px}
+.owner-breakdown-grid>.panel:last-child{grid-column:1/-1}

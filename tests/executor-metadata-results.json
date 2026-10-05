@@ -1,0 +1,19 @@
+{
+  "version": "4.3.89",
+  "passed": 12,
+  "checks": [
+    "actual Luau detection handles primary API, alias, absence, errors, invalid types, bounds and cached identity",
+    "additive migration preserves earlier history as unknown",
+    "HTTPS stores optional executor metadata without dashboard linking",
+    "unchanged metadata does not add rapid analytics checkpoint writes",
+    "legacy heartbeat cannot erase known executor metadata",
+    "normalization strips controls and never pairs a new executor with an old version",
+    "WebSocket uses the same bounded metadata storage",
+    "invalid metadata does not break presence or invent an executor",
+    "authenticated linked telemetry records the same executor fields on its first snapshot",
+    "owner-only aggregate, live, recent and latest-user metadata remain authorized",
+    "bot count endpoint does not expose executor details",
+    "actual admin renderers escape executor names and versions and display Unknown"
+  ],
+  "scope": "Actual Luau detection, native synthetic D1/Workers/WebSocket and actual owner renderers; no game or production fixture."
+}

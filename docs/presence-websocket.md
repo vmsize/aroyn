@@ -22,3 +22,7 @@ Successful presence WebSocket operation avoids repeated outer Worker HTTP heartb
 ## Verification
 
 Actual release Luau functions are exercised with socket events, HTTP fixtures and a controlled clock: supported/unsupported executors, connection/send/ACK failures, recovery, stale events, linked telemetry reuse, credential removal and graceful stop. Native Miniflare checks real Workers, D1, per-session sockets, signed identity, duplicate counts, native hibernation, lost-ACK recovery, HTTPS fallback, linking/unlinking, bounded frames/queues and stop. Existing security/lifecycle/telemetry suites remain in the complete gate. No synthetic production sessions are created. A real executor launch remains an owner check when Potassium is unavailable.
+
+## Published rollout — 2026-10-05
+
+Code commit `2bca4cb70aab158b139ab50a4206ac8b748c46b4`, Pages deployment `dd825b73-2a7a-4368-82b9-b28cbd25d440`, live Worker version `2434f7ff-5eb6-41ff-9130-f9635ea68044`. All 34 local suites and code CI passed. Eleven public assets match the prepared package, API/live/Render health is HTTP 200, and the new public WSS upgrade succeeds without sending runtime-registration frames. Worker bindings, variables, secrets and compatibility date are preserved; Wrangler removed the previous deployment-message annotation. API code is unchanged. No production runtime fixtures or real executor execution were performed. Measured cost savings and real-game behavior remain observation checks, not inferred from a successful upgrade.

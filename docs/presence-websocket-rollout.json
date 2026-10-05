@@ -1,0 +1,30 @@
+{
+  "version": "4.3.88",
+  "codeCommit": "2bca4cb70aab158b139ab50a4206ac8b748c46b4",
+  "pagesDeployment": "dd825b73-2a7a-4368-82b9-b28cbd25d440",
+  "workerVersion": "2434f7ff-5eb6-41ff-9130-f9635ea68044",
+  "localSuites": 34,
+  "focusedClientCases": 14,
+  "focusedServerCases": 17,
+  "ci": [
+    {
+      "id": 37273907617,
+      "html_url": "https://github.com/vmsize/aroyn/actions/runs/37273907617",
+      "name": "Synthetic checks",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "2bca4cb70aab158b139ab50a4206ac8b748c46b4"
+    }
+  ],
+  "publishedAssetChecks": 11,
+  "serverUpgrade": {
+    "at": "2026-10-05T06:47:56.612Z",
+    "upgradeConfirmed": true,
+    "runtimeRegistrationFramesSent": 0,
+    "productionRuntimeRecordsCreated": false
+  },
+  "apiCodeUnchanged": true,
+  "runtimeBindingsSettingsUnchanged": true,
+  "realExecutorSmoke": false,
+  "productionRuntimeFixtures": false
+}

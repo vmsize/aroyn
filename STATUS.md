@@ -2,7 +2,7 @@
 
 ## Latest client transport — 4.3.88
 
-WebSocket presence is prepared with automatic HTTPS fallback. Linked runtimes reuse acknowledged telemetry; basic unlinked presence uses a per-session hibernatable socket. Signed session validation and detailed-telemetry authorization remain in place. No schema, binding or credential migration is needed. See [transport and verification](docs/presence-websocket.md). Publication status is recorded in the rollout evidence.
+WebSocket presence is published with automatic HTTPS fallback. Linked runtimes reuse acknowledged telemetry; basic unlinked presence uses a per-session hibernatable socket. Signed session validation and detailed-telemetry authorization remain in place. No schema, binding or credential migration is needed. See [transport and verification](docs/presence-websocket.md). Thirty-four local suites and code CI passed; published assets, server upgrade and bot health are verified. Real executor execution remains to be observed. See the rollout evidence.
 
 ## Public beta opened — 2026-10-03
 

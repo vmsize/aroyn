@@ -1,0 +1,132 @@
+{
+  "at": "2026-10-05T06:00:43.666412+00:00",
+  "version": "4.3.87",
+  "commit": "074c297d3918022dc14f4333d70c562fc3ea8909",
+  "pagesDeployment": "124f46dd-1636-48e1-988a-138f5bb87fcd",
+  "assets": [
+    {
+      "path": "scripts/loader.luau",
+      "status": 200,
+      "sha256": "8478d04460ce3eb9354b16290ab13c63b71cbf2c1327b84fbc76cc4d8d43df88"
+    },
+    {
+      "path": "scripts/version.json",
+      "status": 200,
+      "sha256": "bebcf3ed7ce09fe95f3f71532165a5a5ecbdf43f77067e9b6188aa73d7bc9a04"
+    },
+    {
+      "path": "releases/4.3.87/greedy-growers.luau",
+      "status": 200,
+      "sha256": "fad642885053bcf0ca460edb57f3e0a514af6a6320f6943bc4e1be0323f7cfd5"
+    },
+    {
+      "path": "releases/4.3.86/greedy-growers.luau",
+      "status": 200,
+      "sha256": "085c1b3a4ed64de5c55d4e71b237852d3a91af597ed88ca32c7d5baf6f9bf874"
+    },
+    {
+      "path": "assets/js/core/config.js",
+      "status": 200,
+      "sha256": "1fb0f69ce8160c908cbbd6c45e19abf64650587dd8f9b5b65784784f010e490f"
+    },
+    {
+      "path": "assets/js/services/runtime-service.js",
+      "status": 200,
+      "sha256": "2632e0de7b53f883716aca3f0e9b089a9dd3a8a19b51bc714164d39a41351297"
+    },
+    {
+      "path": "assets/js/services/live-snapshot.js",
+      "status": 200,
+      "sha256": "c295c55f5e4b99b818ef6dcd3fd0a0b69370727afc3b36bee3fb1cd16f3a71aa"
+    },
+    {
+      "path": "privacy/index.html",
+      "status": 200,
+      "sha256": "5ca18dd899bdaa5fa8f988a7f152eacc4accb70445705d90f79465f03aa22867"
+    },
+    {
+      "path": "privacy/ru/index.html",
+      "status": 200,
+      "sha256": "909cb41181199551971853d3e5b0d3fc8af95901583d7001c24efc4be771cc6c"
+    },
+    {
+      "path": "index.html",
+      "status": 200,
+      "sha256": "0b894894c95b5b304d0e579f92e763538a58733e4ad3b5a13f44049afc3336b5"
+    },
+    {
+      "path": "dashboard/index.html",
+      "status": 200,
+      "sha256": "fe45ff19150370cc8f3670d8e8d3b3dd4e4c36f3bf864c14ad40cbfc4a26ba42"
+    }
+  ],
+  "workersUnchanged": true,
+  "health": [
+    {
+      "url": "https://aroyn-api-staging.veyra-hub.workers.dev/api/v1/health",
+      "status": 200,
+      "data": {
+        "ok": true,
+        "service": "aroyn-runtime-api",
+        "storage": "r2",
+        "version": 3.1,
+        "accounts": true,
+        "multiRobloxAccounts": true,
+        "accountRemoval": true
+      }
+    },
+    {
+      "url": "https://aroyn-live-staging.veyra-hub.workers.dev/health",
+      "status": 200,
+      "data": {
+        "ok": true,
+        "service": "aroyn-live",
+        "database": true,
+        "tokenSecret": true,
+        "statsSecret": true,
+        "statsWebSocket": true,
+        "ownerAnalytics": true,
+        "runtimePresence": {
+          "linkedWsTouchSeconds": 180,
+          "linkedStaleSeconds": 420,
+          "unlinkedHeartbeatSeconds": 300,
+          "unlinkedStaleSeconds": 420,
+          "linkedHttpHeartbeatSeconds": 300,
+          "analyticsCheckpointSeconds": 900,
+          "snapshotBucketSeconds": 300
+        }
+      }
+    },
+    {
+      "url": "https://veyra-status-bot.onrender.com/health",
+      "status": 200,
+      "data": {
+        "ok": true,
+        "service": "aroyn-status-bot",
+        "discordReady": true,
+        "statsWebSocket": "connected"
+      }
+    }
+  ],
+  "online": {
+    "scriptSessions": 0,
+    "scriptUsers": 0,
+    "dashboardSessions": 0,
+    "dashboardUsers": 0
+  },
+  "productionSessionWrites": false,
+  "gameSmoke": "not performed; Potassium tools unavailable in this session",
+  "remaining": "Owner or another genuine unlinked runtime launch and rendered Discord count confirmation.",
+  "hostedCi": [
+    {
+      "id": 37270163990,
+      "html_url": "https://github.com/vmsize/aroyn/actions/runs/37270163990",
+      "name": "Synthetic checks",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "074c297d3918022dc14f4333d70c562fc3ea8909"
+    }
+  ],
+  "localSuites": 32,
+  "localFocusedChecks": 17
+}

@@ -15,6 +15,18 @@
     }
   ],
   "workersChanged": false,
-  "status": "local candidate; pending publication",
-  "scope": "Restore previously supported basic unlinked presence; no detailed unauthenticated snapshots or production test sessions."
+  "status": "published; public beta",
+  "scope": "Restore previously supported basic unlinked presence; no detailed unauthenticated snapshots or production test sessions.",
+  "codeCommit": "074c297d3918022dc14f4333d70c562fc3ea8909",
+  "pagesDeployment": "124f46dd-1636-48e1-988a-138f5bb87fcd",
+  "localSuites": 32,
+  "focusedChecks": 17,
+  "hostedCi": "success",
+  "realUnlinkedGameSmoke": "not performed; tools unavailable",
+  "currentProductionCounts": {
+    "scriptSessions": 0,
+    "scriptUsers": 0,
+    "dashboardSessions": 0,
+    "dashboardUsers": 0
+  }
 }

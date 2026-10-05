@@ -4,9 +4,15 @@
   "clientSha256": "3f34e722503d31611765e3a7bff86b9af3db272bdba6e70df8f4845cf5f018c5",
   "loaderSha256": "8478d04460ce3eb9354b16290ab13c63b71cbf2c1327b84fbc76cc4d8d43df88",
   "liveSourceSha256": "1478b69c5bcc7200511fcd3f3cc820cbf35f4213b9ea55cc3e631e6ea9ae9fe5",
-  "publication": "candidate",
+  "publication": "published",
   "schemaMigration": "0006_executor_metadata.sql",
   "newColumns": 2,
   "bindingsChanged": false,
-  "realExecutorSmoke": false
+  "realExecutorSmoke": false,
+  "codeCommit": "deee8ce5c1db38480b7e02e8d63a019b9f200998",
+  "pagesDeployment": "f4fab263-f3da-486c-af4d-4a2587c93e5e",
+  "workerVersion": "6c71ab72-5a66-4413-85fb-144bf7f8631e",
+  "localSuites": 35,
+  "executorChecks": 12,
+  "ci": "success"
 }

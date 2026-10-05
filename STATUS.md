@@ -1,8 +1,8 @@
 # Source package status â€” 2026-10-03
 
-## Executor diagnostics — 4.3.89 candidate
+## Executor diagnostics — 4.3.89 published
 
-Optional client-reported executor name/version is shown in private owner analytics, including unlinked sessions over WebSocket/HTTPS. Unknown is explicit, values are bounded and escaped, and authentication is unchanged. Apply additive migration 0006 before the live Worker deployment. Existing session history is preserved. See docs/executor-metadata.md.
+Optional client-reported executor name/version is shown in private owner analytics, including unlinked sessions over WebSocket/HTTPS. Unknown is explicit, values are bounded and escaped, and authentication is unchanged. Additive migration 0006 is applied and the live Worker is deployed. Thirty-five local suites and code CI passed; 14 published assets and API/live/Render health were verified. A real executor launch remains to be observed. Existing session history is preserved. See docs/executor-metadata.md.
 
 ## Latest client transport — 4.3.88
 

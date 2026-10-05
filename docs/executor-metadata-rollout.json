@@ -1,0 +1,26 @@
+{
+  "version": "4.3.89",
+  "codeCommit": "deee8ce5c1db38480b7e02e8d63a019b9f200998",
+  "pagesDeployment": "f4fab263-f3da-486c-af4d-4a2587c93e5e",
+  "workerVersion": "6c71ab72-5a66-4413-85fb-144bf7f8631e",
+  "localSuites": 35,
+  "executorChecks": 12,
+  "ci": [
+    {
+      "id": 37278754388,
+      "html_url": "https://github.com/vmsize/aroyn/actions/runs/37278754388",
+      "name": "Synthetic checks",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "deee8ce5c1db38480b7e02e8d63a019b9f200998"
+    }
+  ],
+  "publishedAssetChecks": 14,
+  "schemaMigration": "0006_executor_metadata.sql",
+  "columnsVerified": true,
+  "existingRowsPreserved": true,
+  "apiCodeUnchanged": true,
+  "bindingsSettingsUnchanged": true,
+  "realExecutorSmoke": false,
+  "productionRuntimeFixtures": false
+}

@@ -13,3 +13,7 @@ Apply `workers/api/migrations/0006_executor_metadata.sql` before deploying the l
 Verification: `tests/executor-metadata-check.mjs` uses actual Luau detection, native synthetic D1/Workers/WebSocket and owner render functions, alongside existing transport, authorization and lifecycle suites. A real executor cannot be checked without an available game connector; re-execute the unchanged saved loader to update an existing game session.
 
 API reference: [sUNC identifyexecutor](https://docs.sunc.io/Miscellaneous/identifyexecutor/).
+
+## Published verification — 2026-10-05
+
+Code `deee8ce5c1db38480b7e02e8d63a019b9f200998`, Pages `f4fab263-f3da-486c-af4d-4a2587c93e5e`, live Worker `6c71ab72-5a66-4413-85fb-144bf7f8631e`. Migration 0006 was applied and its two nullable columns read back before Worker deployment. Thirty-five local suites and CI passed, with twelve focused metadata checks; full and embedded Luau compilation passed. Fourteen published assets match the prepared package. API/live/Render health is HTTP 200 and the bot's stats WebSocket is connected. Worker bindings, variables, secrets and compatibility dates are preserved; API code is unchanged. No production runtime fixtures or game execution were performed. Existing script instances and historical sessions remain Unknown until a compatible client supplies metadata.

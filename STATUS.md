@@ -1,5 +1,9 @@
 # Source package status â€” 2026-10-03
 
+## Identified executors chart
+
+The owner executor donut now excludes Unknown and missing names. Counts and percentages use only displayed identified executors, with an empty state when none are available. Backend history and client 4.3.89 are unchanged.
+
 ## Browser tab icon
 
 Owner analytics now uses the existing Aroyn brand PNG for its tab and touch icon, replacing references to absent favicon files. Other site pages already use the same brand asset.

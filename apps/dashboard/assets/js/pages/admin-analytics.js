@@ -344,26 +344,21 @@ function renderBreakdown(el,rows){
   if(!rows?.length){el.innerHTML='<div class="owner-breakdown-empty">No data yet.</div>';return}
   const max=Math.max(1,...rows.map(r=>Number(r.launches)||0));el.innerHTML=rows.map(r=>`<div class="owner-breakdown-row"><div class="owner-breakdown-name" title="${esc(r.label)}">${esc(r.label)}</div><div class="owner-breakdown-value">${num(r.launches)} launches · ${num(r.users)} users</div><div class="owner-breakdown-track"><div class="owner-breakdown-fill" style="width:${Math.max(3,(Number(r.launches)||0)/max*100)}%"></div></div></div>`).join('')
 }
-function executorDistribution(rows,totalLaunches){
+function executorDistribution(rows){
   const counts=new Map();
   for(const row of rows||[]){
     const count=Number(row?.launches);
     if(!Number.isFinite(count)||count<=0)continue;
-    const raw=String(row?.label||'Unknown').trim()||'Unknown';
-    const label=raw.toLowerCase()==='unknown'?'Unknown':raw;
+    const label=String(row?.label||'').trim();
+    if(!label||/^(unknown|nil|null|undefined)$/i.test(label))continue;
     counts.set(label,(counts.get(label)||0)+Math.floor(count));
   }
   const visible=[...counts].map(([label,count])=>({label,count})).filter(row=>row.count>0);
-  const reported=visible.reduce((sum,row)=>sum+row.count,0);
-  const supplied=Number(totalLaunches);
-  const total=Math.max(reported,Number.isFinite(supplied)?Math.max(0,Math.floor(supplied)):0);
+  const total=visible.reduce((sum,row)=>sum+row.count,0);
   visible.sort((a,b)=>b.count-a.count||a.label.localeCompare(b.label));
-  if(total>reported)visible.push({label:'Other executors',count:total-reported,other:true});
   return {total,rows:visible.map(row=>({...row,percent:total?row.count/total*100:0}))};
 }
 function executorColor(row,used=new Set()){
-  if(row.other)return '#b8a59a';
-  if(row.label==='Unknown')return '#949da8';
   const palette=['#60a5fa','#a78bfa','#34d399','#fbbf24','#fb7185','#22d3ee','#a3e635','#fb923c','#e879f9','#2dd4bf','#818cf8','#f472b6'];
   const preferred={potassium:0,wave:1,solara:2,delta:3,velocity:4,swift:5};
   const key=row.label.toLowerCase();
@@ -376,10 +371,10 @@ function executorColor(row,used=new Set()){
   }
   return `hsl(${hash%360} 68% 58%)`;
 }
-function renderExecutorChart(rows,totalLaunches){
+function renderExecutorChart(rows){
   const el=els.executors;if(!el)return;
-  const distribution=executorDistribution(rows,totalLaunches);
-  if(!distribution.total){el.innerHTML='<div class="owner-breakdown-empty">No recorded launches in this period yet.</div>';return;}
+  const distribution=executorDistribution(rows);
+  if(!distribution.total){el.innerHTML='<div class="owner-breakdown-empty">No identified executors in this period yet.</div>';return;}
   const used=new Set();
   for(const row of [...distribution.rows].sort((a,b)=>a.label.localeCompare(b.label)))row.color=executorColor(row,used);
   const percent=value=>value>0&&value<0.1?'&lt;0.1%':`${nf.format(value)}%`;
@@ -389,7 +384,7 @@ function renderExecutorChart(rows,totalLaunches){
     offset+=row.percent;return slice;
   }).join('');
   const legend=distribution.rows.map(row=>`<li class="owner-executor-legend-row"><span class="owner-executor-swatch" style="background:${row.color}" aria-hidden="true"></span><span class="owner-executor-name">${esc(row.label)}</span><span class="owner-executor-count">${esc(nf.format(row.count))} launches</span><strong>${percent(row.percent)}</strong></li>`).join('');
-  el.innerHTML=`<div class="owner-executor-donut"><svg viewBox="0 0 200 200" role="img" aria-label="Executor distribution by recorded launches"><circle cx="100" cy="100" r="74" fill="none" stroke="var(--border-secondary)" stroke-width="26"/>${slices}</svg><div class="owner-executor-total"><strong>${esc(num(distribution.total))}</strong><span>launches</span></div></div><ul class="owner-executor-legend" aria-label="Executor colors, launch counts and percentages">${legend}</ul>`;
+  el.innerHTML=`<div class="owner-executor-donut"><svg viewBox="0 0 200 200" role="img" aria-label="Distribution of launches for listed identified executors"><circle cx="100" cy="100" r="74" fill="none" stroke="var(--border-secondary)" stroke-width="26"/>${slices}</svg><div class="owner-executor-total"><strong>${esc(num(distribution.total))}</strong><span>launches</span></div></div><ul class="owner-executor-legend" aria-label="Executor colors, launch counts and percentages">${legend}</ul>`;
 }
 function sessionRow(row,online=false){
   const seen=Math.max(0,Number(row.lastSeenAt||0)-Number(row.startedAt||0));
@@ -464,7 +459,7 @@ function renderTables(a){
   }
 }
 function render(a){
-  renderMetrics(a);renderLineChart(els.concurrent,a.timeline||[]);renderLaunchChart(els.launches,a.timeline||[]);renderHourly(a.hourly||[]);renderActivityWindows(a);renderPeakRecords(a);renderMilestones(a);renderScriptBlox(a);renderBreakdown(els.versions,a.versions);renderBreakdown(els.games,a.games);renderBreakdown(els.places,a.places);renderBreakdown(els.devices,a.devices);renderExecutorChart(a.executors,a.selectedRange?.launches);renderTables(a);
+  renderMetrics(a);renderLineChart(els.concurrent,a.timeline||[]);renderLaunchChart(els.launches,a.timeline||[]);renderHourly(a.hourly||[]);renderActivityWindows(a);renderPeakRecords(a);renderMilestones(a);renderScriptBlox(a);renderBreakdown(els.versions,a.versions);renderBreakdown(els.games,a.games);renderBreakdown(els.places,a.places);renderBreakdown(els.devices,a.devices);renderExecutorChart(a.executors);renderTables(a);
   const o=a.online||{};els.liveSummary.textContent=`${num(o.scriptSessions)} sessions · ${num(o.scriptUsers)} unique users · ${num(o.dashboardUsers)} dashboard linked`;els.updated.textContent=`Updated ${new Date(a.generatedAt||Date.now()).toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit',second:'2-digit'})}`;
 }
 

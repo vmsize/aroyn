@@ -1,0 +1,11 @@
+# Runtime presence without dashboard linking — 4.3.87
+
+The previous 4.3.86 client returned before starting presence when no dashboard key was configured. PresenceOnce and disconnect also rejected an absent key. The existing server and Discord bot already count all runtime_presence rows, with separate dashboard-linked counts. Consequently the new client was invisible without linking; this was not evidence of zero script usage.
+
+4.3.87 starts basic presence for a runtime with no dashboard key, and for one whose saved dashboard credential fails verification. The optional Authorization header remains conditional. Successful linked startup still waits for the first HTTP snapshot before starting presence, preserving its bootstrap/ownership order. Heartbeats retain the server-issued signed token; an unlinked Stop can use that token without a dashboard key. Linking and unlinking use the same session identity; normal presence loops are not duplicated.
+
+Basic presence sends session ID, client-reported Roblox ID, version, game/place, game slug and device category. It does not send inventory or activity; detailed dashboard snapshots still require a valid key. Unlinked reports are client-reported, not authenticated Roblox ownership or verified people. Aroyn account deletion cannot identify an unassigned session merely from a matching Roblox ID; retained unassigned history expires under the existing schedule.
+
+Discord users now means distinct client-reported Roblox IDs with nonstale runtime presence; linked is the subset of active runtimes associated with a dashboard. Neither is the number of open website tabs. Unlinked heartbeats are normally 300 seconds and stale expiry is 15 minutes; explicit disconnect is best effort. Old downloaded/running 4.3.86 copies do not gain this fix until restarted using the stable loader. Missing historical sessions cannot be reconstructed.
+
+Verification uses actual Luau presence/start/disconnect functions and a fresh synthetic Miniflare database including the stats WebSocket consumed by the bot. It covers deduplication, signed token enforcement, later linking, shared history and disconnect. No fabricated production users are inserted. Real executor behavior and rendered Discord activity need a genuine unlinked launch after publication.

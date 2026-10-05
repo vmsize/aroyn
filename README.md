@@ -1,6 +1,6 @@
 # Aroyn
 
-Aroyn (formerly Veyra) is a web dashboard for Roblox runtime telemetry, backed by Cloudflare Pages and Workers. This repository contains the static website, backend source and the Aroyn Hub 4.3.82 client release. Original project code is licensed under MIT, with attribution to vmsize. The supplied mark has separate permissions for source redistribution and truthful references to Aroyn. See [brand assets](BRAND_ASSETS.md) for scope and provenance. Third-party components retain their own licenses; see [notices](THIRD_PARTY_NOTICES.md).
+Aroyn (formerly Veyra) is a web dashboard for Roblox runtime telemetry, backed by Cloudflare Pages and Workers. This repository contains the static website, backend source and the Aroyn Hub 4.3.87 client release. Original project code is licensed under MIT, with attribution to vmsize. The supplied mark has separate permissions for source redistribution and truthful references to Aroyn. See [brand assets](BRAND_ASSETS.md) for scope and provenance. Third-party components retain their own licenses; see [notices](THIRD_PARTY_NOTICES.md).
 
 Some technical service and class names still use `Veyra` for compatibility.
 
@@ -51,3 +51,7 @@ See [client release](docs/client-release.md) for saved-setting migration, compat
 ## Run synthetic checks
 
 From the repository root, with Node.js 24: `npm ci --ignore-scripts` then `npm test`. External Discord/Roblox responses are mocked and each backend suite uses a fresh synthetic D1/R2 store. No real credentials or Cloudflare account are needed. Tests write ignored result JSON files under `tests/`. See [testing](docs/testing.md) for the limits of local evidence.
+
+## Independent runtime presence
+
+Client 4.3.87 restores basic online/session counts without dashboard linking. Detailed snapshots require a dashboard key. The stable launch command is unchanged; restart it to update. See [data fields, counting and verification limits](docs/unlinked-presence.md).

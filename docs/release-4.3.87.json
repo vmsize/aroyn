@@ -1,0 +1,20 @@
+{
+  "version": "4.3.87",
+  "files": [
+    {
+      "path": "apps/dashboard/releases/4.3.87/greedy-growers.luau",
+      "sha256": "fad642885053bcf0ca460edb57f3e0a514af6a6320f6943bc4e1be0323f7cfd5"
+    },
+    {
+      "path": "apps/dashboard/scripts/version.json",
+      "sha256": "bebcf3ed7ce09fe95f3f71532165a5a5ecbdf43f77067e9b6188aa73d7bc9a04"
+    },
+    {
+      "path": "apps/dashboard/scripts/loader.luau",
+      "sha256": "8478d04460ce3eb9354b16290ab13c63b71cbf2c1327b84fbc76cc4d8d43df88"
+    }
+  ],
+  "workersChanged": false,
+  "status": "local candidate; pending publication",
+  "scope": "Restore previously supported basic unlinked presence; no detailed unauthenticated snapshots or production test sessions."
+}

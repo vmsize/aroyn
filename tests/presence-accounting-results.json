@@ -1,0 +1,13 @@
+{
+  "passed": 7,
+  "checks": [
+    "unlinked launches count as users and sessions; duplicate Roblox ID is deduplicated",
+    "bot stats WebSocket delivers unlinked online counts",
+    "signed heartbeat identity and session collision protections remain enforced",
+    "heartbeat updates a session without adding another launch",
+    "linking an existing unlinked session changes only dashboard counts",
+    "presence and later dashboard bootstrap share one session history row",
+    "signed disconnect removes linked and unlinked runtime counts"
+  ],
+  "scope": "Fresh Miniflare database and mocked external services; actual presence routes and stats hub WebSocket; no production fixtures."
+}

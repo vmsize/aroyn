@@ -1,5 +1,10 @@
 # Source package status â€” 2026-10-03
 
+## Latest client correction — 4.3.87
+
+The unlinked client-presence regression is corrected locally. Script launch without a dashboard key now starts basic signed presence; linked bootstrap and detailed snapshot authorization remain unchanged. The existing server/bot count all runtimes with a separate linked subset. Historical missed sessions cannot be recovered. Publication and genuine unlinked launch confirmation are tracked separately; see [scope and limits](docs/unlinked-presence.md).
+
+
 ## Public beta opened — 2026-10-03
 
 The owner explicitly approved opening general registration. STAGING_ACCESS was

@@ -1,0 +1,17 @@
+{
+  "version": "4.3.87",
+  "passed": 10,
+  "checks": [
+    "unlinked runtime sends only basic presence without dashboard authorization",
+    "unlinked heartbeat retains the signed presence token",
+    "startup starts unlinked presence; loop stops with the client",
+    "repeat startup does not create duplicate presence loops",
+    "linked startup keeps presence behind successful HTTP bootstrap",
+    "expired saved dashboard credential does not hide the running script",
+    "linked runtime keeps authorization and the server heartbeat cadence",
+    "unlink retains runtime presence while removing dashboard authorization",
+    "unlinked stop uses signed disconnect without dashboard key",
+    "failed presence remains visible and retryable"
+  ],
+  "scope": "Actual client presence/start/disconnect functions on Luau CLI with stubbed transport; no game or production sessions."
+}

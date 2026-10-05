@@ -1,0 +1,19 @@
+{
+  "date": "2026-10-02",
+  "passed": 12,
+  "checks": [
+    "stable loader reads current manifest and runs the selected immutable release",
+    "same loader follows a later release without changing the saved command",
+    "invalid manifest versions cannot change host or inject a path",
+    "unsupported game or missing compiler makes no update download",
+    "manifest failure does not silently run an old release",
+    "HTML fallback and oversized source are rejected",
+    "compile and startup errors stay visible without another execution",
+    "update check shows GUI notification once without credentials or executing code",
+    "current and older releases hide the notice; version ordering is numeric",
+    "manifest error remains retryable and subsequent check restores the notice",
+    "late update response after client shutdown does not update the GUI",
+    "stopped client does not send update checks"
+  ],
+  "scope": "Actual stable loader, update-check and GUI indicator functions with stubbed HTTP/game objects on Luau CLI; no real game execution."
+}

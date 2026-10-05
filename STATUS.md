@@ -1,5 +1,9 @@
 # Source package status â€” 2026-10-03
 
+## Browser tab icon
+
+Owner analytics now uses the existing Aroyn brand PNG for its tab and touch icon, replacing references to absent favicon files. Other site pages already use the same brand asset.
+
 ## Owner executor chart
 
 The executor panel now includes a donut, color legend, launch counts and percentages for the selected range. The top-ten tail appears as Other executors, preserving the all-launch denominator. Desktop and mobile layout, empty/unknown data and label escaping were verified with synthetic data. Client 4.3.89 and backend are unchanged by this UI update.

@@ -1,5 +1,5 @@
 {
-  "version": "4.3.87",
+  "version": "4.3.88",
   "passed": 10,
   "checks": [
     "unlinked runtime sends only basic presence without dashboard authorization",

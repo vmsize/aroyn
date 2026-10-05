@@ -2385,9 +2385,8 @@ export class VeyraStatsHub {
   } = {}) {
     const sockets = this.ctx.getWebSockets("stats");
 
-    if (!target && !sockets.length) {
-      return null;
-    }
+    // Persist refreshed counters even when the bot has temporarily lost its
+    // stats socket, so its HTTPS fallback does not read obsolete lastStats.
 
     const stats =
       statsOverride && typeof statsOverride === "object"
@@ -2773,6 +2772,293 @@ export class VeyraStatsHub {
   Live WebSocket Durable Object
 */
 
+async function handleRuntimePresence(request, env, {rateLimit = true, proofStore = null} = {}) {
+      if (!env.PRESENCE_TOKEN_SECRET || !env.PRESENCE_RATE_LIMITER) {
+        return json(request, { ok: false, error: "Presence unavailable" }, 503, env);
+      }
+      if (rateLimit && await presenceRateLimited(env, "runtime-presence", request)) {
+        return json(request, { ok: false, error: "Too many presence requests" }, 429, env);
+      }
+      const parsed = await limitedJsonBody(request);
+      if (parsed.tooLarge) {
+        return json(
+          request,
+          { ok: false, error: "Request body too large" },
+          413,
+          env,
+        );
+      }
+      const body = parsed.body;
+
+      const sessionId = String(body?.sessionId || "").trim();
+
+      const robloxUserId = String(body?.robloxUserId || "").trim();
+
+      const version = String(body?.version || "unknown")
+        .trim()
+        .slice(0, 32);
+
+      const gameId = cleanAnalyticsText(body?.gameId, 32);
+      const placeId = cleanAnalyticsText(body?.placeId, 32);
+      const gameSlug = cleanAnalyticsText(body?.gameSlug, 64);
+      const device = cleanAnalyticsText(body?.device, 24);
+
+      if (!PRESENCE_SESSION_RE.test(sessionId)) {
+        return json(
+          request,
+          {
+            ok: false,
+
+            error: "Invalid sessionId",
+          },
+          400,
+          env,
+        );
+      }
+
+      if (!/^\d+$/.test(robloxUserId)) {
+        return json(
+          request,
+          {
+            ok: false,
+
+            error: "Invalid robloxUserId",
+          },
+          400,
+          env,
+        );
+      }
+
+      const dashboardKey = bearerToken(request);
+
+      let dashboardLinked = false;
+
+      let veyraUserId = null;
+
+      if (dashboardKey) {
+        try {
+          const linked = await resolveDashboardLink(
+            env,
+            dashboardKey,
+            robloxUserId,
+          );
+
+          if (linked) {
+            dashboardLinked = true;
+
+            veyraUserId = linked.veyra_user_id;
+          }
+        } catch (error) {
+          console.error("Dashboard presence validation error:", error);
+        }
+      }
+
+      if (stagingRestricted(env) && !dashboardLinked) {
+        return json(request, {ok: false, error: 'An invited dashboard account is required.'}, 403, env);
+      }
+
+      try {
+        const previousPresence = await getRuntimePresenceState(env, sessionId);
+        const recordedSession = previousPresence
+          ? null
+          : await env.DB.prepare(
+              "SELECT roblox_user_id FROM analytics_sessions WHERE session_id = ?1 UNION ALL SELECT roblox_user_id FROM runtime_presence WHERE session_id = ?1 LIMIT 1",
+            )
+              .bind(sessionId)
+              .first();
+        const existingRobloxUserId =
+          previousPresence?.roblox_user_id || recordedSession?.roblox_user_id;
+        if (
+          existingRobloxUserId &&
+          String(existingRobloxUserId) !== robloxUserId
+        ) {
+          return json(
+            request,
+            {
+              ok: false,
+              error: "Session ID already belongs to another Roblox ID",
+            },
+            409,
+            env,
+          );
+        }
+
+        let suppliedPresenceToken = request.headers.get("X-Presence-Token") || "";
+        if (existingRobloxUserId && !suppliedPresenceToken && /^[a-f0-9]{64}$/.test(String(body?.resumeNonce || ""))) {
+          // Recover a lost initial ACK using a separate random client proof.
+          // A public session ID alone never grants signed heartbeat access.
+          if (proofStore) suppliedPresenceToken = await proofStore.resumePresenceToken(body);
+          else if (env.LIVE) {
+            const stub=env.LIVE.get(env.LIVE.idFromName("presence:"+sessionId));
+            const recovered=await stub.fetch("https://presence.internal/resume-presence",{method:"POST",body:JSON.stringify(body)});
+            if (recovered.ok) suppliedPresenceToken=(await recovered.json()).presenceToken || "";
+          }
+        }
+        // A currently valid dashboard credential can bootstrap its own owned
+        // session after HTTP telemetry created the history row. Anonymous
+        // resumes still require the signed token or the independent proof.
+        if ((existingRobloxUserId && !dashboardLinked && env.REQUIRE_PRESENCE_TOKEN === "true") || suppliedPresenceToken) {
+          if (!(await validPresenceToken(env, suppliedPresenceToken, sessionId, robloxUserId))) {
+            return json(request, { ok: false, error: "Invalid presence token" }, 401, env);
+          }
+        }
+        if (veyraUserId && !(await claimRuntimeSession(env, veyraUserId, robloxUserId, sessionId))) {
+          return json(request, {ok: false, error: 'Session belongs to another account'}, 409, env);
+        }
+
+        const written = await upsertRuntimePresence(env, {
+          sessionId,
+          robloxUserId,
+          dashboardLinked,
+          userId: veyraUserId,
+          version,
+        });
+        if (!written) return json(request, {ok: false, error: "Session ID already belongs to another Roblox ID"}, 409, env);
+
+        await upsertAnalyticsSession(env, {
+          sessionId,
+          robloxUserId,
+          dashboardLinked,
+          userId: veyraUserId,
+          version,
+          gameId,
+          placeId,
+          gameSlug,
+          device,
+        });
+
+        const stateChanged =
+          !previousPresence ||
+          String(previousPresence.roblox_user_id || "") !== robloxUserId ||
+          Number(previousPresence.dashboard_linked || 0) !==
+            (dashboardLinked ? 1 : 0);
+
+        if (stateChanged) {
+          // Concurrency samples only need to change when presence membership or
+          // dashboard-link state changes. Heartbeats do not change the counts.
+          const stats = await recordAnalyticsSnapshot(env);
+
+          await notifyStatsHub(env, "runtime-presence-change", stats);
+        }
+      } catch (error) {
+        return json(
+          request,
+          {
+            ok: false,
+
+            error: "Presence update failed",
+          },
+          500,
+          env,
+        );
+      }
+
+      const presenceToken = await issuePresenceToken(env, sessionId, robloxUserId);
+      if (/^[a-f0-9]{64}$/.test(String(body?.resumeNonce || ""))) {
+        const proof={sessionId,robloxUserId,resumeNonce:body.resumeNonce,presenceToken};
+        if (proofStore) await proofStore.rememberPresenceProof(proof);
+        else if (env.LIVE) {
+          const stub=env.LIVE.get(env.LIVE.idFromName("presence:"+sessionId));
+          await stub.fetch("https://presence.internal/remember-presence",{method:"POST",body:JSON.stringify(proof)});
+        }
+      }
+      return json(
+        request,
+        {
+          ok: true,
+
+          dashboardLinked,
+
+          veyraUserId,
+
+          presenceToken,
+
+          heartbeatSeconds: dashboardLinked
+            ? LINKED_HTTP_HEARTBEAT_SECONDS
+            : UNLINKED_HEARTBEAT_SECONDS,
+
+          staleSeconds: dashboardLinked
+            ? LINKED_STALE_MS / 1000
+            : UNLINKED_STALE_MS / 1000,
+
+          wsPresence: dashboardLinked,
+        },
+        undefined,
+        env,
+      );
+}
+
+async function handleRuntimePresenceDisconnect(request, env, {rateLimit = true} = {}) {
+      if (!env.PRESENCE_TOKEN_SECRET || !env.PRESENCE_RATE_LIMITER) {
+        return json(request, { ok: false, error: "Presence unavailable" }, 503, env);
+      }
+      if (await presenceRateLimited(env, "runtime-presence-disconnect", request)) {
+        return json(request, { ok: false, error: "Too many presence requests" }, 429, env);
+      }
+      const parsed = await limitedJsonBody(request);
+      if (parsed.tooLarge) {
+        return json(
+          request,
+          { ok: false, error: "Request body too large" },
+          413,
+          env,
+        );
+      }
+      const body = parsed.body;
+
+      const sessionId = String(body?.sessionId || "").trim();
+      if (!PRESENCE_SESSION_RE.test(sessionId)) {
+        return json(
+          request,
+          { ok: false, error: "Invalid sessionId" },
+          400,
+          env,
+        );
+      }
+
+      try {
+        const recordedSession = await env.DB.prepare(
+          "SELECT roblox_user_id FROM analytics_sessions WHERE session_id = ?1 UNION ALL SELECT roblox_user_id FROM runtime_presence WHERE session_id = ?1 LIMIT 1",
+        ).bind(sessionId).first();
+        if (stagingRestricted(env) && !(recordedSession && await resolveDashboardLink(env, bearerToken(request), String(recordedSession.roblox_user_id)))) {
+          return json(request, {ok: false, error: 'An invited dashboard account is required.'}, 403, env);
+        }
+        const suppliedPresenceToken = request.headers.get("X-Presence-Token") || "";
+        if (recordedSession && (env.REQUIRE_PRESENCE_TOKEN === "true" || suppliedPresenceToken)) {
+          if (!(await validPresenceToken(env, suppliedPresenceToken, sessionId, String(recordedSession.roblox_user_id)))) {
+            return json(request, { ok: false, error: "Invalid presence token" }, 401, env);
+          }
+        }
+        const now = Date.now();
+        await env.DB.prepare(
+          `
+          UPDATE analytics_sessions
+          SET last_seen_at = MAX(last_seen_at, ?2)
+          WHERE session_id = ?1
+        `,
+        )
+          .bind(sessionId, now)
+          .run();
+
+        const removed = await removeRuntimePresence(env, sessionId, recordedSession?.roblox_user_id);
+        if (removed) {
+          const stats = await recordAnalyticsSnapshot(env);
+          await notifyStatsHub(env, "runtime-presence-disconnect", stats);
+        }
+        return json(request, { ok: true, removed }, undefined, env);
+      } catch (error) {
+        return json(
+          request,
+          {
+            ok: false,
+            error: "Presence disconnect failed",
+          },
+          500,
+          env,
+        );
+      }
+}
+
 export class VeyraLiveSession {
   constructor(ctx, env) {
     this.ctx = ctx;
@@ -2781,6 +3067,16 @@ export class VeyraLiveSession {
 
   async fetch(request) {
     const internalUrl = new URL(request.url);
+    if (internalUrl.pathname === "/presence-ws") return this.acceptPresenceSocket(request);
+    if (request.method === "POST" && ["/resume-presence","/remember-presence"].includes(internalUrl.pathname)) {
+      const body=await boundedJson(request);
+      if (internalUrl.pathname === "/remember-presence") {
+        const ok=await this.rememberPresenceProof(body);
+        return Response.json({ok},{status:ok?200:401});
+      }
+      const presenceToken=await this.resumePresenceToken(body);
+      return Response.json({presenceToken},{status:presenceToken?200:401});
+    }
 
     /*
       Internal release broadcast.
@@ -2967,6 +3263,104 @@ export class VeyraLiveSession {
     });
   }
 
+
+  async rememberPresenceProof(body) {
+    if (!PRESENCE_SESSION_RE.test(String(body.sessionId||"")) || !/^[a-f0-9]{64}$/.test(String(body.resumeNonce||"")) ||
+        !(await validPresenceToken(this.env,body.presenceToken,body.sessionId,body.robloxUserId))) return false;
+    await this.ctx.storage.put("presence-proof",{sessionId:body.sessionId,robloxUserId:body.robloxUserId,
+      hash:await sha256Hex(body.resumeNonce),expiresAt:Date.now()+15*60*1000});
+    await this.schedulePresenceAlarm();
+    return true;
+  }
+
+  async resumePresenceToken(body) {
+    if (!/^[a-f0-9]{64}$/.test(String(body.resumeNonce||""))) return "";
+    const proof=await this.ctx.storage.get("presence-proof");
+    if (!proof || proof.expiresAt<=Date.now() || proof.sessionId!==body.sessionId || proof.robloxUserId!==String(body.robloxUserId) ||
+        !safeEqual(proof.hash,await sha256Hex(body.resumeNonce))) return "";
+    return issuePresenceToken(this.env,body.sessionId,String(body.robloxUserId));
+  }
+
+  async acceptPresenceSocket(request) {
+    if (request.headers.get("Upgrade")?.toLowerCase() !== "websocket") return new Response("Expected WebSocket", {status:426});
+    const sessionId = new URL(request.url).searchParams.get("sid") || "";
+    if (!PRESENCE_SESSION_RE.test(sessionId)) return new Response("Invalid session", {status:400});
+    if (this.ctx.getWebSockets("presence").length >= 4) return new Response("Too many session connections", {status:429});
+    const [client,server] = Object.values(new WebSocketPair());
+    this.ctx.acceptWebSocket(server,["presence"]);
+    server.serializeAttachment({role:"presence",sessionId,registered:false,deadline:Date.now()+15000});
+    await this.schedulePresenceAlarm();
+    return new Response(null,{status:101,webSocket:client});
+  }
+
+  async schedulePresenceAlarm() {
+    const sockets=this.ctx.getWebSockets("presence").filter(ws=>ws.readyState===1);
+    const proof=await this.ctx.storage.get("presence-proof");
+    if (!sockets.length && !proof) { await this.ctx.storage.deleteAlarm(); return; }
+    const deadline=Math.min(...sockets.map(ws=>Number(ws.deserializeAttachment()?.deadline)||Date.now()),proof?.expiresAt || Infinity);
+    await this.ctx.storage.setAlarm(Math.max(Date.now()+1000,deadline));
+  }
+
+  async expirePresenceSockets() {
+    const proof=await this.ctx.storage.get("presence-proof");
+    if (proof && proof.expiresAt<=Date.now()) await this.ctx.storage.delete("presence-proof");
+    for (const ws of this.ctx.getWebSockets("presence")) {
+      if (Number(ws.deserializeAttachment()?.deadline||0)<=Date.now()) {
+        try { ws.close(1008,"Presence confirmation expired"); } catch {}
+      }
+    }
+    await this.schedulePresenceAlarm();
+  }
+
+  async presenceMessage(ws,message) {
+    let a=ws.deserializeAttachment()||{};
+    if (ws.readyState!==1 || a.retired) return;
+    const now=Date.now();
+    if (now>=Number(a.deadline||0)) {ws.close(1008,"Presence confirmation expired");return;}
+    if (typeof message!=="string") {ws.close(1003,"JSON text required");return;}
+    if (encoder.encode(message).byteLength>8192) {ws.close(1009,"Presence message too large");return;}
+    if (now-Number(a.windowAt||0)>=60000) {a.windowAt=now;a.messageCount=0;}
+    a.messageCount=Number(a.messageCount||0)+1;ws.serializeAttachment(a);
+    if (a.messageCount>12) {ws.close(1008,"Presence message rate exceeded");return;}
+    let body;try {body=JSON.parse(message);}catch {ws.close(1008,"Invalid JSON");return;}
+    if (!body || Array.isArray(body) || String(body.sessionId)!==a.sessionId ||
+        !["presence","presence_disconnect"].includes(body.type) ||
+        !Number.isSafeInteger(body.sequence) || body.sequence<1 || body.sequence>1e9) {
+      ws.close(1008,"Invalid presence message");return;
+    }
+    if (a.robloxUserId && String(body.robloxUserId)!==a.robloxUserId) {ws.close(1008,"Presence identity changed");return;}
+    // Credentials stay inside TLS messages and are never serialized or logged.
+    const headers={"Content-Type":"application/json"};
+    if (typeof body.dashboardKey==="string" && body.dashboardKey.length<=256) headers.Authorization="Bearer "+body.dashboardKey;
+    if (typeof body.presenceToken==="string" && body.presenceToken.length<=1024) headers["X-Presence-Token"]=body.presenceToken;
+    const disconnect=body.type==="presence_disconnect";
+    if (disconnect && !a.registered) {ws.close(1008,"Presence not registered");return;}
+    const request=new Request("https://presence.internal/"+(disconnect?"runtime-presence/disconnect":"runtime-presence"),
+      {method:"POST",headers,body:JSON.stringify(body)});
+    try {
+      const response=await (disconnect?handleRuntimePresenceDisconnect:handleRuntimePresence)(request,this.env,{rateLimit:false,proofStore:this});
+      const data=await response.json();
+      if (!response.ok || !data.ok) {
+        ws.send(JSON.stringify({type:"presence_error",sequence:body.sequence,status:response.status}));
+        ws.close(1008,"Presence rejected");return;
+      }
+      if (!disconnect) {
+        a={...a,registered:true,robloxUserId:String(body.robloxUserId),deadline:Date.now()+UNLINKED_STALE_MS};
+        ws.serializeAttachment(a);
+        // Replace an older socket only after signed registration succeeds.
+        for (const other of this.ctx.getWebSockets("presence")) if (other!==ws && other.deserializeAttachment()?.registered) {
+          other.serializeAttachment({...other.deserializeAttachment(),retired:true});
+          try {other.close(1000,"Presence connection replaced");}catch {}
+        }
+      }
+      ws.send(JSON.stringify({...data,type:disconnect?"presence_disconnected":"presence_ack",sequence:body.sequence}));
+      if (disconnect) {ws.serializeAttachment({...a,retired:true});ws.close(1000,"Runtime stopped");}
+      await this.schedulePresenceAlarm();
+    } catch {
+      try {ws.send(JSON.stringify({type:"presence_error",sequence:body.sequence,status:503}));ws.close(1011,"Presence unavailable");}catch {}
+    }
+  }
+
   async scheduleAuthorizationCheck() {
     if (await this.ctx.storage.getAlarm() === null) {
       await this.ctx.storage.setAlarm(Date.now() + 15000);
@@ -2982,6 +3376,10 @@ export class VeyraLiveSession {
   }
 
   async alarm() {
+    if (this.ctx.getWebSockets("presence").length || await this.ctx.storage.get("presence-proof")) {
+      await this.expirePresenceSockets();
+      return;
+    }
     const sockets = this.ctx.getWebSockets();
     let valid = false;
     for (const ws of sockets) {
@@ -2991,6 +3389,14 @@ export class VeyraLiveSession {
   }
 
   async webSocketMessage(ws, message) {
+    if (ws.deserializeAttachment()?.role === "presence") {
+      if (Number(this.presencePending || 0) >= 12) { ws.close(1008,"Presence queue exceeded"); return; }
+      this.presencePending = Number(this.presencePending || 0) + 1;
+      // Keep first registration and heartbeats ordered across D1 awaits.
+      const pending = (this.presenceQueue || Promise.resolve()).then(() => this.presenceMessage(ws, message));
+      this.presenceQueue = pending.catch(() => {});
+      try { return await pending; } finally { this.presencePending--; }
+    }
     if (!(await this.socketAuthorized(ws))) return;
     let attachment = {};
 
@@ -3176,6 +3582,13 @@ export class VeyraLiveSession {
   }
 
   async webSocketClose(ws, code, reason, wasClean) {
+    if (ws.deserializeAttachment()?.role === "presence") {
+      try { ws.close(code, reason); } catch {}
+      // A close can race HTTPS fallback or another live transport. Only an
+      // explicit signed disconnect deletes presence; silent exits age out.
+      await this.schedulePresenceAlarm();
+      return;
+    }
     // Safe with auto-reply runtimes; completes the handshake on older/local runtimes.
     try { ws.close(code, reason); } catch {}
     let attachment = {};
@@ -3227,6 +3640,11 @@ export class VeyraLiveSession {
   }
 
   async webSocketError(ws, error) {
+    if (ws.deserializeAttachment()?.role === "presence") {
+      try { ws.close(1011, "Presence transport error"); } catch {}
+      await this.schedulePresenceAlarm();
+      return;
+    }
     let attachment = {};
 
     try {
@@ -3329,6 +3747,7 @@ const liveWorker = {
           ownerAnalytics: Boolean(env.OWNER_DISCORD_ID),
 
           runtimePresence: {
+            websocket: true,
             linkedWsTouchSeconds: LINKED_WS_TOUCH_MS / 1000,
 
             linkedStaleSeconds: LINKED_STALE_MS / 1000,
@@ -3349,6 +3768,18 @@ const liveWorker = {
       );
     }
 
+    if (url.pathname === "/runtime-presence/ws") {
+      if (!env.LIVE || !env.PRESENCE_TOKEN_SECRET || !env.PRESENCE_RATE_LIMITER) return json(request,{ok:false,error:"Presence unavailable"},503,env);
+      if (request.method!=="GET" || request.headers.get("Upgrade")?.toLowerCase()!=="websocket") return json(request,{ok:false,error:"Expected WebSocket"},426,env);
+      const sid=url.searchParams.get("sid")||"";
+      if (!PRESENCE_SESSION_RE.test(sid)) return json(request,{ok:false,error:"Invalid sessionId"},400,env);
+      if (await presenceRateLimited(env,"runtime-presence/ws",request)) return json(request,{ok:false,error:"Too many presence connections"},429,env);
+      const target=new URL("https://presence.internal/presence-ws");target.searchParams.set("sid",sid);
+      const stub=env.LIVE.get(env.LIVE.idFromName("presence:"+sid));
+      // Public request headers are not trusted as live telemetry identity.
+      return stub.fetch(new Request(target,{headers:{Upgrade:"websocket"}}));
+    }
+
     /*
       Runtime HTTP presence.
 
@@ -3363,198 +3794,7 @@ const liveWorker = {
     */
 
     if (url.pathname === "/runtime-presence" && request.method === "POST") {
-      if (!env.PRESENCE_TOKEN_SECRET || !env.PRESENCE_RATE_LIMITER) {
-        return json(request, { ok: false, error: "Presence unavailable" }, 503, env);
-      }
-      if (await presenceRateLimited(env, "runtime-presence", request)) {
-        return json(request, { ok: false, error: "Too many presence requests" }, 429, env);
-      }
-      const parsed = await limitedJsonBody(request);
-      if (parsed.tooLarge) {
-        return json(
-          request,
-          { ok: false, error: "Request body too large" },
-          413,
-          env,
-        );
-      }
-      const body = parsed.body;
-
-      const sessionId = String(body?.sessionId || "").trim();
-
-      const robloxUserId = String(body?.robloxUserId || "").trim();
-
-      const version = String(body?.version || "unknown")
-        .trim()
-        .slice(0, 32);
-
-      const gameId = cleanAnalyticsText(body?.gameId, 32);
-      const placeId = cleanAnalyticsText(body?.placeId, 32);
-      const gameSlug = cleanAnalyticsText(body?.gameSlug, 64);
-      const device = cleanAnalyticsText(body?.device, 24);
-
-      if (!PRESENCE_SESSION_RE.test(sessionId)) {
-        return json(
-          request,
-          {
-            ok: false,
-
-            error: "Invalid sessionId",
-          },
-          400,
-          env,
-        );
-      }
-
-      if (!/^\d+$/.test(robloxUserId)) {
-        return json(
-          request,
-          {
-            ok: false,
-
-            error: "Invalid robloxUserId",
-          },
-          400,
-          env,
-        );
-      }
-
-      const dashboardKey = bearerToken(request);
-
-      let dashboardLinked = false;
-
-      let veyraUserId = null;
-
-      if (dashboardKey) {
-        try {
-          const linked = await resolveDashboardLink(
-            env,
-            dashboardKey,
-            robloxUserId,
-          );
-
-          if (linked) {
-            dashboardLinked = true;
-
-            veyraUserId = linked.veyra_user_id;
-          }
-        } catch (error) {
-          console.error("Dashboard presence validation error:", error);
-        }
-      }
-
-      if (stagingRestricted(env) && !dashboardLinked) {
-        return json(request, {ok: false, error: 'An invited dashboard account is required.'}, 403, env);
-      }
-
-      try {
-        const previousPresence = await getRuntimePresenceState(env, sessionId);
-        const recordedSession = previousPresence
-          ? null
-          : await env.DB.prepare(
-              "SELECT roblox_user_id FROM analytics_sessions WHERE session_id = ?1 UNION ALL SELECT roblox_user_id FROM runtime_presence WHERE session_id = ?1 LIMIT 1",
-            )
-              .bind(sessionId)
-              .first();
-        const existingRobloxUserId =
-          previousPresence?.roblox_user_id || recordedSession?.roblox_user_id;
-        if (
-          existingRobloxUserId &&
-          String(existingRobloxUserId) !== robloxUserId
-        ) {
-          return json(
-            request,
-            {
-              ok: false,
-              error: "Session ID already belongs to another Roblox ID",
-            },
-            409,
-            env,
-          );
-        }
-
-        const suppliedPresenceToken = request.headers.get("X-Presence-Token") || "";
-        if ((existingRobloxUserId && env.REQUIRE_PRESENCE_TOKEN === "true") || suppliedPresenceToken) {
-          if (!(await validPresenceToken(env, suppliedPresenceToken, sessionId, robloxUserId))) {
-            return json(request, { ok: false, error: "Invalid presence token" }, 401, env);
-          }
-        }
-        if (veyraUserId && !(await claimRuntimeSession(env, veyraUserId, robloxUserId, sessionId))) {
-          return json(request, {ok: false, error: 'Session belongs to another account'}, 409, env);
-        }
-
-        const written = await upsertRuntimePresence(env, {
-          sessionId,
-          robloxUserId,
-          dashboardLinked,
-          userId: veyraUserId,
-          version,
-        });
-        if (!written) return json(request, {ok: false, error: "Session ID already belongs to another Roblox ID"}, 409, env);
-
-        await upsertAnalyticsSession(env, {
-          sessionId,
-          robloxUserId,
-          dashboardLinked,
-          userId: veyraUserId,
-          version,
-          gameId,
-          placeId,
-          gameSlug,
-          device,
-        });
-
-        const stateChanged =
-          !previousPresence ||
-          String(previousPresence.roblox_user_id || "") !== robloxUserId ||
-          Number(previousPresence.dashboard_linked || 0) !==
-            (dashboardLinked ? 1 : 0);
-
-        if (stateChanged) {
-          // Concurrency samples only need to change when presence membership or
-          // dashboard-link state changes. Heartbeats do not change the counts.
-          const stats = await recordAnalyticsSnapshot(env);
-
-          await notifyStatsHub(env, "runtime-presence-change", stats);
-        }
-      } catch (error) {
-        return json(
-          request,
-          {
-            ok: false,
-
-            error: "Presence update failed",
-          },
-          500,
-          env,
-        );
-      }
-
-      const presenceToken = await issuePresenceToken(env, sessionId, robloxUserId);
-      return json(
-        request,
-        {
-          ok: true,
-
-          dashboardLinked,
-
-          veyraUserId,
-
-          presenceToken,
-
-          heartbeatSeconds: dashboardLinked
-            ? LINKED_HTTP_HEARTBEAT_SECONDS
-            : UNLINKED_HEARTBEAT_SECONDS,
-
-          staleSeconds: dashboardLinked
-            ? LINKED_STALE_MS / 1000
-            : UNLINKED_STALE_MS / 1000,
-
-          wsPresence: dashboardLinked,
-        },
-        undefined,
-        env,
-      );
+      return handleRuntimePresence(request, env);
     }
 
     /*
@@ -3566,74 +3806,7 @@ const liveWorker = {
       url.pathname === "/runtime-presence/disconnect" &&
       request.method === "POST"
     ) {
-      if (!env.PRESENCE_TOKEN_SECRET || !env.PRESENCE_RATE_LIMITER) {
-        return json(request, { ok: false, error: "Presence unavailable" }, 503, env);
-      }
-      if (await presenceRateLimited(env, "runtime-presence-disconnect", request)) {
-        return json(request, { ok: false, error: "Too many presence requests" }, 429, env);
-      }
-      const parsed = await limitedJsonBody(request);
-      if (parsed.tooLarge) {
-        return json(
-          request,
-          { ok: false, error: "Request body too large" },
-          413,
-          env,
-        );
-      }
-      const body = parsed.body;
-
-      const sessionId = String(body?.sessionId || "").trim();
-      if (!PRESENCE_SESSION_RE.test(sessionId)) {
-        return json(
-          request,
-          { ok: false, error: "Invalid sessionId" },
-          400,
-          env,
-        );
-      }
-
-      try {
-        const recordedSession = await env.DB.prepare(
-          "SELECT roblox_user_id FROM analytics_sessions WHERE session_id = ?1 UNION ALL SELECT roblox_user_id FROM runtime_presence WHERE session_id = ?1 LIMIT 1",
-        ).bind(sessionId).first();
-        if (stagingRestricted(env) && !(recordedSession && await resolveDashboardLink(env, bearerToken(request), String(recordedSession.roblox_user_id)))) {
-          return json(request, {ok: false, error: 'An invited dashboard account is required.'}, 403, env);
-        }
-        const suppliedPresenceToken = request.headers.get("X-Presence-Token") || "";
-        if (recordedSession && (env.REQUIRE_PRESENCE_TOKEN === "true" || suppliedPresenceToken)) {
-          if (!(await validPresenceToken(env, suppliedPresenceToken, sessionId, String(recordedSession.roblox_user_id)))) {
-            return json(request, { ok: false, error: "Invalid presence token" }, 401, env);
-          }
-        }
-        const now = Date.now();
-        await env.DB.prepare(
-          `
-          UPDATE analytics_sessions
-          SET last_seen_at = MAX(last_seen_at, ?2)
-          WHERE session_id = ?1
-        `,
-        )
-          .bind(sessionId, now)
-          .run();
-
-        const removed = await removeRuntimePresence(env, sessionId, recordedSession?.roblox_user_id);
-        if (removed) {
-          const stats = await recordAnalyticsSnapshot(env);
-          await notifyStatsHub(env, "runtime-presence-disconnect", stats);
-        }
-        return json(request, { ok: true, removed }, undefined, env);
-      } catch (error) {
-        return json(
-          request,
-          {
-            ok: false,
-            error: "Presence disconnect failed",
-          },
-          500,
-          env,
-        );
-      }
+      return handleRuntimePresenceDisconnect(request, env);
     }
 
     /*

@@ -1,8 +1,12 @@
-# Aroyn Hub 4.3.87
+# Aroyn Hub 4.3.88
 
 The readable client and stable loader are included under `apps/dashboard`. Original code uses the repository's MIT license; embedded brand assets have separate terms.
 
-## 4.3.87 independent presence
+## 4.3.88 WebSocket presence
+
+Online accounting prefers WebSocket, including clients without dashboard linking. Unsupported executor APIs, send failures, missing acknowledgements and connection loss fall back to signed HTTPS. Healthy linked telemetry already refreshes online presence and needs no second presence socket. Run the same saved loader again to receive this release; already running instances are not automatically replaced. See [transport behavior and limits](presence-websocket.md).
+
+## Previous: 4.3.87 independent presence
 
 Basic online accounting works without a linked dashboard; detailed snapshots still require linking. Signed heartbeat/disconnect and linked bootstrap ordering are retained. See [behavior and verification limits](unlinked-presence.md).
 
@@ -14,7 +18,7 @@ loadstring(game:HttpGet("https://aroyn-staging.pages.dev/scripts/loader.luau"))(
 
 This downloads executable Luau. Read the source and use a compatible environment you already trust. This document does not distribute or recommend an executor. The loader supports Greedy Growers (GameId `10440833423`), checks the downloaded size and rejects HTML fallback responses before compiling. Other games return a warning without downloading the client. It reports download, compilation and startup failures.
 
-The saved launch command has no version. The stable loader reads `/scripts/version.json` without using account credentials, validates the version and downloads the corresponding immutable `/releases/<version>/greedy-growers.luau`. Updating the manifest selects a new release without changing the user command or loader. Source paths remain immutable; publish changed client bytes under a new version. `docs/release-4.3.87.json` records the current release hashes. HTTPS provides transport authentication; the loader does not independently verify that SHA-256 hash in the game environment.
+The saved launch command has no version. The stable loader reads `/scripts/version.json` without using account credentials, validates the version and downloads the corresponding immutable `/releases/<version>/greedy-growers.luau`. Updating the manifest selects a new release without changing the user command or loader. Source paths remain immutable; publish changed client bytes under a new version. `docs/release-4.3.88.json` records the current release hashes. HTTPS provides transport authentication; the loader does not independently verify that SHA-256 hash in the game environment.
 
 ## Settings migration
 

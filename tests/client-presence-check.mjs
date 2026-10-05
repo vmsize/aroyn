@@ -8,7 +8,7 @@ import {luauTestRuntime} from '../tools/luau-test-runtime.mjs';
 const manifest=JSON.parse(await fs.readFile(new URL('../apps/dashboard/scripts/version.json',import.meta.url),'utf8'));
 const source=(await fs.readFile(new URL(`../apps/dashboard/releases/${manifest.version}/greedy-growers.luau`,import.meta.url),'utf8')).replaceAll('\r\n','\n');
 function section(first,last){const a=source.indexOf(first),b=source.indexOf(last,a);assert(a>=0&&b>a);return source.slice(a,b);}
-const functions=section('function AroynWeb.PresenceOnce()','function AroynWeb.VerifyKey(')+
+const functions=section('function AroynWeb.PresencePayload()','function AroynWeb.VerifyKey(')+
  section('function AroynWeb.DisconnectPresence()','function AroynWeb.Stop(')+
  section('function AroynWeb.Start()','function AroynWeb.LinkKey(')+
  section('function AroynWeb.Unlink()','function AroynWeb.CopyKey(');
@@ -19,6 +19,7 @@ local env={}
 local LocalPlayer={UserId=900002}
 local game={GameId=10440833423,PlaceId=74102906764176}
 local verificationOnly=true
+local HttpService={GenerateGUID=function() return string.rep('a',32) end}
 local activities,requests,queue,waits={}, {}, {}, {}
 local response,decoded,failRequest,verifyOk
 local task={spawn=function(fn) local co=coroutine.create(fn);table.insert(queue,co);return co end,
@@ -35,6 +36,7 @@ local function reset(key)
  AroynWeb.liveHttpBase='https://live.example.test';AroynWeb.presenceIntervalSeconds=300
  AroynWeb.ValidKey=function(value) return value=='valid-key' end
  AroynWeb.NormalizeKey=function(value) return tostring(value or '') end
+ AroynWeb.ResolveWebSocketConnect=function() return nil end
  AroynWeb.ResolveRequest=function() return function(options)
   if failRequest then error('network unavailable') end
   table.insert(requests,options);return response
@@ -47,14 +49,14 @@ local function reset(key)
  AroynWeb.VerifyKey=function() if verifyOk then return true,{displayName='fixture'} end;return false,'expired' end
  AroynWeb.PushOnce=function() end;AroynWeb.Stop=function() AroynWeb.thread=nil end
 end
-reset(nil);assert(AroynWeb.PresenceOnce());assert(#requests==1 and requests[1].Headers.Authorization==nil)
+reset(nil);assert(AroynWeb.PresenceHttpOnce());assert(#requests==1 and requests[1].Headers.Authorization==nil)
 assert(requests[1].Body.robloxUserId=='900002' and requests[1].Body.gameSlug=='greedy-growers')
 assert(AroynWeb.presenceToken=='signed-fixture' and not AroynWeb.presenceDashboardLinked)
 pass('unlinked runtime sends only basic presence without dashboard authorization')
-assert(AroynWeb.PresenceOnce());assert(requests[2].Headers['X-Presence-Token']=='signed-fixture')
+assert(AroynWeb.PresenceHttpOnce());assert(requests[2].Headers['X-Presence-Token']=='signed-fixture')
 pass('unlinked heartbeat retains the signed presence token')
 reset(nil);AroynWeb.Start();assert(AroynWeb.presenceThread and not AroynWeb.thread)
-assert(coroutine.resume(AroynWeb.presenceThread));assert(#requests==1 and waits[1]==300)
+assert(coroutine.resume(AroynWeb.presenceThread));assert(#requests==1 and waits[1]==5)
 state.running=false;assert(coroutine.resume(AroynWeb.presenceThread));assert(AroynWeb.presenceThread==nil and #requests==1)
 pass('startup starts unlinked presence; loop stops with the client')
 reset(nil);AroynWeb.StartPresence();AroynWeb.StartPresence();assert(#queue==1)
@@ -64,20 +66,20 @@ pass('linked startup keeps presence behind successful HTTP bootstrap')
 reset('valid-key');verifyOk=false;AroynWeb.Start();assert(AroynWeb.presenceThread and not AroynWeb.thread)
 pass('expired saved dashboard credential does not hide the running script')
 reset('valid-key');decoded.dashboardLinked=true;decoded.heartbeatSeconds=45
-assert(AroynWeb.PresenceOnce());assert(requests[1].Headers.Authorization=='Bearer valid-key')
+assert(AroynWeb.PresenceHttpOnce());assert(requests[1].Headers.Authorization=='Bearer valid-key')
 assert(AroynWeb.presenceDashboardLinked and AroynWeb.presenceIntervalSeconds==45)
 pass('linked runtime keeps authorization and the server heartbeat cadence')
 AroynWeb.key=nil;decoded.dashboardLinked=false;decoded.heartbeatSeconds=300
-assert(AroynWeb.PresenceOnce());assert(requests[2].Headers.Authorization==nil and requests[2].Headers['X-Presence-Token']=='signed-fixture')
+assert(AroynWeb.PresenceHttpOnce());assert(requests[2].Headers.Authorization==nil and requests[2].Headers['X-Presence-Token']=='signed-fixture')
 assert(not AroynWeb.presenceDashboardLinked and AroynWeb.presenceIntervalSeconds==300)
 pass('unlink retains runtime presence while removing dashboard authorization')
 reset(nil);AroynWeb.presenceToken='signed-fixture';assert(AroynWeb.DisconnectPresence())
 assert(requests[1].Url:find('/disconnect',1,true) and requests[1].Headers.Authorization==nil)
 assert(requests[1].Headers['X-Presence-Token']=='signed-fixture')
 pass('unlinked stop uses signed disconnect without dashboard key')
-reset(nil);response.StatusCode=503;assert(not AroynWeb.PresenceOnce() and not AroynWeb.presenceLastOk)
-response.StatusCode=200;assert(AroynWeb.PresenceOnce() and AroynWeb.presenceLastError==nil)
-failRequest=true;assert(not AroynWeb.PresenceOnce())
+reset(nil);response.StatusCode=503;assert(not AroynWeb.PresenceHttpOnce() and not AroynWeb.presenceLastOk)
+response.StatusCode=200;assert(AroynWeb.PresenceHttpOnce() and AroynWeb.presenceLastError==nil)
+failRequest=true;assert(not AroynWeb.PresenceHttpOnce())
 pass('failed presence remains visible and retryable')
 `;
 const runtime=await luauTestRuntime();

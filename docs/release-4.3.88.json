@@ -1,0 +1,11 @@
+{
+  "version": "4.3.88",
+  "previousVersion": "4.3.87",
+  "loaderSha256": "8478d04460ce3eb9354b16290ab13c63b71cbf2c1327b84fbc76cc4d8d43df88",
+  "clientSha256": "65157803e10fbe712b7b9f6ceacb00ef65bb7ec2648eb82d0e0f2b09e3a45d5f",
+  "liveSourceSha256": "1ebf849fa65797a4a217f1b287a700711dd29417e987f842ec5cf709c627f4f6",
+  "publication": "prepared",
+  "schemaMigrations": 0,
+  "bindingsChanged": false,
+  "realGameSmoke": false
+}

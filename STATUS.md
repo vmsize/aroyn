@@ -1,9 +1,8 @@
 # Source package status â€” 2026-10-03
 
-## Latest client correction — 4.3.87
+## Latest client transport — 4.3.88
 
-The unlinked client-presence regression is corrected and published. Script launch without a dashboard key now starts basic signed presence; linked bootstrap and detailed snapshot authorization remain unchanged. The existing server/bot count all runtimes with a separate linked subset. Historical missed sessions cannot be recovered. Code CI passed and Pages assets are verified. A genuine unlinked launch and rendered Discord count remain to be observed; see [scope and limits](docs/unlinked-presence.md).
-
+WebSocket presence is prepared with automatic HTTPS fallback. Linked runtimes reuse acknowledged telemetry; basic unlinked presence uses a per-session hibernatable socket. Signed session validation and detailed-telemetry authorization remain in place. No schema, binding or credential migration is needed. See [transport and verification](docs/presence-websocket.md). Publication status is recorded in the rollout evidence.
 
 ## Public beta opened — 2026-10-03
 

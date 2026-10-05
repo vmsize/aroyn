@@ -1,0 +1,23 @@
+{
+  "passed": 17,
+  "checks": [
+    "invalid session and missing upgrade rejected",
+    "basic socket registers unlinked presence only after signed ACK and ignores forged live headers",
+    "signed heartbeat keeps one history row",
+    "socket identity and signed heartbeat survive native DO hibernation",
+    "lost initial ACK recovers over HTTPS only with the independent client proof",
+    "duplicate Roblox IDs count as one user",
+    "invalid signed resume cannot disturb existing presence",
+    "signed reconnect replaces old socket without duplicate counts",
+    "socket close cannot erase HTTPS fallback presence",
+    "HTTPS fallback returns to signed WebSocket",
+    "valid owned dashboard credential bootstraps a presence token after telemetry history exists",
+    "dashboard linking upgrades same session with ownership validation",
+    "unlink downgrades dashboard counts without losing online session",
+    "basic socket rejects detailed telemetry",
+    "oversized frames rejected before D1 writes",
+    "abusive messages and pending queues bounded",
+    "signed stop removes counts over WebSocket and HTTPS"
+  ],
+  "scope": "Native Miniflare Workers/D1/hibernation sockets; no production fixtures."
+}

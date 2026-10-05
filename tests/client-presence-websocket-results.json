@@ -1,0 +1,21 @@
+{
+  "version": "4.3.88",
+  "passed": 14,
+  "checks": [
+    "unlinked first send uses acknowledged WebSocket without HTTPS or URL credentials",
+    "healthy socket uses sparse signed heartbeats rather than HTTP polling",
+    "executor without WebSocket uses signed HTTPS at the normal cadence",
+    "connection error uses HTTPS and bounded reconnect backoff",
+    "missing ACK times out and falls back to HTTPS",
+    "WebSocket send failure immediately falls back to HTTPS",
+    "server rejection never marks the socket healthy",
+    "connection loss fails over and recovers using the same signed session",
+    "retired socket events cannot overwrite recovered state",
+    "linked presence reuses fresh telemetry ACKs and recovers if they become stale",
+    "link changes update the same socket without URL keys",
+    "normal stop sends signed WebSocket disconnect and clears handlers",
+    "HTTPS-only executors retain signed stop",
+    "stop during handshake prevents later HTTPS writes"
+  ],
+  "scope": "Actual release Luau functions with fake clock/socket signals and HTTPS; no game execution."
+}

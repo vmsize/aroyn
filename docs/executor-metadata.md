@@ -17,3 +17,7 @@ API reference: [sUNC identifyexecutor](https://docs.sunc.io/Miscellaneous/identi
 ## Published verification — 2026-10-05
 
 Code `deee8ce5c1db38480b7e02e8d63a019b9f200998`, Pages `f4fab263-f3da-486c-af4d-4a2587c93e5e`, live Worker `6c71ab72-5a66-4413-85fb-144bf7f8631e`. Migration 0006 was applied and its two nullable columns read back before Worker deployment. Thirty-five local suites and CI passed, with twelve focused metadata checks; full and embedded Luau compilation passed. Fourteen published assets match the prepared package. API/live/Render health is HTTP 200 and the bot's stats WebSocket is connected. Worker bindings, variables, secrets and compatibility dates are preserved; API code is unchanged. No production runtime fixtures or game execution were performed. Existing script instances and historical sessions remain Unknown until a compatible client supplies metadata.
+
+## Executor distribution chart
+
+The owner panel displays a donut and color legend with launch counts and percentages for the selected period. Percentages use all recorded launches in that period, including Unknown. Since the backend returns at most ten executor names, the remaining launches appear as Other executors. This is a share of launches, not a share of unique people; repeat launches are included. Colors are assigned by name with collision avoidance within the chart, and labels/counts also convey the data without relying on color. Empty periods show a clear empty state.

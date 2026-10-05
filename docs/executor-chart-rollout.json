@@ -1,0 +1,81 @@
+{
+  "at": "2026-10-05T08:07:57.406624+00:00",
+  "codeCommit": "11a7d82f88cf67adba2812aff022aaa8cd99d057",
+  "pagesDeployment": "92a5c1ee-fd56-4a26-b849-e1321fe34aed",
+  "assets": [
+    {
+      "path": "admin/index.html",
+      "status": 200,
+      "sha256": "562562c2670b805f753815c7cd3366540aa2a29882c8b92a2a99606be491a954"
+    },
+    {
+      "path": "assets/js/pages/admin-analytics.js",
+      "status": 200,
+      "sha256": "31ea0bf7522af07296262d0796aaf89568f14eb2dc52f7b75315da25b7059919"
+    },
+    {
+      "path": "assets/styles/admin-analytics.css",
+      "status": 200,
+      "sha256": "44fce369ab9ec451df6c41e193fefa693956e11f627f3ce7f6ad39670b54cc26"
+    },
+    {
+      "path": "assets/js/core/config.js",
+      "status": 200,
+      "sha256": "1fb0f69ce8160c908cbbd6c45e19abf64650587dd8f9b5b65784784f010e490f"
+    },
+    {
+      "path": "scripts/loader.luau",
+      "status": 200,
+      "sha256": "8478d04460ce3eb9354b16290ab13c63b71cbf2c1327b84fbc76cc4d8d43df88"
+    },
+    {
+      "path": "scripts/version.json",
+      "status": 200,
+      "sha256": "e8fdb2a3d543a137d4374dcb4ed36c4dee3b1316bc40bc6fe053b7c64ba97d60"
+    },
+    {
+      "path": "releases/4.3.89/greedy-growers.luau",
+      "status": 200,
+      "sha256": "3f34e722503d31611765e3a7bff86b9af3db272bdba6e70df8f4845cf5f018c5"
+    }
+  ],
+  "ci": [
+    {
+      "id": 37281451912,
+      "html_url": "https://github.com/vmsize/aroyn/actions/runs/37281451912",
+      "name": "Synthetic checks",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "11a7d82f88cf67adba2812aff022aaa8cd99d057"
+    }
+  ],
+  "localChartVerification": {
+    "at": "2026-10-05T08:05:07.245Z",
+    "percentageDenominator": "All recorded launches in selected range; top-ten tail shown as Other executors.",
+    "emptyAndUnknownVerified": true,
+    "escapingVerified": true,
+    "stableColors": true,
+    "layout": [
+      {
+        "name": "desktop",
+        "width": 1000,
+        "scrollWidth": 985,
+        "legendItems": 4,
+        "distinctColors": 4,
+        "svg": true
+      },
+      {
+        "name": "mobile",
+        "width": 390,
+        "scrollWidth": 375,
+        "legendItems": 4,
+        "distinctColors": 4,
+        "svg": true
+      }
+    ],
+    "scope": "Synthetic chart data and isolated headless Chromium; no user browser or production data."
+  },
+  "clientVersion": "4.3.89",
+  "clientAndBackendRedeployed": false,
+  "productionRuntimeFixtures": false
+}

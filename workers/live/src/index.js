@@ -66,7 +66,7 @@ const ANALYTICS_SESSION_CHECKPOINT_MS = 15 * 60 * 1000;
 // cached for minutes, not seconds, and overlay live/recent data separately.
 // This keeps the dashboard responsive while avoiding repeated full-table scans.
 const OWNER_ANALYTICS_CACHE_MS = 30 * 60 * 1000;
-const OWNER_ANALYTICS_CACHE_VERSION = 3;
+const OWNER_ANALYTICS_CACHE_VERSION = 4;
 const OWNER_ANALYTICS_REALTIME_CACHE_MS = 10 * 1000;
 const OWNER_USER_DIRECTORY_CACHE_MS = 30 * 60 * 1000;
 
@@ -1465,7 +1465,7 @@ async function getOwnerAnalytics(env, rangeValue, timezoneOffsetMinutes = 0) {
     SELECT COALESCE(NULLIF(executor_name, ''), 'Unknown') AS label,
       COUNT(*) AS launches, COUNT(DISTINCT roblox_user_id) AS users
     FROM analytics_sessions WHERE started_at >= ?1
-    GROUP BY label ORDER BY launches DESC LIMIT 10
+    GROUP BY label ORDER BY launches DESC, label ASC
   `).bind(start).all();
 
   const deviceResult = await env.DB.prepare(

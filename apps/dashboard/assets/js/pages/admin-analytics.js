@@ -373,6 +373,9 @@ function executorColor(row,used=new Set()){
 }
 function renderExecutorChart(rows){
   const el=els.executors;if(!el)return;
+  const previousLegend=el.querySelector?.('.owner-executor-legend');
+  const scrollTop=previousLegend?.scrollTop||0;
+  const legendFocused=previousLegend&&previousLegend===document.activeElement;
   const distribution=executorDistribution(rows);
   if(!distribution.total){el.innerHTML='<div class="owner-breakdown-empty">No identified executors in this period yet.</div>';return;}
   const used=new Set();
@@ -384,7 +387,9 @@ function renderExecutorChart(rows){
     offset+=row.percent;return slice;
   }).join('');
   const legend=distribution.rows.map(row=>`<li class="owner-executor-legend-row"><span class="owner-executor-swatch" style="background:${row.color}" aria-hidden="true"></span><span class="owner-executor-name">${esc(row.label)}</span><span class="owner-executor-count">${esc(nf.format(row.count))} launches</span><strong>${percent(row.percent)}</strong></li>`).join('');
-  el.innerHTML=`<div class="owner-executor-donut"><svg viewBox="0 0 200 200" role="img" aria-label="Distribution of launches for listed identified executors"><circle cx="100" cy="100" r="74" fill="none" stroke="var(--border-secondary)" stroke-width="26"/>${slices}</svg><div class="owner-executor-total"><strong>${esc(num(distribution.total))}</strong><span>launches</span></div></div><ul class="owner-executor-legend" aria-label="Executor colors, launch counts and percentages">${legend}</ul>`;
+  el.innerHTML=`<div class="owner-executor-donut"><svg viewBox="0 0 200 200" role="img" aria-label="Distribution of launches for listed identified executors"><circle cx="100" cy="100" r="74" fill="none" stroke="var(--border-secondary)" stroke-width="26"/>${slices}</svg><div class="owner-executor-total"><strong>${esc(num(distribution.total))}</strong><span>launches</span></div></div><ul class="owner-executor-legend" tabindex="0" aria-label="Executor colors, launch counts and percentages. Scroll for more.">${legend}</ul>`;
+  const nextLegend=el.querySelector?.('.owner-executor-legend');
+  if(nextLegend){nextLegend.scrollTop=scrollTop;if(legendFocused)nextLegend.focus({preventScroll:true});}
 }
 function sessionRow(row,online=false){
   const seen=Math.max(0,Number(row.lastSeenAt||0)-Number(row.startedAt||0));

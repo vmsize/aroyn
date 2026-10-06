@@ -72,7 +72,16 @@ try{
  const linkedDeadline=Date.now()+5000;while(!(await row('local-executor-linked'))&&Date.now()<linkedDeadline)await new Promise(done=>setTimeout(done,10));
  assert.equal((await row('local-executor-linked'))?.executor_name,'Linked executor');assert.equal((await row('local-executor-linked'))?.executor_version,'2.0');pass('authenticated linked telemetry records the same executor fields on its first snapshot');
  assert.equal((await fetch('/owner/analytics')).status,401);assert.equal((await fetch('/owner/analytics',{headers:{Authorization:'Bearer '+other.token}})).status,403);
+ const fixtureNames=Array.from({length:13},(_,i)=>`Executor fixture ${String(i).padStart(2,'0')}`);
+ const fixtureNow=Date.now();
+ await r.db.batch(fixtureNames.map((name,i)=>r.db.prepare(`INSERT INTO analytics_sessions(session_id,roblox_user_id,version,started_at,last_seen_at,executor_name) VALUES(?1,?2,?3,?4,?4,?5)`).bind('local-executor-list-'+i,String(950000+i),manifest.version,fixtureNow-(i===0?2*86400000:60000),name)));
  res=await fetch('/owner/analytics',{headers:{Authorization:'Bearer '+owner.token}});assert.equal(res.status,200);const {analytics}=await res.json();
+ for(const name of fixtureNames.slice(1))assert(analytics.executors.some(x=>x.label===name),'missing executor beyond top ten: '+name);
+ assert(!analytics.executors.some(x=>x.label===fixtureNames[0]));
+ const week=await fetch('/owner/analytics?range=7d',{headers:{Authorization:'Bearer '+owner.token}});assert.equal(week.status,200);
+ const weekBody=await week.json();for(const name of fixtureNames)assert(weekBody.analytics.executors.some(x=>x.label===name));
+ pass('executor breakdown includes every group beyond ten and still respects the selected period');
+
  assert(analytics.executors.some(x=>x.label==='Different executor'));assert(analytics.executors.some(x=>x.label==='Unknown'));
  assert.equal(analytics.onlineSessions.find(x=>x.sessionId===sid).executorName,'<img src=x onerror=alert(1)>');
  assert.equal(analytics.recent.find(x=>x.sessionId===payload.sessionId).executorName,'Different executor');

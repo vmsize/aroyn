@@ -1,5 +1,9 @@
 # Source package status â€” 2026-10-03
 
+## Complete executor legend
+
+Owner analytics returns all executor groups for the selected period instead of the ten most frequent. The identified-executor legend scrolls, preserving position and keyboard focus across refresh. Cache version 4 refreshes former truncated results. Client 4.3.89, retention and authorization remain unchanged.
+
 ## Identified executors chart
 
 The owner executor donut now excludes Unknown and missing names. Counts and percentages use only displayed identified executors, with an empty state when none are available. Backend history and client 4.3.89 are unchanged.

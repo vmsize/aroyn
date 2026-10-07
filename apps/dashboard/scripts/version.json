@@ -1,6 +1,6 @@
 {
   "schema": "aroyn-release-v1",
-  "version": "4.3.91",
-  "message": "Pet feeding toggle appearance corrected. Run your saved loader again to update.",
+  "version": "4.3.92",
+  "message": "Pet feeding collects fruit directly without teleporting; toggle appearance corrected. Run your saved loader again to update.",
   "gameId": 10440833423
 }

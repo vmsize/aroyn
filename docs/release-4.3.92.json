@@ -1,0 +1,8 @@
+{
+  "version": "4.3.92",
+  "previousPublicVersion": "4.3.90",
+  "clientSha256": "7214e67db0574ad8228825d59339401a42cf70f342e8b5b72ca2f78bff6b2f56",
+  "loaderSha256": "8478d04460ce3eb9354b16290ab13c63b71cbf2c1327b84fbc76cc4d8d43df88",
+  "backendChanged": false,
+  "directFruitCollection": true
+}

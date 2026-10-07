@@ -17,8 +17,12 @@ local PetSeedRuntime={revision=0};local ui={};local workspace={GetServerTimeNow=
 local ReplicatedStorage={};local function addActivity()end;local function scheduleSettingsSave()end
 local os={clock=function()return now end}
 local task={wait=function(t)return coroutine.yield(t or .05)end,spawn=function(fn)workers[#workers+1]={co=coroutine.create(fn),at=now}end}
-local function fireproximityprompt()
- collects+=1;data.Inventory.Hotbar[1]={itemType='Fruit',id='new',count=1,sellValue=5,seedType='Oak'}
+local function fireproximityprompt(exact,...)
+ assert(exact==prompt and select('#',...)==0,'direct exact prompt invocation')
+ assert(not prompt.Enabled,'prompt visibility must remain unchanged')
+ collects+=1
+ local function arrive() data.Inventory.Hotbar[1]={itemType='Fruit',id='new',count=1,sellValue=5,seedType='Oak'} end
+ if mode=='cancel-collection' then stage='collection';task.spawn(function()task.wait(.3);arrive()end) else arrive() end
 end
 FarmRuntime={}
 `+actual+String.raw`
@@ -45,12 +49,7 @@ local function reset(m)
  FarmRuntime.refreshMarketPlotRecords=function()end
  FarmRuntime.liveFruitDisplay=function()return {sellValue=5,seedType='Oak',locked=fruit.attrs.FruitLocked,waxed=fruit.attrs.FruitWaxed}end
  FarmRuntime.findFruitPrompt=function()return prompt end;FarmRuntime.findFruitTeleportCFrame=function()return {}end
- FarmRuntime.petFeedMove=function()
-  stage='move';task.wait(.2)
-  if mode=='wax-during-move' then fruit.attrs.FruitWaxed=true end
-  if mode=='cap-during-move' then state.petFeedMaxValue=1 end
-  return true
- end
+ FarmRuntime.petFeedMove=function()error('feeding must not move the character')end
  FarmRuntime.waitForSelectedItem=function(id)
   stage='equip';task.wait(.1)
   if mode=='owner-during-equip' then marker.attrs.OwnerUserId=2 end
@@ -72,7 +71,14 @@ local function reset(m)
    return true,true
   end}
  end},ToolService={ToggleEquip={Fire=function()equips+=1 end}},selectedItemId='none'}
- if m~='normal-plot' and not m:find('move',1,true) then claimedFruits[fruit]=true end
+ if m~='normal-plot' and m~='cancel-collection' and m~='wax-before-collection' and m~='cap-before-collection' then claimedFruits[fruit]=true end
+ local choose=FarmRuntime.petFeedChoosePlotFruit
+ FarmRuntime.petFeedChoosePlotFruit=function()
+  local result=choose()
+  if mode=='wax-before-collection' then fruit.attrs.FruitWaxed=true end
+  if mode=='cap-before-collection' then state.petFeedMaxValue=1 end
+  return result
+ end
 end
 local function pass(s)print('PASS '..s)end
 reset('unit')
@@ -91,7 +97,7 @@ local function drive(co,token)
  for i=1,250 do
   if coroutine.status(co)=='dead' then break end
   local ok,delay=coroutine.resume(co,token);assert(ok,tostring(delay));now+=tonumber(delay) or 0
-  if not cancelled and ((mode=='cancel-move' and stage=='move') or (mode=='cancel-equip' and stage=='equip') or (mode=='cancel-before-send' and #workers>0) or ((mode=='cancel-confirm' or mode=='stop-confirm') and sends>0)) then
+  if not cancelled and ((mode=='cancel-collection' and stage=='collection') or (mode=='cancel-equip' and stage=='equip') or (mode=='cancel-before-send' and #workers>0) or ((mode=='cancel-confirm' or mode=='stop-confirm') and sends>0)) then
    state.autoFeedPetsEnabled=false;FarmRuntime.PetFeed.revision+=1;cancelled=true
    FarmRuntime.PetFeed.status='cancelled sentinel'
    if mode=='stop-confirm' then state.running=false;state.generation+=1 end
@@ -100,13 +106,14 @@ local function drive(co,token)
  end
  assert(coroutine.status(co)=='dead','unbounded operation')
 end
-for _,scenario in ipairs({'normal-inventory','normal-plot','refused','unresolved','exception','timeout','no-consumption','no-hunger','favorite-no-consumption','missing-inventory','wax-during-move','cap-during-move','owner-during-equip','favorite-during-equip','cancel-move','cancel-equip','cancel-before-send','cancel-confirm','stop-confirm'}) do
+for _,scenario in ipairs({'normal-inventory','normal-plot','refused','unresolved','exception','timeout','no-consumption','no-hunger','favorite-no-consumption','missing-inventory','wax-before-collection','cap-before-collection','owner-during-equip','favorite-during-equip','cancel-collection','cancel-equip','cancel-before-send','cancel-confirm','stop-confirm'}) do
  reset(scenario);stage=nil
  local token=FarmRuntime.featureOperationToken('feed');assert(FarmRuntime.acquireFeatureOperation(token));local co=coroutine.create(FarmRuntime.petFeedStep);drive(co,token)
  local normal=scenario=='normal-inventory' or scenario=='normal-plot'
  assert(FarmRuntime.PetFeed.confirmed==(normal and 1 or 0),scenario..' false confirmation')
- if scenario:find('during',1,true) or scenario=='cancel-move' or scenario=='cancel-equip' or scenario=='cancel-before-send' then assert(sends==0,scenario..' sent')end
- if scenario=='cancel-move' or scenario=='wax-during-move' or scenario=='cap-during-move' then assert(collects==0,scenario..' collected')end
+ if scenario:find('during',1,true) or scenario:find('before-collection',1,true) or scenario=='cancel-collection' or scenario=='cancel-equip' or scenario=='cancel-before-send' then assert(sends==0,scenario..' sent')end
+ if scenario=='wax-before-collection' or scenario=='cap-before-collection' then assert(collects==0,scenario..' collected')end
+ if scenario=='cancel-collection' then assert(collects==1 and equips==0,'cancelled collection continued to equip')end
  if scenario=='normal-plot' then assert(collects==1 and not prompt.Enabled and FarmRuntime.PetFeed.spent==5)end
  if scenario=='normal-inventory' then assert(collects==0 and FarmRuntime.PetFeed.spent==20)end
  if scenario:find('cancel',1,true) or scenario=='stop-confirm' then assert(FarmRuntime.PetFeed.status=='cancelled sentinel','old continuation overwrote toggle status')end
@@ -118,7 +125,7 @@ for _,scenario in ipairs({'normal-inventory','normal-plot','refused','unresolved
  pass(scenario..' sends='..sends..' confirmed='..FarmRuntime.PetFeed.confirmed)
 end
 reset('unit');FarmRuntime.PetFeed.inFlight={};local t=FarmRuntime.featureOperationToken('feed');assert(FarmRuntime.acquireFeatureOperation(t));assert(not FarmRuntime.petFeedStep(t) and sends==0);pass('pending feed blocks duplicate remote requests')
-reset('unit');local root={Parent=true,CFrame='moved'};local ticket={root=root,cframe='original',linear=1,angular=2};FarmRuntime.PetFeed.activeTicket=ticket;FarmRuntime.teleportOwner='feed';FarmRuntime.petFeedRestore(ticket);assert(root.CFrame=='original');root.CFrame='new';FarmRuntime.petFeedRestore(ticket);assert(root.CFrame=='new');pass('position cleanup is idempotent')
+reset('unit');local token={claimedFruit=fruit};claimedFruits[fruit]=token;FarmRuntime.petFeedReleaseClaim(token);FarmRuntime.petFeedReleaseClaim(token);assert(not claimedFruits[fruit]);pass('claim cleanup is idempotent without movement restoration')
 `;
 const dir=await fs.mkdtemp(path.join(os.tmpdir(),'aroyn-pet-feed-')),probe=path.join(dir,'check.luau');await fs.writeFile(probe,harness);
 const rt=await luauTestRuntime();

@@ -1,5 +1,9 @@
 # Source package status â€” 2026-10-03
 
+## Direct feeding collection — 4.3.92
+
+Auto Feed uses the same direct FruitSpawn prompt invocation as Auto Collect All Fruits, without character movement or prompt property edits. The corrected Pets switch is included.
+
 ## Toggle appearance — 4.3.91
 
 Pets uses a centered normal-sized switch within a larger touch target. Toggle positions use local dimensions at desktop UI scales. Feeding logic is unchanged.

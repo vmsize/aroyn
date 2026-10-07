@@ -1,0 +1,8 @@
+{
+  "version": "4.3.91",
+  "previousVersion": "4.3.90",
+  "clientSha256": "b7774d830eb1d35710349d6d94faf073c64e64ab69b5c53792ace8e3fecea95d",
+  "loaderSha256": "8478d04460ce3eb9354b16290ab13c63b71cbf2c1327b84fbc76cc4d8d43df88",
+  "backendChanged": false,
+  "feedingBehaviorChanged": false
+}

@@ -1,5 +1,9 @@
 # Source package status â€” 2026-10-03
 
+## Toggle appearance — 4.3.91
+
+Pets uses a centered normal-sized switch within a larger touch target. Toggle positions use local dimensions at desktop UI scales. Feeding logic is unchanged.
+
 ## Mobile UI and pet feeding — 4.3.90
 
 The client adds a responsive single-column layout and a Pets tab with Auto Feed, hunger thresholds and an optional fruit value cap. Feeding defaults off, protects favorites/locked/waxed fruit and requires server acceptance, inventory consumption and hunger growth before counting success. Twenty-nine focused behavioral scenarios and complete chunk compilation passed. Controlled real-game feeding and emulated viewport checks passed; physical phone testing remains. Stable loader and backend are unchanged. See [scope and verification](docs/mobile-pet-feeding.md).

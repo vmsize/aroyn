@@ -1,3 +1,7 @@
+## Mobile dashboard navigation — 4.3.95
+
+Connect dashboard scrolls MobilePages to the actual linking panel after opening Session. Nested offsets and existing scroll are accounted for; short content is clamped and late callbacks do not move another tab. Backend, domain configuration and stable loader are unchanged.
+
 ## Custom domain and compact Pets — 4.3.94
 
 Website and client links use aroyn.xyz. Existing API/live services, Discord callback, database and resource identifiers remain the same; only allowed web origins and the post-login destination change. Login once with the existing Discord identity on the new browser origin. Pets settings use compact cards and count-sized scrolling lists with hunger bars. Physical phone scrolling was confirmed for 4.3.93; the new visual layout awaits confirmation.

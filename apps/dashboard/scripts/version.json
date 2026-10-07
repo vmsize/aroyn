@@ -1,6 +1,6 @@
 {
   "schema": "aroyn-release-v1",
-  "version": "4.3.94",
-  "message": "Mobile Pets cards and hunger bars, compact Buy Seeds rows with aligned controls. Website links now use aroyn.xyz. Run your saved loader again to update.",
+  "version": "4.3.95",
+  "message": "On mobile, Connect dashboard scrolls directly to the dashboard linking panel in Session. Run your saved loader again to update.",
   "gameId": 10440833423
 }

@@ -1,0 +1,10 @@
+{
+  "version": "4.3.95",
+  "previousPublicVersion": "4.3.94",
+  "clientSha256": "9ec77b56d71132ef8f8cf92f40b7707356e0a0c5c2f98135bf2da4ae08c32cf3",
+  "loaderSha256": "671e8a8dea5475d1247daa9f8d7703180c526f56fbb707f36ecd2d74b690ce5c",
+  "workerCodeChanged": false,
+  "domain": "https://aroyn.xyz",
+  "databaseMigration": false,
+  "physicalPhoneVerified": false
+}

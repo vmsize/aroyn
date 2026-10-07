@@ -1,4 +1,4 @@
-# Mobile layout and pet feeding — 4.3.94
+# Mobile layout and pet feeding — 4.3.95
 
 Run the existing saved loader again to receive the release. Already running clients are not replaced automatically. No API, live Worker, database migration or presence interval changes are needed.
 
@@ -43,3 +43,7 @@ Three compact setting cards sit side by side on wide screens, switching to label
 ## 4.3.94 compact Buy Seeds
 
 Mobile seed rows match Compost's 42-unit height. Price, priority and both direction buttons have explicit top anchors and fit inside each row. Per-seed activity remains visible on wide layouts and is hidden in the narrow row; Session activity and desktop details remain available. Desktop restoration is retained.
+
+## 4.3.95 mobile dashboard navigation
+
+Connect dashboard selects the Session tab/view, then scrolls MobilePages to the actual nested dashboard-link panel position with an 8-unit top margin. The destination accounts for the existing canvas offset and is clamped to available scroll range; it is saved for later Session navigation. Desktop keeps its existing highlight. Delayed callbacks stop if another tab/view was selected or the GUI stopped/closed. No input focus, clipboard, credentials or farming settings are changed.

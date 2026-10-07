@@ -1,4 +1,4 @@
-# Aroyn Hub 4.3.94
+# Aroyn Hub 4.3.95
 
 The readable client and stable loader are included under `apps/dashboard`. Original code uses the repository's MIT license; embedded brand assets have separate terms.
 
@@ -42,7 +42,7 @@ loadstring(game:HttpGet("https://aroyn.xyz/scripts/loader.luau"))()
 
 This downloads executable Luau. Read the source and use a compatible environment you already trust. This document does not distribute or recommend an executor. The loader supports Greedy Growers (GameId `10440833423`), checks the downloaded size and rejects HTML fallback responses before compiling. Other games return a warning without downloading the client. It reports download, compilation and startup failures.
 
-The saved launch command has no version. The stable loader reads `/scripts/version.json` without using account credentials, validates the version and downloads the corresponding immutable `/releases/<version>/greedy-growers.luau`. Updating the manifest selects a new release without changing the saved user command. Both Pages and custom-domain loader URLs remain available. Source paths remain immutable; publish changed client bytes under a new version. `docs/release-4.3.94.json` records the current release hashes. HTTPS provides transport authentication; the loader does not independently verify that SHA-256 hash in the game environment.
+The saved launch command has no version. The stable loader reads `/scripts/version.json` without using account credentials, validates the version and downloads the corresponding immutable `/releases/<version>/greedy-growers.luau`. Updating the manifest selects a new release without changing the saved user command. Both Pages and custom-domain loader URLs remain available. Source paths remain immutable; publish changed client bytes under a new version. `docs/release-4.3.95.json` records the current release hashes. HTTPS provides transport authentication; the loader does not independently verify that SHA-256 hash in the game environment.
 
 ## Settings migration
 
@@ -100,3 +100,7 @@ The owner reported 4.3.85 stale telemetry. Controlled real-game delivery establi
 ## 4.3.94 compact Buy Seeds
 
 Mobile seed rows match Compost's 42-unit height. Price, priority and both direction buttons have explicit top anchors and fit inside each row. Per-seed activity remains visible on wide layouts and is hidden in the narrow row; Session activity and desktop details remain available. Desktop restoration is retained.
+
+## 4.3.95 mobile dashboard navigation
+
+Connect dashboard selects the Session tab/view, then scrolls MobilePages to the actual nested dashboard-link panel position with an 8-unit top margin. The destination accounts for the existing canvas offset and is clamped to available scroll range; it is saved for later Session navigation. Desktop keeps its existing highlight. Delayed callbacks stop if another tab/view was selected or the GUI stopped/closed. No input focus, clipboard, credentials or farming settings are changed.

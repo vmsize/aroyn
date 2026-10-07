@@ -1,6 +1,6 @@
 -- Aroyn Hub stable loader. Save this URL once; the manifest selects the release.
--- This free Pages address is fixed deliberately; no executor key is embedded.
-local BASE = "https://aroyn-staging.pages.dev"
+-- The stable custom domain selects future releases; no executor key is embedded.
+local BASE = "https://aroyn.xyz"
 local MAX_SOURCE_BYTES = 900000
 local MAX_MANIFEST_BYTES = 4096
 

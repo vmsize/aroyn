@@ -1,6 +1,10 @@
+## Custom domain and compact Pets — 4.3.94
+
+Website and client links use aroyn.xyz. Existing API/live services, Discord callback, database and resource identifiers remain the same; only allowed web origins and the post-login destination change. Login once with the existing Discord identity on the new browser origin. Pets settings use compact cards and count-sized scrolling lists with hunger bars. Physical phone scrolling was confirmed for 4.3.93; the new visual layout awaits confirmation.
+
 ## Mobile touch scrolling — 4.3.93
 
-Closed popup overlays are hidden. In compact mode MobilePages owns the Pets page scroll; the redundant full-height inner scroller is disabled and restored on desktop. Native scrolling of nested content lists stays enabled. Physical phone verification is pending.
+Closed popup overlays are hidden. In compact mode MobilePages owns the Pets page scroll; the redundant full-height inner scroller is disabled and restored on desktop. Native scrolling of nested content lists stays enabled. Physical phone scrolling was confirmed by the user.
 
 # Source package status â€” 2026-10-03
 

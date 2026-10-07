@@ -1,6 +1,6 @@
 {
   "schema": "aroyn-release-v1",
-  "version": "4.3.93",
-  "message": "Mobile touch scrolling fixed: closed popups no longer cover pages and Pets uses the outer page scroller. Run your saved loader again to update.",
+  "version": "4.3.94",
+  "message": "Mobile Pets cards and hunger bars, compact Buy Seeds rows with aligned controls. Website links now use aroyn.xyz. Run your saved loader again to update.",
   "gameId": 10440833423
 }

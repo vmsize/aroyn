@@ -5,4 +5,4 @@ export const LIVE_WS_BASE = 'ws://127.0.0.1:8788/ws';
 
 // Enable only after the public loader and its pinned release are deployed and
 // checked. An empty value keeps the homepage launch action hidden.
-export const SCRIPT_LOADER_URL = 'https://aroyn-staging.pages.dev/scripts/loader.luau';
+export const SCRIPT_LOADER_URL = 'https://aroyn.xyz/scripts/loader.luau';

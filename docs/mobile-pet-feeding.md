@@ -1,4 +1,4 @@
-# Mobile layout and pet feeding — 4.3.93
+# Mobile layout and pet feeding — 4.3.94
 
 Run the existing saved loader again to receive the release. Already running clients are not replaced automatically. No API, live Worker, database migration or presence interval changes are needed.
 
@@ -34,4 +34,12 @@ The actual new prepare function collected one Chestnut fruit in the connected ga
 
 ## 4.3.93 touch scrolling
 
-Hide the full-body popup layer when no popup is open; opening, switching and closing popups update the layer visibility. Compact Pets delegates page scrolling to MobilePages and disables the redundant inner full-height scroller, preserving the pet list and restoring desktop properties. Regression checks exercise popup lifecycle and compact/desktop scrolling ownership. A physical phone swipe must still be confirmed by the user.
+Hide the full-body popup layer when no popup is open; opening, switching and closing popups update the layer visibility. Compact Pets delegates page scrolling to MobilePages and disables the redundant inner full-height scroller, preserving the pet list and restoring desktop properties. Regression checks exercise popup lifecycle and compact/desktop scrolling ownership. The user confirmed physical phone swipes after publication of 4.3.93.
+
+## 4.3.94 Pets layout
+
+Three compact setting cards sit side by side on wide screens, switching to labelled rows on narrow screens. Pet rows have hunger bars; list height follows the current count up to a scrolling limit. Page canvas height follows this layout and updates after pet-count changes and rotation. The prior touch-scroll fix is retained. Physical appearance on a phone still needs user confirmation for this release.
+
+## 4.3.94 compact Buy Seeds
+
+Mobile seed rows match Compost's 42-unit height. Price, priority and both direction buttons have explicit top anchors and fit inside each row. Per-seed activity remains visible on wide layouts and is hidden in the narrow row; Session activity and desktop details remain available. Desktop restoration is retained.

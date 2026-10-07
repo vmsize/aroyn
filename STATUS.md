@@ -1,5 +1,9 @@
 # Source package status â€” 2026-10-03
 
+## Mobile UI and pet feeding — 4.3.90
+
+The client adds a responsive single-column layout and a Pets tab with Auto Feed, hunger thresholds and an optional fruit value cap. Feeding defaults off, protects favorites/locked/waxed fruit and requires server acceptance, inventory consumption and hunger growth before counting success. Twenty-nine focused behavioral scenarios and complete chunk compilation passed. Controlled real-game feeding and emulated viewport checks passed; physical phone testing remains. Stable loader and backend are unchanged. See [scope and verification](docs/mobile-pet-feeding.md).
+
 ## Complete executor legend
 
 Owner analytics returns all executor groups for the selected period instead of the ten most frequent. The identified-executor legend scrolls, preserving position and keyboard focus across refresh. Cache version 4 refreshes former truncated results. Client 4.3.89, retention and authorization remain unchanged.

@@ -1,0 +1,10 @@
+{
+  "version": "4.3.90",
+  "previousVersion": "4.3.89",
+  "clientSha256": "670d69daefc7e610c0235aaf7f2eb6363f40fc2f6c73bb79b0d9e9ffbef46bc2",
+  "loaderSha256": "8478d04460ce3eb9354b16290ab13c63b71cbf2c1327b84fbc76cc4d8d43df88",
+  "backendChanged": false,
+  "schemaMigration": null,
+  "realGameFeeding": true,
+  "physicalMobileTest": false
+}

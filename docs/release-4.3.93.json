@@ -1,0 +1,8 @@
+{
+  "version": "4.3.93",
+  "previousPublicVersion": "4.3.92",
+  "clientSha256": "34e888eadf474f1c899da543fcd7b08a718656f45752246ef96a792400ee8efd",
+  "loaderSha256": "8478d04460ce3eb9354b16290ab13c63b71cbf2c1327b84fbc76cc4d8d43df88",
+  "backendChanged": false,
+  "physicalPhoneVerified": false
+}

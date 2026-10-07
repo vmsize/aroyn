@@ -1,4 +1,4 @@
-# Mobile layout and pet feeding — 4.3.92
+# Mobile layout and pet feeding — 4.3.93
 
 Run the existing saved loader again to receive the release. Already running clients are not replaced automatically. No API, live Worker, database migration or presence interval changes are needed.
 
@@ -31,3 +31,7 @@ Actual GUI controls were inspected in the connected executor at emulated 320 × 
 ## 4.3.92 direct collection correction
 
 The actual new prepare function collected one Chestnut fruit in the connected game. Inventory arrival was confirmed, character displacement was 0, and the prompt remained disabled before and after invocation. Auto Feed remained off after the bounded test. All 36 local suites, including 29 pet scenarios and full outer/embedded compilation, passed for this release. The complete feed cycle and mobile layout evidence above belongs to 4.3.90; this correction did not reload the active farming client.
+
+## 4.3.93 touch scrolling
+
+Hide the full-body popup layer when no popup is open; opening, switching and closing popups update the layer visibility. Compact Pets delegates page scrolling to MobilePages and disables the redundant inner full-height scroller, preserving the pet list and restoring desktop properties. Regression checks exercise popup lifecycle and compact/desktop scrolling ownership. A physical phone swipe must still be confirmed by the user.

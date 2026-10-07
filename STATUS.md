@@ -1,3 +1,7 @@
+## Mobile touch scrolling — 4.3.93
+
+Closed popup overlays are hidden. In compact mode MobilePages owns the Pets page scroll; the redundant full-height inner scroller is disabled and restored on desktop. Native scrolling of nested content lists stays enabled. Physical phone verification is pending.
+
 # Source package status â€” 2026-10-03
 
 ## Direct feeding collection — 4.3.92

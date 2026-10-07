@@ -1,6 +1,10 @@
-# Aroyn Hub 4.3.92
+# Aroyn Hub 4.3.93
 
 The readable client and stable loader are included under `apps/dashboard`. Original code uses the repository's MIT license; embedded brand assets have separate terms.
+
+## 4.3.93 mobile touch scrolling
+
+The popup overlay is visible only while a popup is open. In compact layout the full-height inner Pets scroller is disabled so page swipes reach MobilePages; scrolling within the pet list remains available. Desktop restores the original Pets scroller. Physical phone confirmation remains pending.
 
 ## 4.3.92 direct fruit collection
 
@@ -38,7 +42,7 @@ loadstring(game:HttpGet("https://aroyn-staging.pages.dev/scripts/loader.luau"))(
 
 This downloads executable Luau. Read the source and use a compatible environment you already trust. This document does not distribute or recommend an executor. The loader supports Greedy Growers (GameId `10440833423`), checks the downloaded size and rejects HTML fallback responses before compiling. Other games return a warning without downloading the client. It reports download, compilation and startup failures.
 
-The saved launch command has no version. The stable loader reads `/scripts/version.json` without using account credentials, validates the version and downloads the corresponding immutable `/releases/<version>/greedy-growers.luau`. Updating the manifest selects a new release without changing the user command or loader. Source paths remain immutable; publish changed client bytes under a new version. `docs/release-4.3.92.json` records the current release hashes. HTTPS provides transport authentication; the loader does not independently verify that SHA-256 hash in the game environment.
+The saved launch command has no version. The stable loader reads `/scripts/version.json` without using account credentials, validates the version and downloads the corresponding immutable `/releases/<version>/greedy-growers.luau`. Updating the manifest selects a new release without changing the user command or loader. Source paths remain immutable; publish changed client bytes under a new version. `docs/release-4.3.93.json` records the current release hashes. HTTPS provides transport authentication; the loader does not independently verify that SHA-256 hash in the game environment.
 
 ## Settings migration
 

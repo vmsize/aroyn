@@ -1,3 +1,17 @@
+# Release and source status
+
+## Current observation — 2026-10-12
+
+The public manifest selects Hub **4.3.96**; exact immutable artifact size/SHA256 and publication state were independently checked. This source package includes Hub **4.3.96** and standalone UI Stable **v0.1.0** modules/build/tests with exact immutable rebuilds. The new docs site generator remains a separate project. See [product status](docs/product-status.md), [client release](docs/client-release.md) and [compatibility](docs/compatibility.md).
+
+Owner-reported native scope for exact 4.3.96: Windows/Potassium and Android/Delta. Final post-activation normal-loader owner smoke remained pending in the activation evidence. Independent HTTP/compilation and local mocks do not replace that observation.
+
+The current public source's complete **40-suite** npm test gate passed locally during this audit. Local test success does not establish production capacity; the included dev-dependency update has fresh clean-install, regression and security-audit evidence. Hosted CI must be checked against the particular published commit; earlier green runs are not evidence for a later revision.
+
+## Historical status entries (unaltered below)
+
+The following entries describe their original versions/dates. Statements such as “current”, “staging” and “pending” belong to those historical snapshots. They are not fresh verification of the latest runtime.
+
 ## Mobile dashboard navigation — 4.3.95
 
 Connect dashboard scrolls MobilePages to the actual linking panel after opening Session. Nested offsets and existing scroll are accounted for; short content is clamped and late callbacks do not move another tab. Backend, domain configuration and stable loader are unchanged.

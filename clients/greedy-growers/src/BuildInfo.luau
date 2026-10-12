@@ -1,0 +1,1 @@
+return {Namespace="greedy-growers",StorageRoot="AroynHub",CredentialPath="AroynHub/GreedyGrowers/web_config.json",AssetRoot="AroynHub/ui-assets",RuntimeId="__AROYN_HUB_GREEDY",StartupId="__AROYN_HUB_STARTUP",DisplayVersion="Version 4.3.96",Phase="11C.1-mobile-sidebar-polish",BaselineVersion="4.3.95",ClientVersion="4.3.96",Channel="release-candidate",Flavor="production"}

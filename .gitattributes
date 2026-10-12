@@ -1,0 +1,8 @@
+# Readable immutable artifacts and byte-locked Luau modules must survive checkout.
+*.luau -text
+*.lua -text
+*.png -text
+*.zip -text
+libraries/ui/BRAND_NOTICE.md -text
+libraries/ui/LICENSE -text
+apps/dashboard/scripts/version.json -text

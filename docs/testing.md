@@ -1,3 +1,41 @@
+# Testing: current entry point
+
+Use Node.js **24** from the repository root:
+
+```sh
+npm ci --ignore-scripts
+npm test
+```
+
+The current test runner selects **40 suites**. The public source gate passed locally on Windows/Node 24 during the 2026-10-12 audit. Do not infer a current total from the older group counts below. Mocked HTTP/game functions, LinkeDOM focus modeling, native local Miniflare stores/DOs and real browser tests are distinct evidence.
+
+Root tests need no Cloudflare account or user secrets; `tests/runtime.mjs` refuses non-mock mode. npm installation and pinned Luau CLI acquisition can require network access. Downloaded CLI archive checksums are enforced. For optional larger synthetic stores use `npm run test:capacity` or `npm run test:account-capacity`; those are not production quota measurements.
+
+CI remains `npm ci --ignore-scripts` then `npm test` on Linux/Node 24, with a read-only repository token. Check the actual commit/run in [GitHub Actions](https://github.com/vmsize/aroyn/actions/workflows/checks.yml). A new local proposal passing tests does not mean hosted CI has run for it.
+
+The pinned dev-only Miniflare/sharp dependency remediation is included and passed a fresh clean install, complete root test gate and npm audit (zero reported vulnerabilities). Native Hub approval applies to exact bytes and named platforms only. A library mock test is not a native mobile test.
+
+The legacy Dashboard-scroll, compact-Pets and mobile-touch extraction checks explicitly target preserved 4.3.95 GUI code. Current 4.3.96 has a different layout architecture and is tested by its genuine Hub source harness below. Other root runtime/backend checks still execute their real selected functions; immutable historical hashes are not regenerated.
+
+## Current Hub and UI source gates
+
+Use Python 3.12+ and Node.js 24. From the repository root:
+
+```sh
+python clients/greedy-growers/tools/build.py --output .build/hub
+python libraries/ui/tools/build.py --output .build/ui
+python clients/greedy-growers/tests/run.py
+python libraries/ui/tests/run.py
+```
+
+Build into fresh empty output directories; rerun with another output to check repeatability. Each builder requires equality with its immutable published artifact and compiles with the pinned official Luau 0.740 CLI. The optional `LUAU_BIN_DIR` is an explicit developer override and is not a pinned-tool verification.
+
+Hub tests exercise actual frozen modules with deterministic game/executor/service doubles: startup, cancellation, repeated execution, preferences, reconnect intent, bounded assets, mobile rendering policy, sidebar and responsive geometry. UI runs the same 76 core cases against authored source and Stable, plus nine standalone distribution cases and configuration/cleanup examples. The separate Luau GitHub workflow runs these commands without credentials or deployment steps. No tests in these commands connect to Roblox or certify physical touch/rendering. Asset generator regeneration optionally requires Pillow; normal builds use checked-in, byte-locked assets and need no Pillow.
+
+## Historical verification notes (unaltered below)
+
+These original records retain their dates, source identities and test scopes. Older “current/default” counts are not the count of today's runner.
+
 # Reproducible checks
 
 Use Node.js 24 and run from the repository root:

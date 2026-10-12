@@ -2,6 +2,8 @@
 
 The Aroyn name and previous Veyra name are project identifiers, separate from the MIT software license. The dashboard uses `apps/dashboard/assets/aroyn-mark.png`, a transparent mark supplied by the project owner. On 2026-10-01 the owner authorized including it in the public source package after reviewing the distinction between code licensing and brand use. `apps/dashboard/assets/aroyn-placeholder.svg` remains an unused temporary fallback.
 
+The same unchanged supplied mark is included in the current Hub and standalone UI source projects and their existing immutable distributions. Those inclusions retain the permissions and limitations below. Project-authored navigation symbols have separate provenance in [docs/source-provenance.md](docs/source-provenance.md).
+
 ## Permission for the supplied mark
 
 To the extent of the rights held by the project maintainer, permission is granted to copy and redistribute the unchanged supplied mark as part of this source package, including repository forks, with this notice retained. It may also be displayed to truthfully identify Aroyn in reviews, videos, documentation and links to the project. Resizing without otherwise altering its design is permitted.

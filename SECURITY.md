@@ -1,6 +1,6 @@
 # Security
 
-This initial source publication has been exercised on restricted staging. Do not include credentials, user records, payload data, or production configuration values in issues or proposed changes.
+This repository contains public source plus historical verification records; hosted frontend/client versions may differ. See [current product status](docs/product-status.md). Local synthetic tests and previously reported native/cloud checks do not establish universal security or platform compatibility. Do not include credentials, user records, payload data, or production configuration values in issues or proposed changes.
 
 To report a vulnerability privately, send a direct message to **septave** on Discord. Describe the affected component, how to reproduce the problem, and its potential impact. Do not post exploit details publicly before the maintainer has had time to review them. Never send real user records, tokens, or production credentials; use a redacted example instead.
 

@@ -1,3 +1,29 @@
+# Aroyn Hub releases
+
+## Hosted 4.3.96 — current observation 2026-10-12
+
+The public manifest now selects **4.3.96**, independently verified after the completed Stage B activation. [Immutable source](https://aroyn.xyz/releases/4.3.96/greedy-growers.luau): **836402 bytes**, SHA256 `f72f5bc0180c7fc9c7b92027f4a24a3adcbbc68713ae2fe44973b6974b1cf97e`. The exact artifact is checked in alongside historical releases; [modular source and a portable builder](../clients/greedy-growers/README.md) reproduce it byte-for-byte. [Provenance and notices](source-provenance.md) apply separately to software and assets.
+
+4.3.96 provides the custom native UI, eight pages, responsive desktop/mobile geometry, startup fade/morph, named preference AutoSave, previous-profile recovery and confirmed Dashboard reconnect intent. Gameplay automation starts off and stays off during profile restore; a remote connection is optional. Dashboard linking is in **Settings**, rather than the older Session panel.
+
+Owner-reported native validation of the exact artifact: **Windows/Potassium and Android/Delta**, including gameplay, GUI, AutoSave and Dashboard reconnect. Compilation/hash checks were independent; the final normal-loader owner smoke after pointer activation remained pending. Standalone UI v0.1.0 retains its separate Windows PC/Potassium support boundary.
+
+The executable retains internal RC/build metadata and an old unpublished-candidate comment. These approved frozen bytes were deliberately not edited for publication. Manifest selection and immutable file availability establish the actual hosted state.
+
+HTTP fallback cadence under degraded WS/ACK conditions and capacity uncertainty remain accepted limitations. A short health check is not a long-term request/storage-budget proof. On downgrade, legacy 4.3.95 may restore saved automation ON and cannot automatically reverse-migrate the new profiles. Preserve backups and close the active client before deliberate downgrade.
+
+Regular command:
+
+```luau
+loadstring(game:HttpGet("https://aroyn.xyz/scripts/loader.luau"))()
+```
+
+The loader uses a validated manifest version, checks size and HTML fallback, and does not verify SHA256 natively. [Release verification](release-verification.md) and [product/source boundaries](product-status.md).
+
+## Historical repository release notes (retained)
+
+The following original 4.3.95-and-earlier text describes its original source/verification state. Its “current” labels and platform gaps remain historical. Its instructions for combined future publication do not override the separately verified 4.3.96 artifact-first/pointer-later rollout.
+
 # Aroyn Hub 4.3.95
 
 The readable client and stable loader are included under `apps/dashboard`. Original code uses the repository's MIT license; embedded brand assets have separate terms.

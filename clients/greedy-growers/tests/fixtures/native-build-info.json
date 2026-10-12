@@ -1,0 +1,14 @@
+{
+  "Namespace": "greedy-growers-native",
+  "StorageRoot": "AroynHubVerification",
+  "CredentialPath": "AroynHubVerification/GreedyGrowers/web_config.json",
+  "AssetRoot": "AroynHubVerification/ui-assets",
+  "RuntimeId": "__AROYN_HUB_GREEDY_NATIVE",
+  "StartupId": "__AROYN_HUB_STARTUP_NATIVE",
+  "DisplayVersion": "4.3.96 · Native verification",
+  "Phase": "11C.1-mobile-sidebar-polish",
+  "BaselineVersion": "4.3.95",
+  "ClientVersion": "4.3.96",
+  "Channel": "release-candidate",
+  "Flavor": "native"
+}

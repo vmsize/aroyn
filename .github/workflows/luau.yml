@@ -1,0 +1,20 @@
+name: Luau source and immutable reproduction
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python clients/greedy-growers/tools/build.py --output "$RUNNER_TEMP/hub-rebuild"
+      - run: python libraries/ui/tools/build.py --output "$RUNNER_TEMP/ui-rebuild"
+      - run: python clients/greedy-growers/tests/run.py
+      - run: python libraries/ui/tests/run.py

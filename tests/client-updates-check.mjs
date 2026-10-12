@@ -6,7 +6,8 @@ import {spawnSync} from 'node:child_process';
 import {luauTestRuntime} from '../tools/luau-test-runtime.mjs';
 const loader=await fs.readFile(new URL('../apps/dashboard/scripts/loader.luau',import.meta.url),'utf8');
 const client=(await fs.readFile(new URL('../apps/dashboard/releases/4.3.95/greedy-growers.luau',import.meta.url),'utf8')).replaceAll('\r\n','\n');
-const manifest=JSON.parse(await fs.readFile(new URL('../apps/dashboard/scripts/version.json',import.meta.url),'utf8'));assert.equal(manifest.version,'4.3.95');assert.equal(manifest.gameId,10440833423);
+const manifest=JSON.parse(await fs.readFile(new URL('../apps/dashboard/scripts/version.json',import.meta.url),'utf8'));assert.equal(manifest.version,'4.3.96'); // Current source snapshot; the legacy 4.3.95 update methods below remain tested.
+assert.equal(manifest.gameId,10440833423);
 const update=client.slice(client.indexOf('function AroynWeb.IsRemoteVersionNewer'),client.indexOf('function AroynWeb.StartUpdateWatch'));
 const indicator=client.slice(client.indexOf('    ui.RefreshUpdateStatus = function()'),client.indexOf('    ui.RefreshHeader = function()',client.indexOf('    ui.RefreshUpdateStatus = function()')));
 assert(client.includes('updateManifestUrl = "https://aroyn.xyz/scripts/version.json"'));assert(!client.includes('Update checks are disabled in this staging test.'));

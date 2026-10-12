@@ -1,0 +1,48 @@
+{
+  "apiVersion": "unversioned-approved-core",
+  "artifact": "Aroyn.lua",
+  "assets": [
+    {
+      "dimensions": [
+        896,
+        128
+      ],
+      "field": "IconAtlas",
+      "sha256": "37df1077953b470f527c87e0e78697e90b5aa81eb326ae538841d857f8acce5d"
+    },
+    {
+      "dimensions": [
+        256,
+        256
+      ],
+      "field": "Logo",
+      "sha256": "8b03a7b8c10780fd09c2fcf78253a2a071e6056834d87473e36612b1682e9633"
+    }
+  ],
+  "build": {
+    "builderRevision": "10B-owner-approved-stable",
+    "deterministic": true,
+    "format": "embedded-native-luau",
+    "moduleOrder": [
+      "core",
+      "assets",
+      "entry"
+    ],
+    "syntax": "Luau compile passed"
+  },
+  "bytes": 232227,
+  "channel": "stable",
+  "channels": {
+    "latest": null,
+    "stable": [
+      "0.1.0"
+    ]
+  },
+  "coreBaselineSHA256": "0e40ccee502d175866f0a5070591c6ed07576df1441437b85017076a5ec452ac",
+  "coreSHA256": "bfac3be339f13c7e86e0933e679e65826a3ebf0a60cc6f688ba7c15f26b83320",
+  "endpoint": "https://lib.aroyn.xyz/stable/0.1.0/Aroyn.lua",
+  "library": "aroyn-ui",
+  "publicReleaseApproved": true,
+  "sha256": "afc4a8ff0f91e64ef4d99fc60e4a23b5c9e33e407051d40a37328c4c8c70689a",
+  "version": "0.1.0"
+}

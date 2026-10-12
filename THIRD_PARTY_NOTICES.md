@@ -10,6 +10,10 @@ The homepage's dashboard screenshot is a local example using only illustrative a
 
 The readable Luau release carries the logo and navigation image strip embedded in the owner-supplied original client. The logo is covered by BRAND_ASSETS.md, separately from MIT code. The navigation strip was retained from the supplied client; no separately sourced icon-library files or external renderer were added. Its original upstream provenance was not independently established. Roblox platform assets referenced by asset ID are served by Roblox and are not redistributed as local image files.
 
+## Current Hub and standalone UI atlases
+
+The published Hub 4.3.96 and UI v0.1.0 sources use project-authored navigation atlases with checked-in generators, not the unresolved legacy strip described above. Their supplied mark remains subject to BRAND_ASSETS.md. See [source provenance](docs/source-provenance.md) for source identities, atlas derivation and exact-release rebuild boundaries. Existing historical release bytes and attribution limitations are preserved.
+
 ## Development dependencies
 
 The synthetic harness uses Miniflare, esbuild, ws and LinkeDOM as npm development dependencies; their upstream licenses remain applicable. They are not bundled into the browser site or Luau client. The exact graph is recorded in package-lock.json.

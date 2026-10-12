@@ -15,3 +15,8 @@ dist/
 .private/
 tests/*-results.json
 tests/security-*-results.json
+
+# Local component builds/tests never form a deployment or new release.
+.build/
+__pycache__/
+*.pyc

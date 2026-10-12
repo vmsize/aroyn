@@ -1,10 +1,12 @@
 # Local setup
 
-## Requirements
+## Choose a development path
 
-- Node.js for the dashboard preview and Cloudflare Wrangler.
-- Your own Cloudflare account with D1 and R2 resources for backend development.
-- Your own Discord OAuth application for sign-in.
+- **Static frontend:** `npm run dev` in `apps/dashboard`, Node server on 127.0.0.1:4173. No package install or Cloudflare account needed.
+- **Synthetic API/Live integration:** root `npm ci --ignore-scripts` then `npm test`, Node.js 24. The shared Miniflare harness provisions fake local data and mocked external services; no credentials or production account needed.
+- **Independent account service:** your own Discord OAuth application and coordinated Worker configuration, D1/R2/DO resources and signing secrets. Full interactive self-hosting has additional topology work; the two-process health preview alone is not that verification.
+
+Do not use production profiles or credentials to bootstrap contributor fixtures.
 
 ## Configuration
 
@@ -30,9 +32,9 @@ For an account-data-only local test, from `workers/api` run `npx wrangler dev -c
 
 After installing the API Worker dependencies, run `npx wrangler d1 migrations apply aroyn-example --local --persist-to ../../.wrangler/local-shared` from `workers/api`, replacing `aroyn-example` with the `database_name` in your copied config. Both Workers must use that same persistence directory so account and runtime records are shared locally. The migration is a schema-only snapshot: it contains no production rows or secret values. The `veyra_*` columns are retained for compatibility with current Worker code. This local command does not change the production D1 database.
 
-1. In `workers/api`: `npm install`, apply the local D1 migration above, then `npx wrangler dev --port 8787 --persist-to ../../.wrangler/local-shared`.
-2. In `workers/live`: `npm install`, then `npx wrangler dev --port 8788 --persist-to ../../.wrangler/local-shared`.
-3. In `apps/dashboard`: `npm run dev`, then open `http://127.0.0.1:4173`.
+The independently started API/live commands are only a **basic health-preview path**. They do not verify the cross-Worker STATS_CACHE binding. For coordinated synthetic integration use root `npm test`; for an account-data-only multi-Worker dev session use the primary-Worker command above. A reusable launcher exposing both full dashboard endpoints is still planned.
+
+Run `npm run dev` in `apps/dashboard` to view the static frontend at `http://127.0.0.1:4173`.
 
 Check the local services at `http://127.0.0.1:8787/api/v1/health` and `http://127.0.0.1:8788/health`. The dashboard preview and both Worker health routes were tested locally. Private local harnesses exercised Discord sign-in, logout/sign-in, dashboard-key linking, HTTP snapshots, WebSocket acknowledgements, security controls and persistence on synthetic data. A separate restricted cloud deployment subsequently passed real owner sign-in, telemetry, export/deletion and terminal runtime WebSocket closure after key rotation. The compatible 4.3.80 client and synthetic harness are included; real-account probe credentials are excluded. Provisioning in a different account, additional revocation scenarios and larger loads still need verification. The first presence report accepts unverified caller-claimed Roblox IDs. See [backend review](security-review.md). Legacy v1 runtime defaults to disabled; explicitly setting `ALLOW_LEGACY_RUNTIME=true` also requires registered keys. Clients must request fresh live tokens after the credential-binding change. Complete resource ownership, secrets and deployment review before running `wrangler deploy`.
 

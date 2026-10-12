@@ -4,7 +4,8 @@ import path from 'node:path';
 import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
 import {luauTestRuntime} from '../tools/luau-test-runtime.mjs';
-const manifest=JSON.parse(await fs.readFile(new URL('../apps/dashboard/scripts/version.json',import.meta.url),'utf8'));
+// Historical 4.3.95 GUI architecture; current 4.3.96 is covered by clients/greedy-growers/tests/run.py.
+const manifest={version:'4.3.95'};
 const source=await fs.readFile(new URL(`../apps/dashboard/releases/${manifest.version}/greedy-growers.luau`,import.meta.url),'utf8');
 const geometry=source.slice(source.indexOf('function ui.PetFeedLayout('),source.indexOf('function ui.BuildPetFeedPage('));
 assert(geometry.includes('function ui.ApplyPetFeedLayout('));

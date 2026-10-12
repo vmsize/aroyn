@@ -4,7 +4,8 @@ import os from 'node:os';
 import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
 import {luauTestRuntime} from '../tools/luau-test-runtime.mjs';
-const m=JSON.parse(await fs.readFile(new URL('../apps/dashboard/scripts/version.json',import.meta.url),'utf8'));
+// Historical 4.3.95 GUI architecture; current 4.3.96 is covered by clients/greedy-growers/tests/run.py.
+const m={version:'4.3.95'};
 const source=(await fs.readFile(new URL(`../apps/dashboard/releases/${m.version}/greedy-growers.luau`,import.meta.url),'utf8')).replaceAll('\r\n','\n');
 function section(a,b){const start=source.indexOf(a),end=source.indexOf(b,start);assert(start>=0&&end>start);return source.slice(start,end)}
 const popup=section('    R.popupLayer = new("Frame", {','    local function popupFrame(');

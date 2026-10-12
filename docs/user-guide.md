@@ -1,21 +1,41 @@
 # Using Aroyn
 
-The public home page can be opened without signing in. Its dashboard screenshot uses illustrative data. All dashboard sections require sign-in. Choose **Open dashboard → Sign in with Discord**, then open **Runtime**. After signing in, generate a dashboard key from the account/avatar menu if one does not already exist.
+Open [aroyn.xyz](https://aroyn.xyz/) without signing in. Its dashboard preview is illustrative. Choose **Open dashboard → Sign in with Discord** to access your account; private runtime data requires your own authorization.
 
-In Aroyn Hub, open **Session** and enter that dashboard key to link the running client. Return to **Dashboard → Runtime** to view the connection state and live telemetry. Other dashboard sections show activity, inventory, statistics, configuration, and modules when corresponding data is available.
+## Hub 4.3.96
 
-Treat the dashboard key like a password. Do not post it in issues, screenshots, or chat. If the dashboard remains disconnected, check that the client is running, the key was entered correctly, and the API and live Worker addresses match the deployment you are using.
+The public manifest was independently checked as selecting **4.3.96** on 2026-10-12. The regular launch command is:
 
-Aroyn is the new name for the former Veyra Hub. The legacy loader shows the migration notice.
+```luau
+loadstring(game:HttpGet("https://aroyn.xyz/scripts/loader.luau"))()
+```
 
-Open your avatar menu → **Account data** to download your account's data or delete the Aroyn account. Deletion requires a Discord sign-in within the last 15 minutes and typing `DELETE`; it revokes every Aroyn session/key. It does not delete your Discord or Roblox accounts. History expires after 30 days without updates, snapshots after 7 days; cleanup runs daily. See [data scope and limits](account-data.md).
+This executes downloaded Luau in a compatible Greedy Growers environment. Read the source; the website does not run scripts in your browser. The owner tested the exact immutable 4.3.96 file on Windows/Potassium and Android/Delta. See [release identity and limitations](client-release.md) and [compatibility](compatibility.md).
 
-This source package includes the readable Roblox client and stable loader. The steps above describe the existing product interface; they do not make the static dashboard preview alone a working live service. For running your own backend, see [local setup](setup.md).
+The custom interface provides eight navigation pages. Seed buying, collection, compost, market and pet feeding start only when you intentionally enable their controls. Automation remains off during startup and preference/profile restoration.
 
-## Updated client launch
+## Connect the Dashboard
 
-The [homepage](https://aroyn-staging.pages.dev/) provides **Copy launch script** and a manual **View launch command** fallback. It copies a command without executing it in the browser. See [client release](client-release.md) for compatible game, endpoints and migration. The [status page](https://aroyn-staging.pages.dev/status/) checks only HTTP availability. Owner analytics uses `/admin/` and server authorization. Public beta sign-in is open through Discord; account data remains private.
+1. Sign in to the web Dashboard with Discord. Generate/view your dashboard key from the account/avatar UI when needed.
+2. In Hub **4.3.96**, open **Settings → Dashboard and preferences**. Enter the key and choose **Link**. The credential is saved separately from preferences.
+3. Use **Auto-connect Dashboard** to permit reconnection of a saved link on later launches. Optional connection failure does not prevent the local Hub from opening.
+4. View **Dashboard → Runtime**; other sections show inventory, activity, statistics and supported fields when the running client supplies them.
+5. **Disconnect** stops the current connection and reconnect intent. **Unlink** removes the saved link; do not confuse ordinary window teardown with explicit unlinking.
 
-## Mobile screens and pet feeding
+Older 4.3.95 puts the linking controls in **Session**. Existing published Hub docs may still describe that layout; use the version-specific instructions above for 4.3.96.
 
-Version 4.3.90 uses scrolling tabs and a single-column layout on small screens. In **Pets**, enable **Auto Feed** to start below 25% hunger and stop at 80%. It uses the cheapest eligible inventory or own-plot fruit, skipping favorites and locked/waxed fruit. **Max fruit value** sets a price cap; 0 means no cap. Feeding defaults off. See [behavior and verification](mobile-pet-feeding.md).
+Treat the key as a password. Never expose it in screenshots, reports, issues or chat. If reconnect fails, check the saved link, Auto-connect setting and matching service configuration; do not share the key to diagnose it.
+
+## Preferences, recovery and updates
+
+Preferences use named profiles and AutoSave when local file capabilities are available. AutoSave can be disabled in Settings. A successful saved profile retains a previous recovery copy; **Restore previous saved profile** is an explicit action. Invalid/corrupt records are reported instead of trusted. Filesystem failures may leave session-only behavior; this is not a guarantee against every interrupted write.
+
+Loading preferences does not enable automation. Keep recovery files when diagnosing a problem. Deliberate downgrade to 4.3.95 has different legacy restore behavior and can restore automation ON; close the active client and check toggles after downgrading.
+
+Rerun the same normal loader to download the manifest-selected release. A manifest change does not replace an already running client. The loader checks size/HTML fallback, not the published SHA256 inside Roblox. See [release verification](release-verification.md).
+
+## Account data
+
+Avatar menu → **Account data** supports export and account deletion. Deletion requires a recent Discord sign-in and typing `DELETE`; it revokes Aroyn sessions/keys, not your Discord or Roblox accounts. Documented retention is 30 days for history and 7 days for snapshots without updates. See [scope and operational limits](account-data.md).
+
+Aroyn is the renamed Veyra Hub; legacy technical names remain for compatibility. The static preview alone does not provide a working account/telemetry service. For your own setup, use [local development](setup.md). The [status page](https://aroyn.xyz/status/) checks HTTP availability rather than end-to-end account or gameplay behavior.

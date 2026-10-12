@@ -1,0 +1,53 @@
+{
+  "version": "0.1.0",
+  "coreSHA256": "bfac3be339f13c7e86e0933e679e65826a3ebf0a60cc6f688ba7c15f26b83320",
+  "expectedBytes": 232227,
+  "expectedSHA256": "afc4a8ff0f91e64ef4d99fc60e4a23b5c9e33e407051d40a37328c4c8c70689a",
+  "moduleOrder": [
+    "core",
+    "assets",
+    "entry"
+  ],
+  "assets": [
+    {
+      "path": "assets/navigation.png",
+      "field": "IconAtlas",
+      "dimensions": [
+        896,
+        128
+      ],
+      "sha256": "37df1077953b470f527c87e0e78697e90b5aa81eb326ae538841d857f8acce5d"
+    },
+    {
+      "path": "assets/logo.png",
+      "field": "Logo",
+      "dimensions": [
+        256,
+        256
+      ],
+      "sha256": "8b03a7b8c10780fd09c2fcf78253a2a071e6056834d87473e36612b1682e9633"
+    }
+  ],
+  "sources": {
+    "src/Aroyn.luau": {
+      "size": 163250,
+      "sha256": "bfac3be339f13c7e86e0933e679e65826a3ebf0a60cc6f688ba7c15f26b83320"
+    },
+    "src/Assets.luau": {
+      "size": 3239,
+      "sha256": "12f72d75e858b7a5ab4025955295d7e03d5a6a6a0e03ec7c882008175839bf95"
+    },
+    "src/Entry.luau": {
+      "size": 438,
+      "sha256": "5adc4d8d7ec24de875cea1cd50b4d1721be8145264ac18d75f3689459d40e8d9"
+    },
+    "LICENSE": {
+      "size": 1063,
+      "sha256": "8114a4a0fbd8f44dbc6f662fc5f865783ae677fad903347008d40c35a338c55c"
+    },
+    "BRAND_NOTICE.md": {
+      "size": 1294,
+      "sha256": "c094570d387d63f39f13ade13eabe6b8af008622533437a7e02fae0f6a47dbaa"
+    }
+  }
+}

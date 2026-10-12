@@ -8,8 +8,10 @@ import {luauTestRuntime} from '../tools/luau-test-runtime.mjs';
 const manifest=JSON.parse(await fs.readFile(new URL('../apps/dashboard/scripts/version.json',import.meta.url),'utf8'));
 const file=process.argv[2]||new URL(`../apps/dashboard/releases/${manifest.version}/greedy-growers.luau`,import.meta.url);
 const bytes=await fs.readFile(file),source=bytes.toString('utf8').replaceAll('\r\n','\n');
+const modular=source.startsWith('-- Aroyn Hub 4.3.96 production candidate;');
+if(modular)assert.equal(crypto.createHash('sha256').update(bytes).digest('hex'),'f72f5bc0180c7fc9c7b92027f4a24a3adcbbc68713ae2fe44973b6974b1cf97e');
 function section(a,b){const start=source.indexOf(a),end=source.indexOf(b,start);assert(start>=0&&end>start);return source.slice(start,end)}
-const actual=section('-- Defined before settings loading;','local function loadSettings()')+section('function FarmRuntime.featureOperationToken(','function FarmRuntime.beginCompostTeleport(')+section('-- Pet feeding uses observed','ui.CreateWindowShell = function(ctx)');
+const actual=section('-- Defined before settings loading;','local function loadSettings()')+section('function FarmRuntime.featureOperationToken(','function FarmRuntime.beginCompostTeleport(')+section('-- Pet feeding uses observed',modular?'-- Game-specific controller bridge;':'ui.CreateWindowShell = function(ctx)');
 const harness=String.raw`
 local state,FarmRuntime,CompostRuntime,GameState,ownPlot,claimedFruits,queuedFruits,LocalPlayer
 local now,workers,mode,sends,equips,collects,data,marker,fruit,prompt,stage
@@ -129,7 +131,7 @@ reset('unit');local token={claimedFruit=fruit};claimedFruits[fruit]=token;FarmRu
 `;
 const dir=await fs.mkdtemp(path.join(os.tmpdir(),'aroyn-pet-feed-')),probe=path.join(dir,'check.luau');await fs.writeFile(probe,harness);
 const rt=await luauTestRuntime();
-const embedded=source.match(/local __fa_source\s*=\s*\[===========\[([\s\S]*?)\]===========\]/);assert(embedded,'embedded client missing');assert(bytes.length<=900000,'stable loader byte limit');
+const embedded=modular?[null,await fs.readFile(new URL('../clients/greedy-growers/src/GreedyRuntime.luau',import.meta.url),'utf8')]:source.match(/local __fa_source\s*=\s*\[===========\[([\s\S]*?)\]===========\]/);assert(embedded,'embedded client missing');assert(bytes.length<=900000,'stable loader byte limit');
 for(const [name,text] of [['client',source],['embedded',embedded[1]],['check',harness]]){
  const target=path.join(dir,name+'.luau');await fs.writeFile(target,text);const c=spawnSync(rt.compiler,['--null',target],{encoding:'utf8'});assert.equal(c.status,0,c.stderr);
 }

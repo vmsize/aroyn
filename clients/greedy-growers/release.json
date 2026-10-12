@@ -1,0 +1,59 @@
+{
+  "version": "4.3.96",
+  "metadata": {
+    "Namespace": "greedy-growers",
+    "StorageRoot": "AroynHub",
+    "CredentialPath": "AroynHub/GreedyGrowers/web_config.json",
+    "AssetRoot": "AroynHub/ui-assets",
+    "RuntimeId": "__AROYN_HUB_GREEDY",
+    "StartupId": "__AROYN_HUB_STARTUP",
+    "DisplayVersion": "Version 4.3.96",
+    "Phase": "11C.1-mobile-sidebar-polish",
+    "BaselineVersion": "4.3.95",
+    "ClientVersion": "4.3.96",
+    "Channel": "release-candidate",
+    "Flavor": "production"
+  },
+  "expectedBytes": 836402,
+  "expectedSHA256": "f72f5bc0180c7fc9c7b92027f4a24a3adcbbc68713ae2fe44973b6974b1cf97e",
+  "artifact": "../../apps/dashboard/releases/4.3.96/greedy-growers.luau",
+  "sources": {
+    "Aroyn.luau": {
+      "size": 163250,
+      "sha256": "0e40ccee502d175866f0a5070591c6ed07576df1441437b85017076a5ec452ac"
+    },
+    "Assets.luau": {
+      "size": 161294,
+      "sha256": "c6b890a0883a7d2d7156b3d1801ee5681b2a330f33219443f30cd1928e22dc4d"
+    },
+    "Bridge.luau": {
+      "size": 10397,
+      "sha256": "66d561bc6ca0eb45adef940a55e7bca3f314707165239d4b58e3ee5290e04ecf"
+    },
+    "BuildInfo.luau": {
+      "size": 374,
+      "sha256": "97d4b04418aaacdd6e8c917d7802ba275bb983561e8c8aa886a04e90fc22bf4c"
+    },
+    "Dashboard.luau": {
+      "size": 10952,
+      "sha256": "27f0665a97df07fde0f43bc7fef2aefc3306e87d9970c26aaae3b6a6c3c8a94a"
+    },
+    "GameUI.luau": {
+      "size": 44388,
+      "sha256": "08ad8e9c72fc7977d7456eeb3ac5aee4a25929cf2af7f770b397bf54fed4f153"
+    },
+    "GreedyRuntime.luau": {
+      "size": 425888,
+      "sha256": "27865d90e2ea611e13ae5b9ff42ef72679efd0903fef533eb4b6bfe58c9cd2be"
+    },
+    "Startup.luau": {
+      "size": 32029,
+      "sha256": "864e629add97a7cdaa04319286eac49d286d1f35098767a4e8f39ca11fb25f1f"
+    },
+    "Storage.luau": {
+      "size": 10008,
+      "sha256": "c9e29f814e0ecdac57aa627ca57180b338b54ce402f2bc1b9886edc7c6a3cf18"
+    }
+  },
+  "banner": "-- Aroyn Hub 4.3.96 production candidate; NOT published.\n-- Automation starts OFF; Dashboard resumes only confirmed persistent intent.\n"
+}

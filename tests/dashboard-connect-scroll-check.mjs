@@ -4,7 +4,8 @@ import path from 'node:path';
 import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
 import {luauTestRuntime} from '../tools/luau-test-runtime.mjs';
-const manifest=JSON.parse(await fs.readFile(new URL('../apps/dashboard/scripts/version.json',import.meta.url),'utf8'));
+// Historical 4.3.95 GUI architecture; current 4.3.96 is covered by clients/greedy-growers/tests/run.py.
+const manifest={version:'4.3.95'};
 const source=await fs.readFile(new URL(`../apps/dashboard/releases/${manifest.version}/greedy-growers.luau`,import.meta.url),'utf8');
 const a=source.indexOf('function ui.ScrollToDashboardConnect('),b=source.indexOf('function ui.InstallResponsive(',a);assert(a>=0&&b>a);
 const handlerA=source.indexOf('    addConnection(R.connectDashboardButton.MouseButton1Click:Connect(function()');
